@@ -61,7 +61,7 @@ def props = new Properties()
 file(minePropertyFile).withInputStream { props.load(it) }
 
 webappConfig {
-    mineName = "camCHILDMine"
+    mineName = "cadremine"
     objectStoreName = "os.production"
     userProfileObjectStoreName = "os.userprofile-production"
     userProfileObjectStoreWriterName = "osw.userprofile-production"

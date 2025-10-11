@@ -1,4 +1,4 @@
-rootProject.name = 'camCHILDMine'
+rootProject.name = 'cadremine'
 
 include ':dbmodel',':webapp'
 

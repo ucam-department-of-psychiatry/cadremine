@@ -11,7 +11,7 @@ buildscript {
 
 ext {
   mineRelease = project.hasProperty('release') ? "." + release : ''
-  mineName = "camCHILDMine"
+  mineName = "cadremine"
   minePropertyFileName = "${mineName}.properties$mineRelease"
   minePropertyFile = "${System.env.HOME}/.intermine/$minePropertyFileName"
   println "Using properties file: '$minePropertyFile'"
@@ -23,7 +23,7 @@ subprojects {
 
   sourceCompatibility = 1.8
   targetCompatibility = 1.8
-  
+
   repositories {
     mavenLocal()
     mavenCentral()
