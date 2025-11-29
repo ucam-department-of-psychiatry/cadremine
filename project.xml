@@ -1,52 +1,51 @@
 <project type="bio">
-<property name="target.model" value="genomic"/>
-<property name="common.os.prefix" value="common"/>
-<sources>
-  <source name="Demographics" type="delimited">
-    <property name="delimited.dataSourceName" value="Source1"/>
-    <property name="delimited.dataSetTitle" value="Demographics"/>
-    <property name="delimited.hasHeader" value="false"/>
-    <property name="delimited.separator" value="tab"/>
-    <property name="src.data.dir" location="data"/>
-    <property name="delimited.includes" value="demographics.tsv"/>
-    <property name="delimited.columns" value ="Patient.patientId,
-    Patient.site,
-    Patient.dateOfBirth,
-    Patient.ageIn22,
-    Patient.gender,
-    Patient.indexMultipleDeprivation,
-    Patient.ethnicity" />
-  </source>
-  <source name="HealthReferral" type="delimited">
-    <property name="delimited.dataSourceName" value="Source2"/>
-    <property name="delimited.dataSetTitle" value="HealthReferral"/>
-    <property name="delimited.hasHeader" value="false"/>
-    <property name="delimited.separator" value="tab"/>
-    <property name="src.data.dir" location="data"/>
-    <property name="delimited.includes" value="health_referral.tsv"/>
-    <property name="delimited.columns" value ="Patient.patientId,Referral.referralDate,Referral.teamReferredTo" />
-  </source>
-  <source name="HealthDiagnosis" type="delimited">
-    <property name="delimited.dataSourceName" value="Source3"/>
-    <property name="delimited.dataSetTitle" value="HealthDiagnosis"/>
-    <property name="delimited.hasHeader" value="false"/>
-    <property name="delimited.separator" value="tab"/>
-    <property name="src.data.dir" location="data"/>
-    <property name="delimited.includes" value="health_diagnosis.tsv"/>
-    <property name="delimited.columns" value ="Patient.patientId,
-    Diagnosis.code,
-    Diagnosis.name" />
-  </source>
-  <source name="SocialServices" type="delimited">
-    <property name="delimited.dataSourceName" value="Source4"/>
-    <property name="delimited.dataSetTitle" value="SocialServices"/>
-    <property name="delimited.hasHeader" value="false"/>
-    <property name="delimited.separator" value="tab"/>
-    <property name="src.data.dir" location="data"/>
-    <property name="delimited.includes" value="socialservices_flags.tsv"/>
-    <property name="delimited.columns" value ="Patient.patientId,
-    Patient.safeguardingAlert,
-    Patient.housingAlert" />
-  </source>
-</sources>
+  <property name="target.model" value="genomic"/>
+  <property name="common.os.prefix" value="common"/>
+  <sources>
+    <source name="person" type="delimited">
+      <property name="delimited.dataSourceName" value="person" />
+      <property name="delimited.dataSetTitle" value="Person" />
+      <property name="delimited.hasHeader" value="true" />
+      <property name="delimited.separator" value="comma" />
+      <property name="src.data.dir" location="data" />
+      <property name="delimited.includes" value="person.csv" />
+      <property name="delimited.columns" value="PERSON.person_id,PERSON.gender_concept_id,PERSON.year_of_birth,PERSON.month_of_birth,PERSON.day_of_birth,PERSON.birth_datetime,PERSON.race_concept_id,PERSON.ethnicity_concept_id,PERSON.location_id,PERSON.provider_id,PERSON.care_site_id,PERSON.person_source_value,PERSON.gender_source_value,PERSON.gender_source_concept_id,PERSON.race_source_value,PERSON.race_source_concept_id,PERSON.ethnicity_source_value,PERSON.ethnicity_source_concept_id" />
+    </source>
+    <source name="measurement" type="delimited">
+      <property name="delimited.dataSourceName" value="measurement" />
+      <property name="delimited.dataSetTitle" value="Measurement" />
+      <property name="delimited.hasHeader" value="true" />
+      <property name="delimited.separator" value="comma" />
+      <property name="src.data.dir" location="data" />
+      <property name="delimited.includes" value="measurement.csv" />
+      <property name="delimited.columns" value="MEASUREMENT.measurement_id,MEASUREMENT.person_id,MEASUREMENT.measurement_concept_id,MEASUREMENT.measurement_date,MEASUREMENT.measurement_datetime,MEASUREMENT.measurement_type_concept_id,MEASUREMENT.operator_concept_id,MEASUREMENT.value_as_number,MEASUREMENT.value_as_concept_id,MEASUREMENT.unit_concept_id,MEASUREMENT.range_low,MEASUREMENT.range_high,MEASUREMENT.provider_id,MEASUREMENT.visit_occurrence_id,MEASUREMENT.measurement_source_value,MEASUREMENT.measurement_source_concept_id,MEASUREMENT.unit_source_value,MEASUREMENT.value_source_value" />
+    </source>
+    <source name="procedure_occurrence" type="delimited">
+      <property name="delimited.dataSourceName" value="procedure_occurrence" />
+      <property name="delimited.dataSetTitle" value="Procedure occurrence" />
+      <property name="delimited.hasHeader" value="true" />
+      <property name="delimited.separator" value="comma" />
+      <property name="src.data.dir" location="data" />
+      <property name="delimited.includes" value="procedure_occurrence.csv" />
+      <property name="delimited.columns" value="PROCEDURE_OCCURRENCE.procedure_occurrence_id,PROCEDURE_OCCURRENCE.person_id,PROCEDURE_OCCURRENCE.procedure_concept_id,PROCEDURE_OCCURRENCE.procedure_date,PROCEDURE_OCCURRENCE.procedure_datetime,PROCEDURE_OCCURRENCE.procedure_type_concept_id,PROCEDURE_OCCURRENCE.modifier_concept_id,PROCEDURE_OCCURRENCE.quantity,PROCEDURE_OCCURRENCE.provider_id,PROCEDURE_OCCURRENCE.visit_occurrence_id,PROCEDURE_OCCURRENCE.procedure_source_value,PROCEDURE_OCCURRENCE.procedure_source_concept_id,PROCEDURE_OCCURRENCE.qualifier_source_value" />
+    </source>
+    <source name="observation" type="delimited">
+      <property name="delimited.dataSourceName" value="observation" />
+      <property name="delimited.dataSetTitle" value="Observation" />
+      <property name="delimited.hasHeader" value="true" />
+      <property name="delimited.separator" value="comma" />
+      <property name="src.data.dir" location="data" />
+      <property name="delimited.includes" value="observation.csv" />
+      <property name="delimited.columns" value="OBSERVATION.observation_id,OBSERVATION.person_id,OBSERVATION.observation_concept_id,OBSERVATION.observation_date,OBSERVATION.observation_datetime,OBSERVATION.observation_type_concept_id,OBSERVATION.value_as_number,OBSERVATION.value_as_string,OBSERVATION.value_as_concept_id,OBSERVATION.qualifier_concept_id,OBSERVATION.unit_concept_id,OBSERVATION.provider_id,OBSERVATION.visit_occurrence_id,OBSERVATION.observation_source_value,OBSERVATION.observation_source_concept_id,OBSERVATION.unit_source_value,OBSERVATION.qualifier_source_value" />
+    </source>
+    <source name="condition_occurrence" type="delimited">
+      <property name="delimited.dataSourceName" value="condition_occurrence" />
+      <property name="delimited.dataSetTitle" value="Condition occurrence" />
+      <property name="delimited.hasHeader" value="true" />
+      <property name="delimited.separator" value="comma" />
+      <property name="src.data.dir" location="data" />
+      <property name="delimited.includes" value="condition_occurrence.csv" />
+      <property name="delimited.columns" value="CONDITION_OCCURRENCE.condition_occurrence_id,CONDITION_OCCURRENCE.person_id,CONDITION_OCCURRENCE.condition_concept_id,CONDITION_OCCURRENCE.condition_start_date,CONDITION_OCCURRENCE.condition_start_datetime,CONDITION_OCCURRENCE.condition_end_date,CONDITION_OCCURRENCE.condition_end_datetime,CONDITION_OCCURRENCE.condition_type_concept_id,CONDITION_OCCURRENCE.stop_reason,CONDITION_OCCURRENCE.provider_id,CONDITION_OCCURRENCE.visit_occurrence_id,CONDITION_OCCURRENCE.condition_source_value,CONDITION_OCCURRENCE.condition_source_concept_id,CONDITION_OCCURRENCE.condition_status_source_value,CONDITION_OCCURRENCE.condition_status_concept_id" />
+    </source>
+  </sources>
 </project>
