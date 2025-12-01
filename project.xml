@@ -27,7 +27,7 @@
       <property name="delimited.separator" value="comma" />
       <property name="src.data.dir" location="data" />
       <property name="delimited.includes" value="procedure_occurrence.csv" />
-      <property name="delimited.columns" value="PROCEDURE_OCCURRENCE.procedure_occurrence_id,PROCEDURE_OCCURRENCE.person_id,PROCEDURE_OCCURRENCE.procedure_concept_id,PROCEDURE_OCCURRENCE.procedure_date,PROCEDURE_OCCURRENCE.procedure_datetime,PROCEDURE_OCCURRENCE.procedure_type_concept_id,PROCEDURE_OCCURRENCE.modifier_concept_id,PROCEDURE_OCCURRENCE.quantity,PROCEDURE_OCCURRENCE.provider_id,PROCEDURE_OCCURRENCE.visit_occurrence_id,PROCEDURE_OCCURRENCE.procedure_source_value,PROCEDURE_OCCURRENCE.procedure_source_concept_id,PROCEDURE_OCCURRENCE.qualifier_source_value" />
+      <property name="delimited.columns" value="PROCEDURE_OCCURRENCE.procedure_occurrence_id,PROCEDURE_OCCURRENCE.person_id,PROCEDURE_OCCURRENCE.procedure_concept_id,PROCEDURE_OCCURRENCE.procedure_date,PROCEDURE_OCCURRENCE.procedure_datetime,PROCEDURE_OCCURRENCE.procedure_type_concept_id,PROCEDURE_OCCURRENCE.modifier_concept_id,PROCEDURE_OCCURRENCE.quantity,PROCEDURE_OCCURRENCE.provider_id,PROCEDURE_OCCURRENCE.visit_occurrence_id,PROCEDURE_OCCURRENCE.procedure_source_value,PROCEDURE_OCCURRENCE.procedure_source_concept_id" />
     </source>
     <source name="observation" type="delimited">
       <property name="delimited.dataSourceName" value="observation" />
