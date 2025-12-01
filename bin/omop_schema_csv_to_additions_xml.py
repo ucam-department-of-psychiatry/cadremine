@@ -75,9 +75,6 @@ class Converter:
         self, class_name: str, attribute_name: str, datatype: str
     ) -> str:
         troublesome_fields = [
-            "MEASUREMENT.measurement_date",
-            "MEASUREMENT.measurement_datetime",
-            "PERSON.birth_datetime",
         ]
 
         if f"{class_name}.{attribute_name}" in troublesome_fields:
