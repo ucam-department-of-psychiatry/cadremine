@@ -2,10 +2,13 @@ buildscript {
     repositories {
         mavenLocal()
         mavenCentral()
+        maven {
+            url = uri("https://plugins.gradle.org/m2/")
+        }
     }
     dependencies {
         classpath group: 'org.intermine', name: 'plugin', version: System.getProperty("imVersion")
-        classpath 'com.bmuschko:gradle-cargo-plugin:2.8.0'
+        classpath 'com.bmuschko:gradle-cargo-plugin:2.9.0'
     }
 }
 
