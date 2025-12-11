@@ -108,20 +108,20 @@ cargo {
 
     // change these to match your Tomcat host and tomcat-users config
     remote {
-        def hostname = "localhost"
-
         // if "hostname" is defined in properties file, use that
         if (props.getProperty("webapp.hostname") != null) {
             hostname = props.getProperty("webapp.hostname")
-        } else {
+        } else if (props.getProperty("webapp.deploy.url") != null) {
             hostname = getServerName(props.getProperty("webapp.deploy.url"))
+        } else {
+            hostname = "localhost"
         }
-
-        def protocol = "http"
 
         // if "protocol" is defined in properties file, use that
         if (props.getProperty("webapp.protocol") != null) {
             protocol = props.getProperty("webapp.protocol")
+        } else {
+            protocol = "http"
         }
 
         username = props.getProperty("webapp.manager")
