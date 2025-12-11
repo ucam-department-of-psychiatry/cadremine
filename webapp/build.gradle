@@ -76,39 +76,56 @@ cargo {
 
     // change this to match your Tomcat major version (keep the x)
     containerId = 'tomcat9x'
-    int remotePort = 8080
+
+    int port = 8080
     if (props.getProperty("webapp.port") != null) {
-        remotePort = props.getProperty("webapp.port").toInteger()
+        port = props.getProperty("webapp.port").toInteger()
     }
 
-    // change this to the Tomcat root of your choice
     deployable {
         context = props.getProperty("webapp.path")
     }
 
-    def remoteHostName = "localhost"
+    local {
+        if (props.getProperty("webapp.homedir") != null) {
+            homeDir = file(props.getProperty("webapp.homedir"))
+        }
 
-    // if "hostname" is defined in properties file, use that
-    if (props.getProperty("webapp.hostname") != null) {
-        remoteHostName = props.getProperty("webapp.hostname")
-    } else {
-        remoteHostName = getServerName(props.getProperty("webapp.deploy.url"))
-    }
+        // https://stackoverflow.com/questions/138511/what-are-java-command-line-options-to-set-to-allow-jvm-to-be-remotely-debugged
 
-    def remoteProtocol = "http"
+        // Options on -Xrunjdwp or agentlib:jdwp arguments are :
 
-    // if "protocol" is defined in properties file, use that
-    if (props.getProperty("webapp.protocol") != null) {
-        remoteProtocol = props.getProperty("webapp.protocol")
+        // transport=dt_socket : means the way used to connect to JVM (socket is a good choice, it can be used to debug a distant computer)
+        // address=5005 : TCP/IP port exposed, to connect from the debugger (will only allow local connections)
+        // suspend=y : if 'y', tell the JVM to wait until debugger is attached to begin execution, otherwise (if 'n'), starts execution right away.
+
+        // String not array syntax for Gradle 4.9
+        jvmArgs = """
+            -Djava.awt.headless=true
+            -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
+        """.trim()
     }
 
     // change these to match your Tomcat host and tomcat-users config
     remote {
-        hostname = remoteHostName
-        protocol = remoteProtocol
+        def hostname = "localhost"
+
+        // if "hostname" is defined in properties file, use that
+        if (props.getProperty("webapp.hostname") != null) {
+            hostname = props.getProperty("webapp.hostname")
+        } else {
+            hostname = getServerName(props.getProperty("webapp.deploy.url"))
+        }
+
+        def protocol = "http"
+
+        // if "protocol" is defined in properties file, use that
+        if (props.getProperty("webapp.protocol") != null) {
+            protocol = props.getProperty("webapp.protocol")
+        }
+
         username = props.getProperty("webapp.manager")
         password = props.getProperty("webapp.password")
-        port = remotePort
     }
 }
 
