@@ -14,12 +14,30 @@ sourceSets {
     }
 }
 
+repositories {
+    ivy {
+        url intermine.plugin.repo
+        layout "pattern", {
+            artifact  "[artifact]-[revision].[ext]"
+        }
+        metadataSources {
+            artifact()
+        }
+    }
+    mavenCentral()
+}
+
 dependencies {
     compile group: "org.intermine", name: "bio-core", version: System.getProperty("bioVersion"), transitive: false
     compile group: "org.intermine", name: "intermine-integrate", version: System.getProperty("imVersion")
+    compile group: "org.intermine", name: "intermine-objectstore", version: System.getProperty("imVersion")
+    compile group: "org.intermine", name: "intermine-model", version: System.getProperty("imVersion")
     compile group: "org.intermine", name: "intermine-resources", version: System.getProperty("imVersion") // for log4j
     compile fileTree(dir: 'libs', include: '*.jar')
     bioModel group: "org.intermine", name: "bio-model", version: System.getProperty("bioVersion"), transitive: false
+    compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-1.2-api', version: '2.17.1'
+    compile group: 'commons-collections', name: 'commons-collections', version: '3.2'
 }
 
 dbModelConfig {

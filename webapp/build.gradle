@@ -56,8 +56,10 @@ task copyWebappContent(type: Copy) {
     into "${explodedWebAppDir}"
 }
 
-// read in mine.properties to get the contextPath
+// java.utils.Properties so getProperty() returns null if it doesn't exist
 def props = new Properties()
+
+// read in mine.properties to get the contextPath
 file(minePropertyFile).withInputStream { props.load(it) }
 
 webappConfig {
@@ -84,11 +86,13 @@ cargo {
 
     deployable {
         context = props.getProperty("webapp.path")
+        println "Using context: $context"
     }
 
     local {
         if (props.getProperty("webapp.homedir") != null) {
             homeDir = file(props.getProperty("webapp.homedir"))
+            println "Using homeDir: $homeDir"
         }
 
         // https://stackoverflow.com/questions/138511/what-are-java-command-line-options-to-set-to-allow-jvm-to-be-remotely-debugged
