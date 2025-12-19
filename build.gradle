@@ -1,7 +1,7 @@
 buildscript {
     repositories {
         ivy {
-            url intermine.plugin.repo
+            url project.getProperty("intermine.plugin.repo")
             layout "pattern", {
                 artifact  "[artifact]-[revision].[ext]"
             }
@@ -41,8 +41,8 @@ subprojects {
   // -------------------------
 
   def intermineLocalDirs = []
-  def intermineRootDir = intermine.development.intermineRootDir
-  def intermineModules = intermine.development.intermineModules
+  def intermineRootDir = project.getProperty("intermine.development.intermineRootDir")
+  def intermineModules = project.getProperty("intermine.development.intermineModules")
 
   if (intermineRootDir && intermineModules) {
     println "Using intermineRootDir: $intermineRootDir"
