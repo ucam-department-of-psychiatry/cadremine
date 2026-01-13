@@ -16,7 +16,9 @@ sourceSets {
 
 repositories {
     ivy {
-        url intermine.plugin.repo
+        // define in ~/.gradle/gradle.properties
+        // intermine.plugin.repo=file:///your/intermine/repo/plugin/build/libs
+        url project.getProperty("intermine.plugin.repo")
         layout "pattern", {
             artifact  "[artifact]-[revision].[ext]"
         }
@@ -25,6 +27,9 @@ repositories {
         }
     }
     mavenCentral()
+    maven {
+        url = uri("https://plugins.gradle.org/m2/")
+    }
 }
 
 dependencies {

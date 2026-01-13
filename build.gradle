@@ -1,6 +1,8 @@
 buildscript {
     repositories {
         ivy {
+            // define in ~/.gradle/gradle.properties
+            // intermine.plugin.repo=file:///your/intermine/repo/plugin/build/libs
             url project.getProperty("intermine.plugin.repo")
             layout "pattern", {
                 artifact  "[artifact]-[revision].[ext]"
@@ -56,8 +58,8 @@ subprojects {
   }
 
   def bioLocalDirs = []
-  def bioRootDir = intermine.development.bioRootDir
-  def bioModules = intermine.development.bioModules
+  def bioRootDir = project.getProperty("intermine.development.bioRootDir")
+  def bioModules = project.getProperty("intermine.development.bioModules")
 
   if (bioRootDir && bioModules) {
     def modules = bioModules.split(',').collect { it.trim() }.findAll { it }
@@ -75,7 +77,7 @@ subprojects {
         ivy {
             url "file://" + dir
             layout "pattern", {
-                artifact  "[artifact]-[revision].[ext]"
+                artifact  "[artifact]-[revision](-[classifier]).[ext]"
             }
             metadataSources {
                 artifact()
