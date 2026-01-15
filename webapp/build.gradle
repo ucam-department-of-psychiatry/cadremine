@@ -24,12 +24,21 @@ dependencies {
     compile (project(":dbmodel")) {transitive = false}
     compile group: "org.intermine", name: "bio-core", version: System.getProperty("bioVersion"), transitive: false
     compile group: "org.intermine", name: "intermine-api", version: System.getProperty("imVersion")
+    compile group: "org.intermine", name: "intermine-model", version: System.getProperty("imVersion")
     compile group: "org.intermine", name: "intermine-objectstore", version: System.getProperty("imVersion")
     compile group: "org.intermine", name: "intermine-pathquery", version: System.getProperty("imVersion")
     compile group: "org.intermine", name: "intermine-webapp", version: System.getProperty("imVersion"), classifier: "classes"
     compile group: "org.intermine", name: "intermine-webtasks", version: System.getProperty("imVersion")
 
-    compile group: "org.apache.logging.log4j", name: "log4j-1.2-api", version: "2.17.1"
+    compile group: 'commons-beanutils', name: 'commons-beanutils', version: '1.9.3'
+    compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
+    compile group: 'ch.qos.reload4j', name: 'reload4j', version: '1.2.22'
+    compile group: 'org.slf4j', name: 'slf4j-reload4j', version: '1.7.36'
+    compile group: 'cglib', name: 'cglib', version: '3.1'
+    compile group: 'org.postgresql', name: 'postgresql', version: '42.2.2'
+    compile group: 'com.zaxxer', name: 'HikariCP', version: '3.2.0', transitive: false
+    compile group: 'org.apache.lucene', name: 'lucene-analyzers', version: '3.0.2'
+    compile group: 'org.apache.lucene', name: 'lucene-snowball', version: '3.0.2'
 
     onlyRunTime group: 'org.intermine', name: 'bluegenes', version: System.getProperty("blueGenesVersion")
 }

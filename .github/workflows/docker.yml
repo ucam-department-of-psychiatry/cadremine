@@ -1,6 +1,6 @@
 ---
 # yamllint disable rule:line-length
-name: cadremine
+name: docker
 # yamllint disable-line rule:truthy
 on: push
 
@@ -8,7 +8,7 @@ env:
     INTERMINE_CHECKOUT: ${{ github.workspace }}/docker-intermine-gradle
 
 jobs:
-    cadremine:
+    docker:
         runs-on: ubuntu-latest
         steps:
             - name: Install prerequisites
