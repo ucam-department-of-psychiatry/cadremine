@@ -5,7 +5,7 @@ name: docker
 on: push
 
 env:
-    INTERMINE_CHECKOUT: ${{ github.workspace }}/docker-intermine-gradle
+    DIG_CHECKOUT: ${{ github.workspace }}/docker-intermine-gradle
 
 jobs:
     docker:
@@ -26,18 +26,18 @@ jobs:
             - name: Make data dirs
               run: |
                   set -euo pipefail
-                  ${INTERMINE_CHECKOUT}/mkdatadirs.sh
+                  ${DIG_CHECKOUT}/mkdatadirs.sh
             - name: Up
               run: |
                   set -euo pipefail
-                  cd ${INTERMINE_CHECKOUT}
+                  cd ${DIG_CHECKOUT}
                   # Use run to trap any build errors early
                   # DOCKER_UID=$(id -u) DOCKER_GID=$(id -g) MINE_NAME=cadremine docker compose -f local.docker-compose.yml run --rm intermine_builder
                   DOCKER_UID=$(id -u) DOCKER_GID=$(id -g) MINE_NAME=cadremine docker compose -f local.docker-compose.yml up -d
             - name: Wait
               run: |
                   set -euo pipefail
-                  cd ${INTERMINE_CHECKOUT}
+                  cd ${DIG_CHECKOUT}
                   # Wait for builder to finish and return exit code
                   DOCKER_UID=$(id -u) DOCKER_GID=$(id -g) MINE_NAME=cadremine docker compose -f local.docker-compose.yml wait intermine_builder
                   # Wait 15 minutes
@@ -52,7 +52,7 @@ jobs:
               if: failure()
               run: |
                   set -euo pipefail
-                  cd ${INTERMINE_CHECKOUT}
+                  cd ${DIG_CHECKOUT}
                   sleep 120
                   DOCKER_UID=$(id -u) DOCKER_GID=$(id -g) docker compose -f local.docker-compose.yml logs intermine_builder
                   DOCKER_UID=$(id -u) DOCKER_GID=$(id -g) docker compose -f local.docker-compose.yml logs postgres
