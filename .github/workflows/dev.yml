@@ -23,6 +23,7 @@ jobs:
                     - 5432:5432
         steps:
             - uses: actions/checkout@v4
+            - name: Set up development environment
               run: |
                   set -euo pipefail
                   cd ${GITHUB_WORKSPACE}
