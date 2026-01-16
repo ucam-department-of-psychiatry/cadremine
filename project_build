@@ -32,6 +32,9 @@ def create_gradle_properties() -> None:
                     line.replace("@@im_checkout@@", intermine_checkout)
                 )
 
+    print(f"Written {GRADLE_PROPERTIES}")
+    run(["cat", GRADLE_PROPERTIES])
+
 
 def run_perl_script() -> None:
     perl_script = os.path.join(PROJECT_ROOT_DIR, "project_build.pl")
