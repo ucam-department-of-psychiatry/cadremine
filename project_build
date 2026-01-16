@@ -50,7 +50,7 @@ class ProjectBuilder:
         run(["./gradlew", "clean", "--stacktrace"], check=True)
         run(["./gradlew", "install", "--stacktrace"], check=True)
 
-    def run_perl_script() -> None:
+    def run_perl_script(self) -> None:
         perl_script = os.path.join(PROJECT_ROOT_DIR, "project_build.pl")
         perl_args = [perl_script] + sys.argv[1:]
 
