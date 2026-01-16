@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from dataclasses import dataclass
 import os
 from pathlib import Path
 from subprocess import run
@@ -12,35 +13,60 @@ GRADLE_PROPERTIES = os.path.join(DOT_GRADLE_DIR, "gradle.properties")
 GRADLE_PROPERTIES_IN = os.path.join(PROJECT_ROOT_DIR, "gradle.properties.in")
 
 
+@dataclass
+class ProjectBuilder:
+    intermine_checkout: str
+
+    def create_gradle_properties(self) -> None:
+        os.makedirs(DOT_GRADLE_DIR, exist_ok=True)
+
+        with open(GRADLE_PROPERTIES, "w") as f_out:
+            with open(GRADLE_PROPERTIES_IN) as f_in:
+                for line in f_in:
+                    f_out.write(
+                        line.replace(
+                            "@@im_checkout@@", self.intermine_checkout
+                        )
+                    )
+
+        print(f"Written {GRADLE_PROPERTIES}")
+        run(["cat", GRADLE_PROPERTIES])
+
+    def build_intermine(self) -> None:
+        modules = [
+            "plugin",
+            "intermine",
+            "bio",
+            "bio/sources",
+            "bio/postprocess",
+        ]
+
+        for module in modules:
+            self.gradle_clean_install(module)
+
+    def gradle_clean_install(self, module: str) -> None:
+        module_dir = os.path.join(self.intermine_checkout, module)
+        os.chdir(module_dir)
+        run["./gradlew", "clean", "--stacktrace"]
+        run["./gradlew", "install", "--stacktrace"]
+
+    def run_perl_script() -> None:
+        perl_script = os.path.join(PROJECT_ROOT_DIR, "project_build.pl")
+        perl_args = [perl_script] + sys.argv[1:]
+
+        run(perl_args, check=True)
+
+
 def main() -> None:
-    create_gradle_properties()
-    run_perl_script()
-
-
-def create_gradle_properties() -> None:
     intermine_checkout = os.getenv("IM_CHECKOUT")
     if intermine_checkout is None:
         print("IM_CHECKOUT must be defined", file=sys.stderr)
         sys.exit(EXIT_FAILURE)
 
-    os.makedirs(DOT_GRADLE_DIR, exist_ok=True)
-
-    with open(GRADLE_PROPERTIES, "w") as f_out:
-        with open(GRADLE_PROPERTIES_IN) as f_in:
-            for line in f_in:
-                f_out.write(
-                    line.replace("@@im_checkout@@", intermine_checkout)
-                )
-
-    print(f"Written {GRADLE_PROPERTIES}")
-    run(["cat", GRADLE_PROPERTIES])
-
-
-def run_perl_script() -> None:
-    perl_script = os.path.join(PROJECT_ROOT_DIR, "project_build.pl")
-    perl_args = [perl_script] + sys.argv[1:]
-
-    run(perl_args, check=True)
+    builder = ProjectBuilder(intermine_checkout=intermine_checkout)
+    builder.create_gradle_properties()
+    builder.build_intermine()
+    builder.run_perl_script()
 
 
 if __name__ == "__main__":
