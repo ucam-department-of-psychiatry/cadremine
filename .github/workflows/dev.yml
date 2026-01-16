@@ -37,7 +37,11 @@ jobs:
             - name: Set up development environment
               run: |
                   set -euxo pipefail
+                  DOT_INTERMINE_DIR="${HOME}"/.intermine
+                  mkdir "${DOT_INTERMINE_DIR}"
+
                   cd ${GITHUB_WORKSPACE}/cadremine
-                  ls -l
+                  cp ci_scripts/cadremine.properties "${DOT_INTERMINE_DIR}"
+
                   export IM_CHECKOUT=${GITHUB_WORKSPACE}/intermine
                   python3 bin/init.py
