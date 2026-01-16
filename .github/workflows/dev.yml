@@ -22,6 +22,10 @@ jobs:
                 ports:
                     - 5432:5432
         steps:
+            - name: Install prerequisites
+              run: |
+                  set -euo pipefail
+                  sudo apt-get install libxml-perl
             - uses: actions/checkout@v4
               with:
                   path: "cadremine"
