@@ -23,8 +23,15 @@ jobs:
                     - 5432:5432
         steps:
             - uses: actions/checkout@v4
+              with:
+                  path: "cadremine"
+            - uses: actions/checkout@v4
+              with:
+                  repository: "intermine/intermine"
+                  ref: "eclipse-setup"
             - name: Set up development environment
               run: |
                   set -euo pipefail
-                  cd ${GITHUB_WORKSPACE}
+                  cd ${GITHUB_WORKSPACE}/cadremine
+                  export IM_CHECKOUT=${GITHUB_WORKSPACE}/intermine
                   python3 bin/init.py
