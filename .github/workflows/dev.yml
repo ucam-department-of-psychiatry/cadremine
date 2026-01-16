@@ -29,9 +29,12 @@ jobs:
               with:
                   repository: "intermine/intermine"
                   ref: "eclipse-setup"
+                  path: "intermine"
             - name: Set up development environment
               run: |
-                  set -euo pipefail
-                  cd ${GITHUB_WORKSPACE}/cadremine
-                  export IM_CHECKOUT=${GITHUB_WORKSPACE}/intermine
+                  set -euxo pipefail
+                  ls -l ${GITHUB_WORKSPACE}/..
+                  cd ${GITHUB_WORKSPACE}
+                  ls -l
+                  export IM_CHECKOUT=${GITHUB_WORKSPACE}/../intermine
                   python3 bin/init.py
