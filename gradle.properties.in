@@ -4,7 +4,7 @@ systemProp.blueGenesVersion=1.4.1
 
 systemProp.javax.xml.stream.XMLOutputFactory=com.sun.xml.internal.stream.XMLOutputFactoryImpl
 
-intermine.plugin.repo=file:///@@im_checkout@@/plugin/build/libs
+intermine.plugin.repo=file://@@im_checkout@@/plugin/build/libs
 intermine.development.intermineRootDir=@@im_checkout@@/intermine
 intermine.development.intermineModules=api,integrate,jbrowse-endpoint,model,objectstore,pathquery,resources,testresources,webapp,webtasks
 
