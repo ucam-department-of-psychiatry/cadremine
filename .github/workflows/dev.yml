@@ -25,7 +25,7 @@ jobs:
             - name: Install prerequisites
               run: |
                   set -euo pipefail
-                  sudo apt-get install libxml-perl
+                  sudo apt-get install libxml-perl libtext-glob-perl
             - uses: actions/checkout@v4
               with:
                   path: "cadremine"
