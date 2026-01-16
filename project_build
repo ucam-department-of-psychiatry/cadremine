@@ -47,8 +47,8 @@ class ProjectBuilder:
     def gradle_clean_install(self, module: str) -> None:
         module_dir = os.path.join(self.intermine_checkout, module)
         os.chdir(module_dir)
-        run["./gradlew", "clean", "--stacktrace"]
-        run["./gradlew", "install", "--stacktrace"]
+        run(["./gradlew", "clean", "--stacktrace"], check=True)
+        run(["./gradlew", "install", "--stacktrace"], check=True)
 
     def run_perl_script() -> None:
         perl_script = os.path.join(PROJECT_ROOT_DIR, "project_build.pl")
