@@ -23,6 +23,8 @@ def create_gradle_properties() -> None:
         print("IM_CHECKOUT must be defined", file=sys.stderr)
         sys.exit(EXIT_FAILURE)
 
+    os.mkdir(DOT_GRADLE_DIR, exist_ok=True)
+
     with open(GRADLE_PROPERTIES, "w") as f_out:
         with open(GRADLE_PROPERTIES_IN) as f_in:
             for line in f_in:
