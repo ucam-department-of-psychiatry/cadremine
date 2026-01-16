@@ -33,8 +33,7 @@ jobs:
             - name: Set up development environment
               run: |
                   set -euxo pipefail
-                  ls -l ${GITHUB_WORKSPACE}/..
-                  cd ${GITHUB_WORKSPACE}
+                  cd ${GITHUB_WORKSPACE}/cadremine
                   ls -l
-                  export IM_CHECKOUT=${GITHUB_WORKSPACE}/../intermine
+                  export IM_CHECKOUT=${GITHUB_WORKSPACE}/intermine
                   python3 bin/init.py
