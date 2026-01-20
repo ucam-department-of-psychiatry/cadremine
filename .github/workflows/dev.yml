@@ -66,4 +66,4 @@ jobs:
                   cd ${GITHUB_WORKSPACE}/cadremine
                   ls -l
                   ls -l bin
-                  python3 bin/init.py ${GITHUB_WORKSPACE}/intermine
+                  python3 bin/build.py ${GITHUB_WORKSPACE}/intermine
