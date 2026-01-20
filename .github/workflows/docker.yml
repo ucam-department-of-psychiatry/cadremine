@@ -2,7 +2,22 @@
 # yamllint disable rule:line-length
 name: docker
 # yamllint disable-line rule:truthy
-on: push
+on:
+    push:
+        paths:
+            - .github/workflows/docker.yml
+            - bin
+            - build.gradle
+            - data/**
+            - dbmodel/**
+            - extra/**
+            - gradle.properties.in
+            - make-loader.sh
+            - project_build
+            - project.xml
+            - settings.gradle
+            - webapp/**
+
 
 env:
     DIG_CHECKOUT: ${{ github.workspace }}/docker-intermine-gradle

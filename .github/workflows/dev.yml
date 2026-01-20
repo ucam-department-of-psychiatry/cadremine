@@ -2,7 +2,21 @@
 # yamllint disable rule:line-length
 name: dev
 # yamllint disable-line rule:truthy
-on: push
+on:
+    push:
+        paths:
+            - .github/workflows/dev.yml
+            - bin
+            - build.gradle
+            - data/**
+            - dbmodel/**
+            - extra/**
+            - gradle.properties.in
+            - make-loader.sh
+            - project_build
+            - project.xml
+            - settings.gradle
+            - webapp/**
 
 jobs:
     dev:
