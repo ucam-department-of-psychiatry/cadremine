@@ -55,12 +55,12 @@ jobs:
             - name: Install intermine
               run: |
                   set -euxo pipefail
+                  export PSQL_USER=test
+                  export PSQL_PWD=test
+                  export PSQL_HOST=localhost
                   python3 ${GITHUB_WORKSPACE}/intermine/config/lib/install_intermine.py
 
             - name: Set up development environment
               run: |
                   set -euxo pipefail
-                  export PSQL_USER=test
-                  export PSQL_PWD=test
-                  export PSQL_HOST=localhost
                   python3 bin/init.py ${GITHUB_WORKSPACE}/intermine
