@@ -38,14 +38,12 @@ jobs:
                   repository: "intermine/intermine"
                   ref: "eclipse-setup"
                   path: "intermine"
+            - name: Install intermine
+              run: |
+                  set -euxo pipefail
+                  python3 ${GITHUB_WORKSPACE}/intermine/config/lib/install_intermine.py
+
             - name: Set up development environment
               run: |
                   set -euxo pipefail
-                  DOT_INTERMINE_DIR="${HOME}"/.intermine
-                  mkdir "${DOT_INTERMINE_DIR}"
-
-                  cd ${GITHUB_WORKSPACE}/cadremine
-                  cp ci_scripts/cadremine.properties "${DOT_INTERMINE_DIR}"
-
-                  export IM_CHECKOUT=${GITHUB_WORKSPACE}/intermine
-                  python3 bin/init.py
+                  python3 bin/init.py ${GITHUB_WORKSPACE}/intermine

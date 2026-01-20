@@ -27,3 +27,6 @@ out/
 
 # Silver searcher
 .ignore
+
+# Automatically generated
+gradle.properties

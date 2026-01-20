@@ -2,6 +2,7 @@
 
 import argparse
 from dataclasses import dataclass
+import glob
 import logging
 import os
 from subprocess import run
@@ -15,16 +16,41 @@ PROJECT_ROOT_DIR = os.path.join(BIN_DIR, "..")
 
 @dataclass
 class Initialiser:
+    intermine_dir: str
     mine_name: str = "cadremine"
     pg_host: str = "localhost"
     psql_user: str = "postgres"
     psql_pass: str = "postgres"
 
     def initialise(self) -> None:
+        self.create_gradle_properties()
         self.initialise_databases()
         self.run_project_build_script()
         self.build_user_db()
         self.build_war_file()
+
+    def create_gradle_properties(self) -> None:
+        # See also config/lib/install_intermine.py in intermine project
+        bin_dir = os.path.dirname(os.path.realpath(__file__))
+        root_dir = os.path.join(bin_dir, "..")
+
+        for gradle_properties_in in glob.glob(
+            "**/gradle.properties.in", root_dir=root_dir, recursive=True
+        ):
+            in_file = os.path.join(root_dir, gradle_properties_in)
+            out_file = in_file[:-3]
+            with open(out_file, "w") as f_out:
+                f_out.write(
+                    "# FILE AUTOMATICALLY GENERATED FROM "
+                    f"{gradle_properties_in}. DO NOT EDIT!\n"
+                )
+                with open(in_file) as f_in:
+                    for line in f_in:
+                        f_out.write(
+                            line.replace("@@im_checkout@@", self.intermine_dir)
+                        )
+
+            print(f"Written {out_file}")
 
     def initialise_databases(self) -> None:
         log.info("Connect and create Postgres databases")
@@ -103,6 +129,9 @@ def main() -> None:
         description="Initialise cadremine",
     )
     parser.add_argument(
+        "intermine_dir", help="Top level directory containing Intermine"
+    )
+    parser.add_argument(
         "--verbose", "-v", action="store_true", help="Be verbose"
     )
 
@@ -111,7 +140,7 @@ def main() -> None:
 
     logging.basicConfig(level=log_level)
 
-    initialiser = Initialiser()
+    initialiser = Initialiser(intermine_dir=args.intermine_dir)
     initialiser.initialise()
 
 
