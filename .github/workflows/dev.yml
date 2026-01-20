@@ -60,4 +60,7 @@ jobs:
             - name: Set up development environment
               run: |
                   set -euxo pipefail
+                  export PSQL_USER=test
+                  export PSQL_PWD=test
+                  export PSQL_HOST=localhost
                   python3 bin/init.py ${GITHUB_WORKSPACE}/intermine
