@@ -60,6 +60,12 @@ jobs:
                   export PSQL_HOST=localhost
                   python3 ${GITHUB_WORKSPACE}/intermine/config/lib/install_intermine.py
 
+            - name: Copy cadremine.properties
+              run: |
+                  set -euxo pipefail
+                  intermine_dir=${HOME}/.intermine
+                  mkdir -p "${intermine_dir}"
+                  cp ${GITHUB_WORKSPACE}/cadremine/data/cadremine.properties "${intermine_dir}"
             - name: Set up development environment
               run: |
                   set -euxo pipefail
