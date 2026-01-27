@@ -892,11 +892,17 @@ my @actions = get_actions();
 my $restart_dump_suffix = undef;
 
 log_and_print "Running cadremine python build.py script...";
-my $result = system("$saved_dir/bin/build.py $ENV{INTERMINE_DIR} --init_only");
+
+my $intermine_dir = $ENV{INTERMINE_DIR};
+
+log_and_print "INTERMINE_DIR: $intermine_dir";
+
+my @py_args = ("$saved_dir/bin/build.py", $intermine_dir, "--init_only");
+my $result = system(@py_args);
 
 if ($result !=0) {
     log_and_print "...failed with exit code $result\n";
-    exit $result;
+    exit($result);
 }
 
 log_message "...OK";
