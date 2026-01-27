@@ -15,19 +15,22 @@ PROJECT_ROOT_DIR = os.path.join(BIN_DIR, "..")
 
 
 @dataclass
-class Initialiser:
+class Builder:
+    init_only: bool
     intermine_dir: str
+    with_sudo: bool
     mine_name: str = "cadremine"
     pg_host: str = "localhost"
     psql_user: str = "postgres"
     psql_pass: str = "postgres"
 
-    def initialise(self) -> None:
+    def build(self) -> None:
         self.create_gradle_properties()
-        self.initialise_databases()
-        self.run_project_build_script()
-        self.build_user_db()
-        self.build_war_file()
+        self.build_databases()
+
+        if not self.init_only:
+            self.build_user_db()
+            self.build_war_file()
 
     def create_gradle_properties(self) -> None:
         # See also config/lib/install_intermine.py in intermine project
@@ -52,7 +55,7 @@ class Initialiser:
 
             print(f"Written {out_file}")
 
-    def initialise_databases(self) -> None:
+    def build_databases(self) -> None:
         log.info("Connect and create Postgres databases")
         self.run_psql(
             "SELECT pg_terminate_backend(pid) FROM pg_stat_activity "
@@ -83,10 +86,6 @@ class Initialiser:
             f'"userprofile-{self.mine_name}" to {self.psql_user};'
         )
 
-    def run_project_build_script(self) -> None:
-        os.chdir(PROJECT_ROOT_DIR)
-        self.run_with_env(["./project_build", "-b", "localhost", "cadremine"])
-
     def build_user_db(self) -> None:
         self.run_gradle(["buildUserDB"])
 
@@ -112,10 +111,12 @@ class Initialiser:
         if postgres_args is None:
             postgres_args = []
 
-        self.run_with_env(
-            ["sudo", "-E", "-u", self.psql_user, command, "-h", self.pg_host]
-            + postgres_args,
-        )
+        args = [command, "-h", self.pg_host]
+
+        if self.with_sudo:
+            args = ["sudo", "-E", "-u", self.psql_user] + args
+
+        self.run_with_env(args + postgres_args)
 
     def run_with_env(self, run_args: list[Any]) -> None:
         env = os.environ.copy()
@@ -126,10 +127,22 @@ class Initialiser:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Initialise cadremine",
+        description="Build cadremine",
     )
     parser.add_argument(
         "intermine_dir", help="Top level directory containing Intermine"
+    )
+    parser.add_argument(
+        "--init_only",
+        action="store_true",
+        help="Initialise only, don't build",
+        default=False,
+    )
+    parser.add_argument(
+        "--with_sudo",
+        action="store_true",
+        help="Use sudo when executing Postgres commands",
+        default=False,
     )
     parser.add_argument(
         "--verbose", "-v", action="store_true", help="Be verbose"
@@ -140,8 +153,12 @@ def main() -> None:
 
     logging.basicConfig(level=log_level)
 
-    initialiser = Initialiser(intermine_dir=args.intermine_dir)
-    initialiser.initialise()
+    builder = Builder(
+        intermine_dir=args.intermine_dir,
+        init_only=args.init_only,
+        with_sudo=args.with_sudo,
+    )
+    builder.build()
 
 
 if __name__ == "__main__":

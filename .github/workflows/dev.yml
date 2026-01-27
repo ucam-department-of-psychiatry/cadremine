@@ -64,6 +64,4 @@ jobs:
               run: |
                   set -euxo pipefail
                   cd ${GITHUB_WORKSPACE}/cadremine
-                  ls -l
-                  ls -l bin
-                  python3 bin/build.py ${GITHUB_WORKSPACE}/intermine
+                  python3 bin/build.py ${GITHUB_WORKSPACE}/intermine --with_sudo

@@ -29,11 +29,11 @@ my $final_marker = 'final';
 
 sub read_properties {
     my $file = shift;
-    
+
     open(my $in, '<', "$file") or die "cannot open $file: $!\n";
-    
+
     my %properties;
-    
+
     while (<$in>) {
         next if /^\s*#/;
         chomp;
@@ -41,7 +41,7 @@ sub read_properties {
         next unless $k;
         $properties{$k} = $v;
     }
-    close($in) or die "Problem reading from $file: $!\n";  
+    close($in) or die "Problem reading from $file: $!\n";
 
     return %properties;
 }
@@ -193,7 +193,7 @@ if (@ARGV == 2) {
 }
 
 my $log_file = "pbuild.log";
-my $mode = ($run_build_db) ? '>' : '>>'; 
+my $mode = ($run_build_db) ? '>' : '>>';
 open(LOG, $mode, $log_file) or die "can't open $log_file: $!\n";
 
 my $old_handle = select(LOG);
@@ -285,12 +285,12 @@ sub spawn
   if ($dry_run) {
     log_and_print "command to run: @spawn_args\n";
   } else {
-    my $pid = open(my $PROCESS, '-|', @spawn_args) 
+    my $pid = open(my $PROCESS, '-|', @spawn_args)
         or die "Could not execute @spawn_args\n";
     while (<$PROCESS>) {
         if (/error/i) {
             die "Error returned by @spawn_args\n";
-        } 
+        }
     }
     close $PROCESS;
   }
@@ -635,7 +635,7 @@ sub userprofile_db_already_populated {
     my $userprofiledb;
     my $psql_opt = q{-c '\d'};
 
-    open (my $props, '<', $ENV{HOME}.'/.intermine/'.$properties_file) 
+    open (my $props, '<', $ENV{HOME}.'/.intermine/'.$properties_file)
         or die "Cannot open $project_file for reading, $!";
     while (<$props>) {
         if (/\Qdb.userprofile-production.datasource.databaseName\E/) {
@@ -662,7 +662,7 @@ sub get_actions
   my $handler = ProjectXML::Handler->new();
   my $parser = XML::Parser::PerlSAX->new(Handler => $handler);
 
-  
+
   $parser->parse(Source => { SystemId => $project_file });
 
   if (!defined $handler->{actions}) {
@@ -690,7 +690,7 @@ sub get_actions
   my $properties_file = $handler->{properties_file};
 
   if ($build_userprofile_db) {
-      if ($overwrite_userprofile_ok 
+      if ($overwrite_userprofile_ok
               or userprofile_db_already_populated($properties_file) ) {
           push @actions, {
               type => 'webapp',
@@ -891,6 +891,16 @@ my @actions = get_actions();
 
 my $restart_dump_suffix = undef;
 
+log_and_print "Running cadremine python build.py script...";
+my $result = system("$saved_dir/bin/build.py $ENV{INTERMINE_DIR} --init_only");
+
+if ($result !=0) {
+    log_and_print "...failed with exit code $result\n";
+    exit $result;
+}
+
+log_message "...OK";
+
 my @database_names = get_database_names($prod_db, $prod_user, $prod_pass,
                                         $prod_host, $prod_port);
 
@@ -978,7 +988,7 @@ for my $action (@actions) {
     if ($action_type =~ /^(?:integrate|postprocess|webapp)$/) {
       my $saved_dir = getcwd;
       #chdir $action_type
-      #  or die "can't change directory into: $saved_dir/$action_type\n";      
+      #  or die "can't change directory into: $saved_dir/$action_type\n";
       run_and_check_status @ant_command, @action_args;
       #chdir $saved_dir
       #  or die "can't return to previous directory ($saved_dir) after $action_type\n";
@@ -998,8 +1008,8 @@ for my $action (@actions) {
     } else {
         die qq{unknown action: "$action_type"\n};
     }
-    
-  
+
+
 
     my $end_time = time();
     my $action_time = $end_time - $start_time;
