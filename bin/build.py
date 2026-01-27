@@ -19,6 +19,7 @@ class Builder:
     init_only: bool
     intermine_dir: str
     with_sudo: bool
+    verbose: bool
     mine_name: str = "cadremine"
     pg_host: str = "localhost"
     psql_user: str = "postgres"
@@ -94,7 +95,13 @@ class Builder:
 
     def run_gradle(self, gradle_args: list[Any]) -> None:
         os.chdir(PROJECT_ROOT_DIR)
-        self.run_with_env(["./gradlew"] + gradle_args + ["--stacktrace"])
+
+        if self.verbose:
+            gradle_args.append("--info")
+
+        gradle_args.append("--stacktrace")
+
+        self.run_with_env(["./gradlew"] + gradle_args)
 
     def drop_db(self, name: str) -> None:
         self.run_postgres("dropdb", ["--if-exists", name])
@@ -157,6 +164,7 @@ def main() -> None:
         intermine_dir=args.intermine_dir,
         init_only=args.init_only,
         with_sudo=args.with_sudo,
+        verbose=args.verbose,
     )
     builder.build()
 
