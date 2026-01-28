@@ -18,12 +18,12 @@ PROJECT_ROOT_DIR = os.path.join(BIN_DIR, "..")
 class Builder:
     init_only: bool
     intermine_dir: str
-    with_sudo: bool
+    pg_host: str
+    psql_pass: str
+    psql_user: str
     verbose: bool
+    with_sudo: bool
     mine_name: str = "cadremine"
-    pg_host: str = "localhost"
-    psql_user: str = "postgres"
-    psql_pass: str = "postgres"
 
     def build(self) -> None:
         self.create_gradle_properties()
@@ -160,12 +160,17 @@ def main() -> None:
 
     logging.basicConfig(level=log_level)
 
-    builder = Builder(
+    builder_args = dict(
         intermine_dir=args.intermine_dir,
         init_only=args.init_only,
+        pg_host=os.getenv("PSQL_HOST", "localhost"),
+        psql_user=os.getenv("PSQL_USER", "postgres"),
+        psql_pass=os.getenv("PSQL_PWD", "postgres"),
         with_sudo=args.with_sudo,
         verbose=args.verbose,
     )
+
+    builder = Builder(**builder_args)
     builder.build()
 
 
