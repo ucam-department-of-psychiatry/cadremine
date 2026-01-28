@@ -30,6 +30,7 @@ class Builder:
         self.build_databases()
 
         if not self.init_only:
+            self.build_db()
             self.build_user_db()
             self.build_war_file()
 
@@ -86,6 +87,9 @@ class Builder:
             "GRANT ALL PRIVILEGES ON DATABASE "
             f'"userprofile-{self.mine_name}" to {self.psql_user};'
         )
+
+    def build_db(self) -> None:
+        self.run_gradle(["buildDB"])
 
     def build_user_db(self) -> None:
         self.run_gradle(["buildUserDB"])
