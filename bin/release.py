@@ -5,24 +5,50 @@ from dataclasses import dataclass
 import glob
 import logging
 import os
+from pathlib import Path
+import shutil
 from subprocess import run
 from typing import Any
 
-log = logging.getLogger(__name__)
+from python_on_whales import DockerClient
 
-BIN_DIR = os.path.dirname(os.path.realpath(__file__))
-PROJECT_ROOT_DIR = os.path.join(BIN_DIR, "..")
+log = logging.getLogger(__name__)
 
 
 @dataclass
 class Releaser:
     intermine_dir: str
     verbose: bool
-    mine_name: str = "cadremine"
+
+    def __post_init__(self) -> None:
+        self.bin_dir = os.path.dirname(os.path.realpath(__file__))
+        self.project_root_dir = os.path.join(self.bin_dir, "..")
+        self.release_dir = os.path.join(self.project_root_dir, "release")
+        self.requirements_file = os.path.join(
+            self.project_root_dir, "requirements.txt"
+        )
+        self.python_packages_dir = os.path.join(
+            self.release_dir, "python_packages"
+        )
+
+        self._docker = None
+
+    @property
+    def docker(self) -> DockerClient:
+        if self._docker is None:
+            self._docker = DockerClient()
+
+        return self._docker
 
     def release(self) -> None:
         self.create_gradle_properties()
         self.run_gradle([":webapp:war"])
+        self.create_release_directories()
+        self.copy_war_file()
+        self.save_docker_images()
+        self.download_python_packages()
+        self.copy_requirements_file()
+        self.copy_install_scripts()
 
     def create_gradle_properties(self) -> None:
         # See also config/lib/install_intermine.py in intermine project
@@ -48,7 +74,7 @@ class Releaser:
             print(f"Written {out_file}")
 
     def run_gradle(self, gradle_args: list[Any]) -> None:
-        os.chdir(PROJECT_ROOT_DIR)
+        os.chdir(self.project_root_dir)
 
         if self.verbose:
             gradle_args.append("--info")
@@ -56,6 +82,63 @@ class Releaser:
         gradle_args.append("--stacktrace")
 
         self.run_with_env(["./gradlew"] + gradle_args)
+
+    def create_release_directories(self) -> None:
+        Path(self.release_dir).mkdir(exist_ok=True)
+        Path(self.python_packages_dir).mkdir(exist_ok=True)
+
+    def copy_war_file(self) -> None:
+        war_file = os.path.join(
+            self.project_root_dir, "webapp", "build", "libs", "webapp.war"
+        )
+        shutil.copy(war_file, self.release_dir)
+
+    def save_docker_images(self) -> None:
+        docker_images_dir = os.path.join(self.release_dir, "docker_images")
+        Path(docker_images_dir).mkdir(exist_ok=True)
+
+        images = [
+            "intermine/bluegenes:1.4.5-dx",
+            "postgres:14",
+            "pypiserver/pypiserver:v2.4",
+            "registry:3.0.0",
+            "solr:8.11-slim",
+            "tomcat:9-jre8-temurin-jammy",
+        ]
+
+        self.docker.pull(images)
+
+        for image in images:
+            filename = image.split("/")[-1].replace(":", "-")
+            path = os.path.join(docker_images_dir, f"{filename}.tar")
+            self.docker.save(image, path)
+
+    def download_python_packages(self) -> None:
+        self.run_with_env(
+            [
+                "python3",
+                "-m",
+                "pip",
+                "download",
+                self.python_packages_dir,
+                "-r",
+                self.requirements_file,
+            ]
+        )
+
+    def copy_requirements_file(self) -> None:
+        shutil.copy(self.requirements_file, self.release_dir)
+
+    def copy_install_scripts(self) -> None:
+        scripts = [
+            "install_boot.sh",
+            "install_boot.py",
+            "install.py",
+        ]
+
+        for script in scripts:
+            script_path = os.path.join(self.bin_dir, script)
+            shutil.copy(script_path, self.release_dir)
 
     def run_with_env(self, run_args: list[Any]) -> None:
         env = os.environ.copy()
@@ -72,12 +155,6 @@ def main() -> None:
     )
     parser.add_argument(
         "intermine_dir", help="Top level directory containing Intermine"
-    )
-    parser.add_argument(
-        "--init_only",
-        action="store_true",
-        help="Initialise only, don't build",
-        default=False,
     )
     parser.add_argument(
         "--verbose", "-v", action="store_true", help="Be verbose"

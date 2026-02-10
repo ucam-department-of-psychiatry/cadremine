@@ -6,7 +6,7 @@ on:
     push:
         paths:
             - .github/workflows/deploy.yml
-            - bin/deploy.py
+            - bin/install_boot.py
             - bin/release.py
             - build.gradle
             - data/**
@@ -22,7 +22,9 @@ on:
 jobs:
     deploy:
         runs-on: ubuntu-latest
-
+        env:
+            VENV: ${HOME}/venv
+            PYTHON: ${VENV}/bin/python
         steps:
             - name: Set up JDK 8
               uses: actions/setup-java@v1
@@ -41,13 +43,19 @@ jobs:
                   ref: "eclipse-setup"
                   path: "intermine"
 
+            - name: Python setup
+              run: |
+                  set -euxo pipefail
+                  python3 -m venv $VENV
+                  ${PYTHON} -m pip install -r ${GITHUB_WORKSPACE}/cadremine/requirements.txt
+
             - name: Install intermine
               run: |
                   set -euxo pipefail
                   export PSQL_USER=test
                   export PSQL_PWD=test
                   export PSQL_HOST=localhost
-                  python3 ${GITHUB_WORKSPACE}/intermine/config/lib/install_intermine.py
+                  ${PYTHON} ${GITHUB_WORKSPACE}/intermine/config/lib/install_intermine.py
 
             - name: Copy cadremine.properties
               run: |
@@ -59,4 +67,10 @@ jobs:
             - name: Release
               run: |
                   set -euxo pipefail
-                  python3 ${GITHUB_WORKSPACE}/cadremine/bin/release.py ${GITHUB_WORKSPACE}/intermine
+                  ${PYTHON} ${GITHUB_WORKSPACE}/cadremine/bin/release.py ${GITHUB_WORKSPACE}/intermine
+
+            - name: Install
+              run: |
+                  set -euxo pipefail
+                  # Note: System python3
+                  python3 ${GITHUB_WORKSPACE}/cadremine/release/install_boot.py
