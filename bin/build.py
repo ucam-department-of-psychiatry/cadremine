@@ -30,9 +30,11 @@ class Builder:
         self.build_databases()
 
         if not self.init_only:
-            self.build_db()
-            self.build_user_db()
-            self.build_war_file()
+            self.run_gradle(["clean"])
+            self.run_gradle(["buildDB"])
+            self.run_gradle(["integrate"])
+            self.run_gradle(["buildUserDB"])
+            self.run_gradle([":webapp:war"])
 
     def create_gradle_properties(self) -> None:
         # See also config/lib/install_intermine.py in intermine project
@@ -88,15 +90,6 @@ class Builder:
             f'"userprofile-{self.mine_name}" to {self.psql_user};'
         )
 
-    def build_db(self) -> None:
-        self.run_gradle(["buildDB"])
-
-    def build_user_db(self) -> None:
-        self.run_gradle(["buildUserDB"])
-
-    def build_war_file(self) -> None:
-        self.run_gradle([":webapp:war"])
-
     def run_gradle(self, gradle_args: list[Any]) -> None:
         os.chdir(PROJECT_ROOT_DIR)
 
@@ -133,6 +126,9 @@ class Builder:
         env = os.environ.copy()
         env["PGPASSWORD"] = self.psql_pass
 
+        if self.verbose:
+            log.info("Running:")
+            log.info(run_args)
         run(run_args, check=True, env=env)
 
 
