@@ -30,3 +30,4 @@ out/
 
 # Automatically generated
 gradle.properties
+release/
