@@ -28,16 +28,19 @@ jobs:
               uses: actions/setup-java@v1
               with:
                   java-version: '8'
+
             - name: Checkout cadremine
               uses: actions/checkout@v4
               with:
                   path: "cadremine"
+
             - name: Checkout intermine
               uses: actions/checkout@v4
               with:
                   repository: "intermine/intermine"
                   ref: "eclipse-setup"
                   path: "intermine"
+
             - name: Install intermine
               run: |
                   set -euxo pipefail
@@ -45,6 +48,13 @@ jobs:
                   export PSQL_PWD=test
                   export PSQL_HOST=localhost
                   python3 ${GITHUB_WORKSPACE}/intermine/config/lib/install_intermine.py
+
+            - name: Copy cadremine.properties
+              run: |
+                  set -euxo pipefail
+                  intermine_dir=${HOME}/.intermine
+                  mkdir -p "${intermine_dir}"
+                  cp ${GITHUB_WORKSPACE}/cadremine/data/cadremine.properties "${intermine_dir}"
 
             - name: Release
               run: |
