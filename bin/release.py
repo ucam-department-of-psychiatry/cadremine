@@ -134,7 +134,6 @@ class Releaser:
 
     def copy_install_scripts(self) -> None:
         scripts = [
-            "install_boot.sh",
             "install_boot.py",
             "install.py",
         ]
