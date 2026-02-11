@@ -4,8 +4,10 @@ import argparse
 from dataclasses import dataclass
 import logging
 import os
-from subprocess import run
+import socket
+from subprocess import CompletedProcess, run
 import sys
+import time
 from typing import Any
 from venv import EnvBuilder
 
@@ -16,6 +18,7 @@ log = logging.getLogger(__name__)
 class Booter:
     recreate_venv: bool
     verbose: bool
+    pypi_host_port: int
 
     def __post_init__(self) -> None:
         self.release_dir = os.path.dirname(os.path.realpath(__file__))
@@ -27,8 +30,6 @@ class Booter:
         )
         self.venv_dir = os.path.join(self.release_dir, "venv")
         self.venv_python = os.path.join(self.venv_dir, "bin", "python")
-
-        self.pypi_port = 8080
 
     def boot(self) -> None:
         self.install_local_pypi_server()
@@ -49,18 +50,47 @@ class Booter:
         self.run_with_env(["docker", "load", "-i", pypi_tar_file])
 
     def run_local_pypi_server(self) -> None:
-        self.run_with_env(
+        container_name = "cadre_pypi_server"
+
+        result = self.run_with_env(
             [
                 "docker",
-                "run",
-                "-p",
-                f"80:{self.pypi_port}",
-                "-v",
-                f"{self.python_packages_dir}:/data/packages",
-                "pypiserver/pypiserver:v2.4",
-                "run",
+                "start",
+                container_name,
             ]
         )
+        if result.returncode != 0:
+            self.run_with_env(
+                [
+                    "docker",
+                    "run",
+                    "--name",
+                    container_name,
+                    "-p",
+                    f"{self.pypi_host_port}:80",
+                    "-v",
+                    f"{self.python_packages_dir}:/data/packages",
+                    "--detach",
+                    "pypiserver/pypiserver:v2.4",
+                    "run",
+                ]
+            )
+        self.wait_for_port("127.0.0.1", self.pypi_host_port, 60)
+
+    def wait_for_port(
+        self, ip_address: str, port: int, timeout_s: float
+    ) -> None:
+        start_time = time.time()
+
+        while time.time() - start_time < timeout_s:
+            try:
+                with socket.create_connection((ip_address, port), timeout_s):
+                    return
+
+            except OSError:
+                time.sleep(1)
+
+        raise TimeoutError("Gave up waiting for port {port} on {ip_address}.")
 
     def create_virtual_environment(self) -> None:
         builder = EnvBuilder(
@@ -77,11 +107,10 @@ class Booter:
                 "pip",
                 "install",
                 "--extra-index-url",
-                f"http://localhost:{self.pypi_port}",
+                f"http://localhost:{self.pypi_host_port}",
                 "-r",
                 f"{self.release_dir}/requirements.txt",
-            ],
-            check=True,
+            ]
         )
 
     def run_install_script(self) -> None:
@@ -93,16 +122,18 @@ class Booter:
         if self.verbose:
             install_args.append("--verbose")
 
-        returned_value = self.run_with_env(install_args)
+        returned_value = self.run_with_env(install_args, check=False)
         sys.exit(returned_value.returncode)
 
-    def run_with_env(self, run_args: list[Any]) -> None:
+    def run_with_env(
+        self, run_args: list[Any], check=True
+    ) -> CompletedProcess[Any]:
         env = os.environ.copy()
 
         if self.verbose:
             log.info("Running:")
             log.info(run_args)
-        run(run_args, check=True, env=env)
+        return run(run_args, check=check, env=env)
 
 
 def main() -> None:
@@ -116,6 +147,12 @@ def main() -> None:
     )
     parser.add_argument(
         "--verbose", "-v", action="store_true", help="Be verbose"
+    )
+    parser.add_argument(
+        "--pypi_host_port",
+        type=int,
+        default=8080,
+        help="Host port to use for the PyPI server",
     )
 
     args = parser.parse_args()
