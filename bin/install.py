@@ -4,6 +4,7 @@ import argparse
 from dataclasses import dataclass
 import logging
 import os
+from pathlib import Path
 from subprocess import run
 from typing import Any
 
@@ -19,20 +20,32 @@ class Installer:
 
     def __post_init__(self) -> None:
         self.release_dir = os.path.dirname(os.path.realpath(__file__))
+        self.docker_images_dir = os.path.join(
+            self.release_dir, "docker_images"
+        )
+
         self._docker = None
 
     @property
     def docker(self) -> DockerClient:
         if self._docker is None:
-            self._docker = DockerClient()
+            compose_files = [
+                os.path.join(self.release_dir, "docker-compose.yml")
+            ]
+            self._docker = DockerClient(compose_files=compose_files)
 
         return self._docker
 
     def install(self) -> None:
-        self.setup_docker_registry()
+        self.load_docker_images()
+        self.start_containers()
 
-    def setup_docker_registry(self) -> None:
-        pass
+    def load_docker_images(self) -> None:
+        for filename in Path(self.docker_images_dir).glob("*.tar"):
+            self.docker.load(filename)
+
+    def start_containers(self) -> None:
+        self.docker.compose.up(detach=True)
 
     def run_with_env(self, run_args: list[Any]) -> None:
         env = os.environ.copy()

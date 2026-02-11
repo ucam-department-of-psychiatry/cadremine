@@ -1,0 +1,70 @@
+volumes:
+  postgres_volume:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: "./data/postgres"
+
+  solr_volume:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: "./data/solr"
+
+  bluegenes_volume:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: "./data/bluegenes_tools"
+
+services:
+  postgres:
+    container_name: intermine_postgres
+    build:
+      context: ./postgres
+      dockerfile: ./postgres.Dockerfile
+    volumes:
+      - postgres_volume:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - PGDATA=/var/lib/postgresql/data
+    ports:
+      - ${POSTGRES_HOST_PORT}:${POSTGRES_PORT}
+
+  solr:
+    container_name: intermine_solr
+    build:
+      context: ./solr
+      dockerfile: ./solr.Dockerfile
+    environment:
+      - MEM_OPTS=${SOLR_MEM_OPTS}
+      - MINE_NAME=${MINE_NAME}
+    volumes:
+      - solr_volume:/var/solr
+    ports:
+      - ${SOLR_HOST_PORT}:${SOLR_PORT}
+
+  tomcat:
+    container_name: intermine_tomcat
+    build:
+      context: ./tomcat
+      dockerfile: ./tomcat.Dockerfile
+    environment:
+      - MEM_OPTS=${TOMCAT_MEM_OPTS}
+    ports:
+      - ${TOMCAT_HOST_PORT}:${TOMCAT_PORT}
+
+  bluegenes:
+    container_name: intermine_bluegenes
+    image: intermine/bluegenes:1.4.5-dx
+    volumes:
+      - bluegenes_volume:/tools
+    environment:
+      - BLUEGENES_DEFAULT_SERVICE_ROOT="http://localhost:${TOMCAT_HOST_PORT}/cadremine"
+      - BLUEGENES_BACKEND_SERVICE_ROOT="http://tomcat:${TOMCAT_PORT}/cadremine"
+      - BLUEGENES_DEFAULT_MINE_NAME=CADREMine
+      - BLUEGENES_DEFAULT_NAMESPACE=cadremine

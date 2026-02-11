@@ -44,11 +44,9 @@ class Releaser:
         self.create_gradle_properties()
         self.run_gradle([":webapp:war"])
         self.create_release_directories()
-        self.copy_war_file()
+        self.copy_files()
         self.save_docker_images()
         self.download_python_packages()
-        self.copy_requirements_file()
-        self.copy_install_scripts()
 
     def create_gradle_properties(self) -> None:
         # See also config/lib/install_intermine.py in intermine project
@@ -87,11 +85,38 @@ class Releaser:
         Path(self.release_dir).mkdir(exist_ok=True)
         Path(self.python_packages_dir).mkdir(exist_ok=True)
 
-    def copy_war_file(self) -> None:
+    def copy_files(self) -> None:
         war_file = os.path.join(
             self.project_root_dir, "webapp", "build", "libs", "webapp.war"
         )
-        shutil.copy(war_file, self.release_dir)
+
+        install_scripts = [
+            os.path.join(self.bin_dir, f)
+            for f in ["install_boot.py", "install.py"]
+        ]
+
+        docker_compose_file = os.path.join(
+            self.project_root_dir, "docker-compose.yml"
+        )
+
+        dot_env_file = os.path.join(
+            self.project_root_dir, ".env"
+        )
+
+        all_files = [
+            war_file,
+            self.requirements_file,
+            docker_compose_file,
+            dot_env_file,
+        ] + install_scripts
+
+        for filename in all_files:
+            shutil.copy(filename, self.release_dir)
+
+        for docker_dir in ["postgres", "solr", "tomcat"]:
+            src_path = os.path.join(self.project_root_dir, docker_dir)
+            dest_path = os.path.join(self.release_dir, docker_dir)
+            shutil.copytree(src_path, dest_path)
 
     def save_docker_images(self) -> None:
         docker_images_dir = os.path.join(self.release_dir, "docker_images")
@@ -128,19 +153,6 @@ class Releaser:
                 self.python_packages_dir,
             ]
         )
-
-    def copy_requirements_file(self) -> None:
-        shutil.copy(self.requirements_file, self.release_dir)
-
-    def copy_install_scripts(self) -> None:
-        scripts = [
-            "install_boot.py",
-            "install.py",
-        ]
-
-        for script in scripts:
-            script_path = os.path.join(self.bin_dir, script)
-            shutil.copy(script_path, self.release_dir)
 
     def run_with_env(self, run_args: list[Any]) -> None:
         env = os.environ.copy()
