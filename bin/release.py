@@ -122,9 +122,10 @@ class Releaser:
                 "-m",
                 "pip",
                 "download",
-                self.python_packages_dir,
                 "-r",
                 self.requirements_file,
+                "--dest",
+                self.python_packages_dir,
             ]
         )
 
