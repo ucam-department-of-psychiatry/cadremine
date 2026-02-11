@@ -57,7 +57,8 @@ class Booter:
                 "docker",
                 "start",
                 container_name,
-            ]
+            ],
+            check=False,
         )
         if result.returncode != 0:
             self.run_with_env(
