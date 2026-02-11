@@ -111,7 +111,9 @@ class Releaser:
         for image in images:
             filename = image.split("/")[-1].replace(":", "-")
             path = os.path.join(docker_images_dir, f"{filename}.tar")
-            self.docker.save(image, path)
+
+            if not os.path.exists(path):
+                self.docker.save(image, path)
 
     def download_python_packages(self) -> None:
         self.run_with_env(
