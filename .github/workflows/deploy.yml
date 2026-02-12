@@ -7,16 +7,22 @@ on:
         paths:
             - .github/workflows/deploy.yml
             - bin/install_boot.py
+            - bin/install.py
             - bin/release.py
             - build.gradle
             - data/**
             - dbmodel/**
+            - docker-compose.yml
+            - .env
             - extra/**
             - gradle.properties.in
             - make-loader.sh
+            - postgres/**
             - project_build
             - project.xml
             - settings.gradle
+            - solr/**
+            - tomcat/**
             - webapp/**
 
 jobs:
