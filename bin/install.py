@@ -38,11 +38,17 @@ class Installer:
 
     def install(self) -> None:
         self.load_docker_images()
+        self.make_data_dirs()
         self.start_containers()
 
     def load_docker_images(self) -> None:
         for filename in Path(self.docker_images_dir).glob("*.tar"):
             self.docker.load(filename)
+
+    def make_data_dirs(self) -> None:
+        for data_dir in ["postgres", "solr", "tomcat", "bluegenes_tools"]:
+            full_path = os.path.join(self.release_dir, "data", data_dir)
+            Path(full_path).mkdir(parents=True, exist_ok=True)
 
     def start_containers(self) -> None:
         self.docker.compose.up(detach=True)
