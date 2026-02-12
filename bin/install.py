@@ -19,12 +19,16 @@ log = logging.getLogger(__name__)
 class Installer:
     verbose: bool
     tomcat_host_port: int
+    recreate_databases: bool
 
     def __post_init__(self) -> None:
+        self.mine_name = "cadremine"
         self.release_dir = os.path.dirname(os.path.realpath(__file__))
         self.docker_images_dir = os.path.join(
             self.release_dir, "docker_images"
         )
+        self.pg_host = "localhost"
+        self.psql_user = "postgres"
 
         self._docker = None
 
@@ -42,6 +46,7 @@ class Installer:
         self.load_docker_images()
         self.make_data_dirs()
         self.start_containers()
+        self.build_databases()
         self.deploy_war_file()
 
     def load_docker_images(self) -> None:
@@ -58,10 +63,63 @@ class Installer:
 
         self.wait_for_port("127.0.0.1", self.tomcat_host_port, 60)
 
+    def build_databases(self) -> None:
+        self.run_psql(
+            "SELECT pg_terminate_backend(pid) FROM pg_stat_activity "
+            "WHERE pid <> pg_backend_pid();"
+        )
+
+        if not self.recreate_databases:
+            return
+
+        self.drop_db(self.mine_name)
+        self.drop_db(f"items-{self.mine_name}")
+        self.drop_db(f"userprofile-{self.mine_name}")
+
+        self.create_db(self.mine_name)
+        self.create_db(f"items-{self.mine_name}")
+        self.create_db(f"userprofile-{self.mine_name}")
+
+        self.run_psql(
+            f'GRANT ALL PRIVILEGES ON DATABASE "{self.mine_name}" to '
+            f"{self.psql_user};"
+        )
+        self.run_psql(
+            f'GRANT ALL PRIVILEGES ON DATABASE "items-{self.mine_name}" to '
+            f"{self.psql_user};"
+        )
+        self.run_psql(
+            "GRANT ALL PRIVILEGES ON DATABASE "
+            f'"userprofile-{self.mine_name}" to {self.psql_user};'
+        )
+
+    def drop_db(self, name: str) -> None:
+        self.run_postgres("dropdb", ["--if-exists", name])
+
+    def create_db(self, name: str) -> None:
+        self.run_postgres("createdb", [name])
+
+    def run_psql(self, sql: str) -> None:
+        self.run_postgres("psql", ["-c", sql])
+
+    def run_postgres(
+        self, command: str, postgres_args: list[Any] = None
+    ) -> None:
+        if postgres_args is None:
+            postgres_args = []
+
+        args = [command, "-h", self.pg_host, "-U", self.psql_user]
+
+        self.run_with_env(args + postgres_args)
+
     def deploy_war_file(self) -> None:
         war_file = os.path.join(self.release_dir, "webapp.war")
         webapps_dir = os.path.join("usr", "local", "tomcat", "webapps")
-        dest_path = os.path.join(webapps_dir, "cadremine.war")
+        dest_path = os.path.join(webapps_dir, f"{self.mine_name}.war")
+
+        if self.verbose:
+            log.info(f"Copying WAR file to {dest_path} on Tomcat server")
+
         self.docker.copy(war_file, ("intermine_tomcat", dest_path))
 
     def wait_for_port(
@@ -97,6 +155,12 @@ def main() -> None:
         type=int,
         default=9999,
         help="Host port to use for the Tomcat server",
+    )
+    parser.add_argument(
+        "--recreate_databases",
+        type=bool,
+        default=False,
+        help="Recreate databases",
     )
     parser.add_argument(
         "--verbose", "-v", action="store_true", help="Be verbose"

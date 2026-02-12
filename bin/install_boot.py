@@ -20,6 +20,7 @@ class Booter:
     verbose: bool
     pypi_host_port: int
     tomcat_host_port: int
+    recreate_databases: bool
 
     def __post_init__(self) -> None:
         self.release_dir = os.path.dirname(os.path.realpath(__file__))
@@ -123,6 +124,9 @@ class Booter:
             str(self.tomcat_host_port),
         ]
 
+        if self.recreate_databases:
+            install_args.append("--recreate_databases")
+
         if self.verbose:
             install_args.append("--verbose")
 
@@ -163,6 +167,12 @@ def main() -> None:
         type=int,
         default=9999,
         help="Host port to use for the Tomcat server",
+    )
+    parser.add_argument(
+        "--recreate_databases",
+        type=bool,
+        default=False,
+        help="Recreate databases",
     )
 
     args = parser.parse_args()
