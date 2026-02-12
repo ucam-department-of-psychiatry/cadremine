@@ -42,6 +42,7 @@ class Installer:
         self.load_docker_images()
         self.make_data_dirs()
         self.start_containers()
+        self.deploy_war_file()
 
     def load_docker_images(self) -> None:
         for filename in Path(self.docker_images_dir).glob("*.tar"):
@@ -56,6 +57,12 @@ class Installer:
         self.docker.compose.up(detach=True)
 
         self.wait_for_port("127.0.0.1", self.tomcat_host_port, 60)
+
+    def deploy_war_file(self) -> None:
+        war_file = os.path.join(self.release_dir, "webapp.war")
+        webapps_dir = os.path.join("usr", "local", "tomcat", "webapps")
+        dest_path = os.path.join(webapps_dir, "cadremine.war")
+        self.docker.copy(war_file, ("intermine_tomcat", dest_path))
 
     def wait_for_port(
         self, ip_address: str, port: int, timeout_s: float
