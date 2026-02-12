@@ -19,6 +19,7 @@ class Booter:
     recreate_venv: bool
     verbose: bool
     pypi_host_port: int
+    tomcat_host_port: int
 
     def __post_init__(self) -> None:
         self.release_dir = os.path.dirname(os.path.realpath(__file__))
@@ -118,6 +119,8 @@ class Booter:
         install_args = [
             self.venv_python,
             f"{self.release_dir}/install.py",
+            "--tomcat_host_port",
+            str(self.tomcat_host_port),
         ]
 
         if self.verbose:
@@ -154,6 +157,12 @@ def main() -> None:
         type=int,
         default=8080,
         help="Host port to use for the PyPI server",
+    )
+    parser.add_argument(
+        "--tomcat_host_port",
+        type=int,
+        default=9999,
+        help="Host port to use for the Tomcat server",
     )
 
     args = parser.parse_args()

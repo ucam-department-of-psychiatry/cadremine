@@ -5,7 +5,9 @@ from dataclasses import dataclass
 import logging
 import os
 from pathlib import Path
+import socket
 from subprocess import run
+import time
 from typing import Any
 
 from python_on_whales import DockerClient
@@ -16,7 +18,7 @@ log = logging.getLogger(__name__)
 @dataclass
 class Installer:
     verbose: bool
-    mine_name: str = "cadremine"
+    tomcat_host_port: int
 
     def __post_init__(self) -> None:
         self.release_dir = os.path.dirname(os.path.realpath(__file__))
@@ -53,6 +55,23 @@ class Installer:
     def start_containers(self) -> None:
         self.docker.compose.up(detach=True)
 
+        self.wait_for_port("127.0.0.1", self.tomcat_host_port, 60)
+
+    def wait_for_port(
+        self, ip_address: str, port: int, timeout_s: float
+    ) -> None:
+        start_time = time.time()
+
+        while time.time() - start_time < timeout_s:
+            try:
+                with socket.create_connection((ip_address, port), timeout_s):
+                    return
+
+            except OSError:
+                time.sleep(1)
+
+        raise TimeoutError("Gave up waiting for port {port} on {ip_address}.")
+
     def run_with_env(self, run_args: list[Any]) -> None:
         env = os.environ.copy()
 
@@ -67,6 +86,12 @@ def main() -> None:
         description="Install cadremine",
     )
     parser.add_argument(
+        "--tomcat_host_port",
+        type=int,
+        default=9999,
+        help="Host port to use for the Tomcat server",
+    )
+    parser.add_argument(
         "--verbose", "-v", action="store_true", help="Be verbose"
     )
 
@@ -75,11 +100,7 @@ def main() -> None:
 
     logging.basicConfig(level=log_level)
 
-    installer_args = dict(
-        verbose=args.verbose,
-    )
-
-    installer = Installer(**installer_args)
+    installer = Installer(**vars(args))
     installer.install()
 
 
