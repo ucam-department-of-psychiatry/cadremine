@@ -124,7 +124,7 @@ class Releaser:
 
         dot_gradle_dir = os.path.join(self.release_dir, ".gradle")
         Path(dot_gradle_dir).mkdir(exist_ok=True)
-        init_dot_gradle = os.path.join(self.project_root, "init.gradle")
+        init_dot_gradle = os.path.join(self.project_root_dir, "init.gradle")
         shutil.copy(init_dot_gradle, dot_gradle_dir)
 
     def save_docker_images(self) -> None:
