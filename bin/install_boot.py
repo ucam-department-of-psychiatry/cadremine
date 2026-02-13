@@ -5,13 +5,17 @@ from dataclasses import dataclass
 import logging
 import os
 import socket
-from subprocess import CompletedProcess, run
+from subprocess import CompletedProcess, PIPE, Popen, run
 import sys
 import time
 from typing import Any
 from venv import EnvBuilder
 
 log = logging.getLogger(__name__)
+
+
+class BootException(Exception):
+    pass
 
 
 @dataclass
@@ -49,7 +53,22 @@ class Booter:
             self.docker_images_dir, "pypiserver-v2.4.tar"
         )
 
-        self.run_with_env(["docker", "load", "-i", pypi_tar_file])
+        # For some reason docker load with --input argument doesn't work in
+        # the UK SeRP TRE but sending the file to stdin does
+        p = Popen(["docker", "load"], stdin=PIPE, stdout=PIPE)
+        with open(pypi_tar_file, "rb") as f:
+            for buffer_bytes in f:
+                p.stdin.write(buffer_bytes)
+                p.stdin.flush()
+            p.stdin.close()
+            output = p.stdout.read()
+            p.stdout.close()
+            exit_code = p.wait()
+            if exit_code != 0:
+                raise BootException(
+                    f"docker load failed with exit code {exit_code}"
+                )
+            print(output.decode().splitlines())
 
     def run_local_pypi_server(self) -> None:
         container_name = "cadre_pypi_server"
