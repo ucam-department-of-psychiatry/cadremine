@@ -120,7 +120,7 @@ class Releaser:
         for docker_dir in ["postgres", "solr", "tomcat"]:
             src_path = os.path.join(self.project_root_dir, docker_dir)
             dest_path = os.path.join(self.release_dir, docker_dir)
-            shutil.copytree(src_path, dest_path, dirs_exist_ok=False)
+            shutil.copytree(src_path, dest_path, dirs_exist_ok=True)
 
         dot_gradle_dir = os.path.join(self.release_dir, ".gradle")
         Path(dot_gradle_dir).mkdir(exist_ok=True)
