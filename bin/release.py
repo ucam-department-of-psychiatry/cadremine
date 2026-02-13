@@ -31,6 +31,9 @@ class Releaser:
         self.python_packages_dir = os.path.join(
             self.release_dir, "python_packages"
         )
+        self.war_file = os.path.join(
+            self.project_root_dir, "webapp", "build", "libs", "webapp.war"
+        )
 
         self._docker = None
 
@@ -43,7 +46,7 @@ class Releaser:
 
     def release(self) -> None:
         self.create_gradle_properties()
-        self.run_gradle([":webapp:war"])
+        self.create_war_file()
         self.create_release_directories()
         self.copy_files()
         self.save_docker_images()
@@ -73,6 +76,10 @@ class Releaser:
 
             print(f"Written {out_file}")
 
+    def create_war_file(self) -> None:
+        if not Path(self.war_file).exists():
+            self.run_gradle([":webapp:war"])
+
     def run_gradle(self, gradle_args: list[Any]) -> None:
         os.chdir(self.project_root_dir)
 
@@ -88,10 +95,6 @@ class Releaser:
         Path(self.python_packages_dir).mkdir(exist_ok=True)
 
     def copy_files(self) -> None:
-        war_file = os.path.join(
-            self.project_root_dir, "webapp", "build", "libs", "webapp.war"
-        )
-
         install_scripts = [
             os.path.join(self.bin_dir, f)
             for f in ["install_boot.py", "install.py"]
@@ -102,10 +105,14 @@ class Releaser:
             for f in ["docker-compose.yml", ".env"]
         ]
 
-        all_files = [
-            war_file,
-            self.requirements_file,
-        ] + install_scripts + top_level_files
+        all_files = (
+            [
+                self.war_file,
+                self.requirements_file,
+            ]
+            + install_scripts
+            + top_level_files
+        )
 
         for filename in all_files:
             shutil.copy(filename, self.release_dir)
