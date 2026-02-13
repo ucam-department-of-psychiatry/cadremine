@@ -126,7 +126,7 @@ class Releaser:
             "intermine/bluegenes:1.4.5-dx",
             "postgres:14",
             "pypiserver/pypiserver:v2.4",
-            "registry:3.0.0",
+            "sonatype/nexus3:3.89.1",
             "solr:8.11-slim",
             "tomcat:9-jre8-temurin-jammy",
         ]

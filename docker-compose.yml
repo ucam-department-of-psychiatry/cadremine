@@ -20,6 +20,14 @@ volumes:
       type: none
       device: "./data/bluegenes_tools"
 
+  nexus_volume:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: "./data/nexus"
+
+
 services:
   postgres:
     container_name: intermine_postgres
@@ -68,3 +76,11 @@ services:
       - BLUEGENES_BACKEND_SERVICE_ROOT="http://tomcat:${TOMCAT_PORT}/cadremine"
       - BLUEGENES_DEFAULT_MINE_NAME=CADREMine
       - BLUEGENES_DEFAULT_NAMESPACE=cadremine
+
+  nexus:
+    container_name: intermine_nexus
+    image: sonatype/nexus3:3.89.1
+    ports:
+      - '8081:8081'
+    volumes:
+      - nexus_volume:/nexus-data
