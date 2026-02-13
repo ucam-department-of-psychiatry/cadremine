@@ -24,6 +24,7 @@ class Releaser:
         self.bin_dir = os.path.dirname(os.path.realpath(__file__))
         self.project_root_dir = os.path.join(self.bin_dir, "..")
         self.release_dir = os.path.join(self.project_root_dir, "release")
+        self.archive_dir = os.path.join(self.project_root_dir, "archive")
         self.requirements_file = os.path.join(
             self.project_root_dir, "requirements.txt"
         )
@@ -47,6 +48,7 @@ class Releaser:
         self.copy_files()
         self.save_docker_images()
         self.download_python_packages()
+        self.create_archive()
 
     def create_gradle_properties(self) -> None:
         # See also config/lib/install_intermine.py in intermine project
@@ -153,6 +155,31 @@ class Releaser:
                 self.python_packages_dir,
             ]
         )
+
+    def create_archive(self) -> None:
+        Path(self.archive_dir).mkdir(exist_ok=True)
+        full_prefix = os.path.join(self.archive_dir, "cadremine_full")
+        incremental_prefix = os.path.join(
+            self.archive_dir, "cadremine_incremental"
+        )
+        incremental = Path(f"{full_prefix}.1.dar").exists()
+
+        dar_args = ["dar", "-R", self.release_dir, "-z", "-vt"]
+
+        for dir_to_exclude in ["data"]:
+            dar_args += [
+                "-P",
+                dir_to_exclude,
+            ]
+
+        prefix = full_prefix
+        if incremental:
+            dar_args += ["-A", full_prefix]
+            prefix = incremental_prefix
+
+        dar_args += ["-c", prefix]
+
+        self.run_with_env(dar_args)
 
     def run_with_env(self, run_args: list[Any]) -> None:
         env = os.environ.copy()
