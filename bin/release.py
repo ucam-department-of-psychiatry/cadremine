@@ -95,20 +95,15 @@ class Releaser:
             for f in ["install_boot.py", "install.py"]
         ]
 
-        docker_compose_file = os.path.join(
-            self.project_root_dir, "docker-compose.yml"
-        )
-
-        dot_env_file = os.path.join(
-            self.project_root_dir, ".env"
-        )
+        top_level_files = [
+            os.path.join(self.project_root_dir, f)
+            for f in ["docker-compose.yml", ".env"]
+        ]
 
         all_files = [
             war_file,
             self.requirements_file,
-            docker_compose_file,
-            dot_env_file,
-        ] + install_scripts
+        ] + install_scripts + top_level_files
 
         for filename in all_files:
             shutil.copy(filename, self.release_dir)
@@ -116,7 +111,12 @@ class Releaser:
         for docker_dir in ["postgres", "solr", "tomcat"]:
             src_path = os.path.join(self.project_root_dir, docker_dir)
             dest_path = os.path.join(self.release_dir, docker_dir)
-            shutil.copytree(src_path, dest_path)
+            shutil.copytree(src_path, dest_path, dirs_exist_ok=False)
+
+        dot_gradle_dir = os.path.join(self.release_dir, ".gradle")
+        Path(dot_gradle_dir).mkdir(exist_ok=True)
+        init_dot_gradle = os.path.join(self.project_root, "init.gradle")
+        shutil.copy(init_dot_gradle, dot_gradle_dir)
 
     def save_docker_images(self) -> None:
         docker_images_dir = os.path.join(self.release_dir, "docker_images")
