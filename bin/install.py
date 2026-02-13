@@ -54,7 +54,13 @@ class Installer:
             self.docker.load(filename)
 
     def make_data_dirs(self) -> None:
-        for data_dir in ["postgres", "solr", "tomcat", "bluegenes_tools"]:
+        for data_dir in [
+            "postgres",
+            "solr",
+            "tomcat",
+            "bluegenes_tools",
+            "nexus",
+        ]:
             full_path = os.path.join(self.release_dir, "data", data_dir)
             Path(full_path).mkdir(parents=True, exist_ok=True)
 
