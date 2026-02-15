@@ -2,6 +2,7 @@
 
 import argparse
 from dataclasses import dataclass
+from datetime import datetime
 import glob
 import logging
 import os
@@ -166,8 +167,9 @@ class Releaser:
     def create_archive(self) -> None:
         Path(self.archive_dir).mkdir(exist_ok=True)
         full_prefix = os.path.join(self.archive_dir, "cadremine_full")
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         incremental_prefix = os.path.join(
-            self.archive_dir, "cadremine_incremental"
+            self.archive_dir, f"cadremine_incremental_{timestamp}"
         )
         incremental = Path(f"{full_prefix}.1.dar").exists()
 
@@ -179,10 +181,21 @@ class Releaser:
                 dir_to_exclude,
             ]
 
-        prefix = full_prefix
         if incremental:
-            dar_args += ["-A", full_prefix]
+            archives = sorted(os.listdir(self.archive_dir))
+            if len(archives) > 1:  # More than just the full archive
+                most_recent = archives[-1]
+                # strip .1.dar
+                previous = os.path.join(self.archive_dir, most_recent[:-6])
+            else:
+                previous = full_prefix
+
+            log.info(f"Creating incremental archive from {previous}")
+            dar_args += ["-A", previous]
             prefix = incremental_prefix
+        else:
+            log.info("Creating full archive")
+            prefix = full_prefix
 
         dar_args += ["-c", prefix]
 
