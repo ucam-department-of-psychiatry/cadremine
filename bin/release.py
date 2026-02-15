@@ -173,31 +173,40 @@ class Releaser:
         )
         incremental = Path(f"{full_prefix}.1.dar").exists()
 
-        dar_args = ["dar", "-R", self.release_dir, "-z", "-vt"]
-
-        for dir_to_exclude in ["data"]:
-            dar_args += [
-                "-P",
-                dir_to_exclude,
-            ]
-
         if incremental:
             archives = sorted(os.listdir(self.archive_dir))
             if len(archives) > 1:  # More than just the full archive
                 most_recent = archives[-1]
                 # strip .1.dar
-                previous = os.path.join(self.archive_dir, most_recent[:-6])
+                previous_prefix = os.path.join(
+                    self.archive_dir, most_recent[:-6]
+                )
             else:
-                previous = full_prefix
+                previous_prefix = full_prefix
 
-            log.info(f"Creating incremental archive from {previous}")
-            dar_args += ["-A", previous]
+            log.info(f"Creating incremental archive from {previous_prefix}")
             prefix = incremental_prefix
         else:
             log.info("Creating full archive")
             prefix = full_prefix
 
-        dar_args += ["-c", prefix]
+        dar_args = [
+            "dar",
+            "-c",
+            prefix,
+            "-z",
+            "-vt",
+            "-w",
+            "-A",
+            previous_prefix,
+            "-R",
+            self.release_dir,
+        ]
+        for dir_to_exclude in ["data"]:
+            dar_args += [
+                "-P",
+                dir_to_exclude,
+            ]
 
         self.run_with_env(dar_args)
 
