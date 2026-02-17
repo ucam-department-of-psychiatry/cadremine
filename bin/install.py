@@ -70,7 +70,13 @@ class Installer:
         self.docker.compose.up(detach=True)
 
         self.wait_for_port("127.0.0.1", self.tomcat_host_port)
+
+        # Not enough on its own as the container stops and restarts
         self.wait_for_port("127.0.0.1", self.postgres_host_port)
+
+        self.wait_for_docker_log(
+            "postgres", "database system is ready to accept connections"
+        )
 
     def build_databases(self) -> None:
         self.run_psql(
@@ -145,6 +151,27 @@ class Installer:
                 time.sleep(1)
 
         raise TimeoutError("Gave up waiting for port {port} on {ip_address}.")
+
+    def wait_for_docker_log(
+        self,
+        container_name: str,
+        message: str,
+        timeout_s: float = DEFAULT_TIMEOUT_S,
+    ) -> None:
+        start_time = time.time()
+
+        while time.time() - start_time < timeout_s:
+            logs = self.docker.compose.logs(container_name)
+            if message in logs:
+                return
+
+        time.sleep(1)
+
+        log.error(self.docker.compose.logs(container_name))
+        raise TimeoutError(
+            f"Gave up waiting for '{message}' to appear in "
+            f"log for '{container_name}'."
+        )
 
     def run_with_env(self, run_args: list[Any]) -> None:
         env = os.environ.copy()
