@@ -14,10 +14,12 @@ from python_on_whales import DockerClient
 
 log = logging.getLogger(__name__)
 
+DEFAULT_TIMEOUT_S = 60
 
 @dataclass
 class Installer:
     verbose: bool
+    postgres_host_port: int
     tomcat_host_port: int
     recreate_databases: bool
 
@@ -67,7 +69,8 @@ class Installer:
     def start_containers(self) -> None:
         self.docker.compose.up(detach=True)
 
-        self.wait_for_port("127.0.0.1", self.tomcat_host_port, 60)
+        self.wait_for_port("127.0.0.1", self.tomcat_host_port)
+        self.wait_for_port("127.0.0.1", self.postgres_host_port)
 
     def build_databases(self) -> None:
         self.run_psql(
@@ -129,7 +132,7 @@ class Installer:
         self.docker.copy(war_file, ("intermine_tomcat", dest_path))
 
     def wait_for_port(
-        self, ip_address: str, port: int, timeout_s: float
+        self, ip_address: str, port: int, timeout_s: float = DEFAULT_TIMEOUT_S
     ) -> None:
         start_time = time.time()
 
@@ -155,6 +158,12 @@ class Installer:
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Install cadremine",
+    )
+    parser.add_argument(
+        "--postgres_host_port",
+        type=int,
+        default=5432,
+        help="Host port to use for the Postgres server",
     )
     parser.add_argument(
         "--tomcat_host_port",

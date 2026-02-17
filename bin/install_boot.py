@@ -182,6 +182,12 @@ def main() -> None:
         help="Host port to use for the PyPI server",
     )
     parser.add_argument(
+        "--postgres_host_port",
+        type=int,
+        default=5432,
+        help="Host port to use for the Postgres server",
+    )
+    parser.add_argument(
         "--tomcat_host_port",
         type=int,
         default=9999,
