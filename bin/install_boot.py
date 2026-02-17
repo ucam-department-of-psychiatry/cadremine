@@ -22,6 +22,7 @@ class BootException(Exception):
 class Booter:
     recreate_venv: bool
     verbose: bool
+    postgres_host_port: int
     pypi_host_port: int
     tomcat_host_port: int
     recreate_databases: bool
@@ -139,6 +140,8 @@ class Booter:
         install_args = [
             self.venv_python,
             f"{self.release_dir}/install.py",
+            "--postgres_host_port",
+            str(self.postgres_host_port),
             "--tomcat_host_port",
             str(self.tomcat_host_port),
         ]
