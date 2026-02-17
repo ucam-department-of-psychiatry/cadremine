@@ -84,3 +84,16 @@ jobs:
                   set -euxo pipefail
                   # Note: System python3
                   python3 ${GITHUB_WORKSPACE}/cadremine/release/install_boot.py
+
+            - name: Dump Docker logs
+              if: failure()
+              run: |
+                  set -euo pipefail
+                  cd ${GITHUB_WORKSPACE}
+                  sleep 120
+                  compose_file=${GITHUB_WORKSPACE}/cadremine/release/docker-compose.yml
+                  docker compose -f ${compose_file} logs bluegenes
+                  docker compose -f ${compose_file} logs nexus
+                  docker compose -f ${compose_file} logs postgres
+                  docker compose -f ${compose_file} logs solr
+                  docker compose -f ${compose_file} logs tomcat
