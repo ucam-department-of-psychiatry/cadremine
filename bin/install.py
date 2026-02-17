@@ -127,7 +127,7 @@ class Installer:
         self.run_postgres("createdb", [name])
 
     def run_psql(self, sql: str, check: bool = True) -> CompletedProcess[Any]:
-        return self.run_postgres("psql", ["-c", sql])
+        return self.run_postgres("psql", ["-c", sql], check=check)
 
     def run_postgres(
         self,
