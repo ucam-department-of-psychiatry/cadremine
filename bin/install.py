@@ -6,7 +6,7 @@ import logging
 import os
 from pathlib import Path
 import socket
-from subprocess import run
+from subprocess import CompletedProcess, run
 import time
 from typing import Any
 
@@ -15,6 +15,7 @@ from python_on_whales import DockerClient
 log = logging.getLogger(__name__)
 
 DEFAULT_TIMEOUT_S = 60
+
 
 @dataclass
 class Installer:
@@ -74,9 +75,20 @@ class Installer:
         # Not enough on its own as the container stops and restarts
         self.wait_for_port("127.0.0.1", self.postgres_host_port)
 
-        self.wait_for_docker_log(
-            "postgres", "database system is ready to accept connections"
-        )
+        # https://github.com/docker-library/postgres/issues/146
+        self.wait_for_postgres()
+
+    def wait_for_postgres(self, timeout_s: float = DEFAULT_TIMEOUT_S) -> None:
+        start_time = time.time()
+
+        while time.time() - start_time < timeout_s:
+            returned_value = self.run_psql("SELECT 1", check=False)
+            if returned_value.returncode == 0:
+                return
+
+            time.sleep(1)
+
+        raise TimeoutError("Gave up waiting for Postgres container.")
 
     def build_databases(self) -> None:
         self.run_psql(
@@ -114,18 +126,21 @@ class Installer:
     def create_db(self, name: str) -> None:
         self.run_postgres("createdb", [name])
 
-    def run_psql(self, sql: str) -> None:
-        self.run_postgres("psql", ["-c", sql])
+    def run_psql(self, sql: str, check: bool = True) -> CompletedProcess[Any]:
+        return self.run_postgres("psql", ["-c", sql])
 
     def run_postgres(
-        self, command: str, postgres_args: list[Any] = None
-    ) -> None:
+        self,
+        command: str,
+        postgres_args: list[Any] = None,
+        check: bool = True,
+    ) -> CompletedProcess[Any]:
         if postgres_args is None:
             postgres_args = []
 
         args = [command, "-h", self.pg_host, "-U", self.psql_user]
 
-        self.run_with_env(args + postgres_args)
+        return self.run_with_env(args + postgres_args, check=check)
 
     def deploy_war_file(self) -> None:
         war_file = os.path.join(self.release_dir, "webapp.war")
@@ -152,34 +167,15 @@ class Installer:
 
         raise TimeoutError("Gave up waiting for port {port} on {ip_address}.")
 
-    def wait_for_docker_log(
-        self,
-        container_name: str,
-        message: str,
-        timeout_s: float = DEFAULT_TIMEOUT_S,
-    ) -> None:
-        start_time = time.time()
-
-        while time.time() - start_time < timeout_s:
-            logs = self.docker.compose.logs(container_name)
-            if message in logs:
-                return
-
-        time.sleep(1)
-
-        log.error(self.docker.compose.logs(container_name))
-        raise TimeoutError(
-            f"Gave up waiting for '{message}' to appear in "
-            f"log for '{container_name}'."
-        )
-
-    def run_with_env(self, run_args: list[Any]) -> None:
+    def run_with_env(
+        self, run_args: list[Any], check: bool = True
+    ) -> CompletedProcess[Any]:
         env = os.environ.copy()
 
         if self.verbose:
             log.info("Running:")
             log.info(run_args)
-        run(run_args, check=True, env=env)
+        return run(run_args, check=check, env=env)
 
 
 def main() -> None:
