@@ -9,7 +9,7 @@ import os
 from pathlib import Path
 import shutil
 from subprocess import run
-from typing import Any
+from typing import Any, Optional
 
 from python_on_whales import DockerClient
 
@@ -166,42 +166,33 @@ class Releaser:
 
     def create_archive(self) -> None:
         Path(self.archive_dir).mkdir(exist_ok=True)
-        full_prefix = os.path.join(self.archive_dir, "cadremine_full")
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        incremental_prefix = os.path.join(
-            self.archive_dir, f"cadremine_incremental_{timestamp}"
+        current_prefix, previous_prefix = (
+            self.get_current_and_previous_archives()
         )
-        incremental = Path(f"{full_prefix}.1.dar").exists()
 
-        if incremental:
-            archives = sorted(os.listdir(self.archive_dir))
-            if len(archives) > 1:  # More than just the full archive
-                most_recent = archives[-1]
-                # strip .1.dar
-                previous_prefix = os.path.join(
-                    self.archive_dir, most_recent[:-6]
-                )
-            else:
-                previous_prefix = full_prefix
-
+        previous_args = []
+        if previous_prefix:
             log.info(f"Creating incremental archive from {previous_prefix}")
-            prefix = incremental_prefix
+            previous_args = ["-A", previous_prefix]
         else:
             log.info("Creating full archive")
-            prefix = full_prefix
 
-        dar_args = [
-            "dar",
-            "-c",
-            prefix,
-            "-z",
-            "-vt",
-            "-w",
-            "-A",
-            previous_prefix,
-            "-R",
-            self.release_dir,
-        ]
+        dar_args = (
+            [
+                "dar",
+                "-c",
+                current_prefix,
+                "-z",
+                "-vt",
+                "-w",
+            ]
+            + previous_args
+            + [
+                "-R",
+                self.release_dir,
+            ]
+        )
+
         for dir_to_exclude in ["data"]:
             dar_args += [
                 "-P",
@@ -209,6 +200,25 @@ class Releaser:
             ]
 
         self.run_with_env(dar_args)
+
+    def get_current_and_previous_archives(self) -> tuple[str, Optional[str]]:
+        full_prefix = os.path.join(self.archive_dir, "cadremine_full")
+        # full comes alphabetically before incremental
+        archives = sorted(os.listdir(self.archive_dir))
+
+        if len(archives) == 0:
+            return full_prefix, None
+
+        most_recent = archives[-1]
+        # strip .1.dar
+        most_recent_prefix = most_recent[:-6]
+        previous_prefix = os.path.join(self.archive_dir, most_recent_prefix)
+
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        incremental_prefix = os.path.join(
+            self.archive_dir, f"cadremine_incremental_{timestamp}"
+        )
+        return incremental_prefix, previous_prefix
 
     def run_with_env(self, run_args: list[Any]) -> None:
         env = os.environ.copy()
