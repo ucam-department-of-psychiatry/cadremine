@@ -54,10 +54,7 @@ class Installer:
 
     def load_docker_images(self) -> None:
         for filename in Path(self.docker_images_dir).glob("*.tar"):
-            # For some reason docker load with --input argument doesn't work in
-            # the UK SeRP TRE but sending the file to stdin does
-            with open(filename, "rb") as f:
-                self.docker.load(f)
+            self.docker.load(filename)
 
     def make_data_dirs(self) -> None:
         for data_dir in [
