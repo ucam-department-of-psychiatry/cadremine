@@ -49,27 +49,11 @@ class Booter:
         self.run_install_script()
 
     def install_local_pypi_server(self) -> None:
-        # No python-on-whales until we have a pypi server
         pypi_tar_file = os.path.join(
             self.docker_images_dir, "pypiserver-v2.4.tar"
         )
 
-        # For some reason docker load with --input argument doesn't work in
-        # the UK SeRP TRE but sending the file to stdin does
-        p = Popen(["docker", "load"], stdin=PIPE, stdout=PIPE)
-        with open(pypi_tar_file, "rb") as f:
-            for buffer_bytes in f:
-                p.stdin.write(buffer_bytes)
-                p.stdin.flush()
-            p.stdin.close()
-            output = p.stdout.read()
-            p.stdout.close()
-            exit_code = p.wait()
-            if exit_code != 0:
-                raise BootException(
-                    f"docker load failed with exit code {exit_code}"
-                )
-            print(output.decode().splitlines())
+        self.run_with_env(["docker", "load", "-i", pypi_tar_file])
 
     def run_local_pypi_server(self) -> None:
         container_name = "cadre_pypi_server"
