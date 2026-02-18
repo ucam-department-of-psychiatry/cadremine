@@ -7,6 +7,6 @@ ENV JAVA_OPTS="$JAVA_OPTS -Dorg.apache.el.parser.SKIP_IDENTIFIER_CHECK=true $MEM
 # Intermine seems to need this to deploy.
 RUN cp -avT $CATALINA_HOME/webapps.dist/manager $CATALINA_HOME/webapps/manager
 
-COPY ./configs/conf/*.xml /usr/local/tomcat/conf
+COPY ./configs/conf/*.xml /usr/local/tomcat/conf/
 COPY ./configs/webapps/manager/META-INF/context.xml /usr/local/tomcat/webapps/manager/META-INF
 COPY ./configs/webapps/manager/WEB-INF/web.xml /usr/local/tomcat/webapps/manager/WEB-INF
