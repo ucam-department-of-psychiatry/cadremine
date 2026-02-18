@@ -82,7 +82,9 @@ class Installer:
         start_time = time.time()
 
         while time.time() - start_time < timeout_s:
-            returned_value = self.run_psql("SELECT 1", check=False)
+            returned_value = self.run_with_env(
+                ["pg_isready", "-h", "127.0.0.1"], check=False
+            )
             if returned_value.returncode == 0:
                 return
 
