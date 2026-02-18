@@ -147,6 +147,8 @@ class Releaser:
             filename = image.split("/")[-1].replace(":", "-")
             path = os.path.join(docker_images_dir, f"{filename}.tar")
 
+            # TODO: Will not save newer images that match the version
+            # if already saved
             if not os.path.exists(path):
                 self.docker.save(image, path)
 
