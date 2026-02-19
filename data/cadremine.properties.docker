@@ -10,7 +10,7 @@
 os.production.verboseQueryLog=true
 
 # Access to the postgres database to build into and access from the webapp
-db.production.datasource.serverName=localhost
+db.production.datasource.serverName=postgres
 db.production.datasource.databaseName=cadremine
 db.production.datasource.user=postgres
 db.production.datasource.password=postgres
@@ -20,7 +20,7 @@ db.production.datasource.password=postgres
 # It uses the InterMine 'items' metadata format to describe objects.
 
 # common target items database
-db.common-tgt-items.datasource.serverName=localhost
+db.common-tgt-items.datasource.serverName=postgres
 db.common-tgt-items.datasource.databaseName=items-cadremine
 db.common-tgt-items.datasource.user=postgres
 db.common-tgt-items.datasource.password=postgres
@@ -28,7 +28,7 @@ db.common-tgt-items.datasource.password=postgres
 
 # userprofile database - used by the webapp to store logins, query history,
 # saved bags, templates and tags.
-db.userprofile-production.datasource.serverName=localhost
+db.userprofile-production.datasource.serverName=postgres
 db.userprofile-production.datasource.databaseName=userprofile-cadremine
 db.userprofile-production.datasource.user=postgres
 db.userprofile-production.datasource.password=postgres
