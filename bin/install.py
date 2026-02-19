@@ -177,6 +177,11 @@ class Installer:
         if self.verbose:
             log.info("Running:")
             log.info(run_args)
+
+            for k in sorted(env.keys()):
+                v = env[k]
+                log.info(f"{k}={v}")
+
         return run(run_args, check=check, env=env)
 
 

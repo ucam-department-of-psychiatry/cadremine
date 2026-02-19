@@ -82,8 +82,9 @@ jobs:
             - name: Install
               run: |
                   set -euxo pipefail
+                  export PGPASSWORD=postgres
                   # Note: System python3
-                  python3 ${GITHUB_WORKSPACE}/cadremine/release/install_boot.py
+                  python3 ${GITHUB_WORKSPACE}/cadremine/release/install_boot.py -v
 
             - name: Dump Docker logs
               if: failure()
