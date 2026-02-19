@@ -67,17 +67,10 @@ jobs:
                   export PSQL_HOST=localhost
                   ${{ env.PYTHON }}  ${GITHUB_WORKSPACE}/intermine/config/lib/install_intermine.py
 
-            - name: Copy cadremine.properties
-              run: |
-                  set -euxo pipefail
-                  intermine_dir=${HOME}/.intermine
-                  mkdir -p "${intermine_dir}"
-                  cp ${GITHUB_WORKSPACE}/cadremine/data/cadremine.properties "${intermine_dir}"
-
             - name: Release
               run: |
                   set -euxo pipefail
-                  ${{ env.PYTHON }} ${GITHUB_WORKSPACE}/cadremine/bin/release.py ${GITHUB_WORKSPACE}/intermine
+                  ${{ env.PYTHON }} ${GITHUB_WORKSPACE}/cadremine/bin/release.py ${GITHUB_WORKSPACE}/intermine docker
 
             - name: Install
               run: |

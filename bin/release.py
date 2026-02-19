@@ -18,6 +18,7 @@ log = logging.getLogger(__name__)
 
 @dataclass
 class Releaser:
+    environment: str
     intermine_dir: str
     verbose: bool
 
@@ -59,6 +60,11 @@ class Releaser:
         bin_dir = os.path.dirname(os.path.realpath(__file__))
         root_dir = os.path.join(bin_dir, "..")
 
+        replacement_dict = {
+            "im_checkout": self.intermine_dir,
+            "im_environment": self.environment,
+        }
+
         for gradle_properties_in in glob.glob(
             "**/gradle.properties.in", root_dir=root_dir, recursive=True
         ):
@@ -71,9 +77,9 @@ class Releaser:
                 )
                 with open(in_file) as f_in:
                     for line in f_in:
-                        f_out.write(
-                            line.replace("@@im_checkout@@", self.intermine_dir)
-                        )
+                        for key, value in replacement_dict.items():
+                            line = line.replace(f"@@{key}@@", value)
+                        f_out.write(line)
 
             print(f"Written {out_file}")
 
@@ -239,6 +245,9 @@ def main() -> None:
         "intermine_dir", help="Top level directory containing Intermine"
     )
     parser.add_argument(
+        "environment", help="Environment to deploy to e.g. dev, docker"
+    )
+    parser.add_argument(
         "--verbose", "-v", action="store_true", help="Be verbose"
     )
 
@@ -247,12 +256,7 @@ def main() -> None:
 
     logging.basicConfig(level=log_level)
 
-    releaser_args = dict(
-        intermine_dir=args.intermine_dir,
-        verbose=args.verbose,
-    )
-
-    releaser = Releaser(**releaser_args)
+    releaser = Releaser(**vars(args))
     releaser.release()
 
 

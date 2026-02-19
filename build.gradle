@@ -26,8 +26,9 @@ buildscript {
 ext {
   mineRelease = project.hasProperty('release') ? "." + release : ''
   mineName = "cadremine"
-  minePropertyFileName = "${mineName}.properties$mineRelease"
-  minePropertyFile = "${System.env.HOME}/.intermine/$minePropertyFileName"
+  environment = project.getProperty("intermine.development.environment")
+  minePropertyFileName = "${mineName}.properties$mineRelease.$environment"
+  minePropertyFile = file("data/$minePropertyFileName")
   println "Using properties file: '$minePropertyFile'"
 }
 
