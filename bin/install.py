@@ -203,8 +203,7 @@ def main() -> None:
     )
     parser.add_argument(
         "--recreate_databases",
-        type=bool,
-        default=False,
+        action="store_true",
         help="Recreate databases",
     )
     parser.add_argument(
