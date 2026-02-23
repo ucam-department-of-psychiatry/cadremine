@@ -5,13 +5,16 @@ from dataclasses import dataclass
 import glob
 import logging
 import os
-from subprocess import run
+from subprocess import CompletedProcess, PIPE, run
+import sys
 from typing import Any
 
 log = logging.getLogger(__name__)
 
 BIN_DIR = os.path.dirname(os.path.realpath(__file__))
 PROJECT_ROOT_DIR = os.path.join(BIN_DIR, "..")
+
+EXIT_FAILURE = -1
 
 
 @dataclass
@@ -24,8 +27,11 @@ class Builder:
     verbose: bool
     with_sudo: bool
     mine_name: str = "cadremine"
+    major_java_version: int = 1
+    minor_java_version: int = 8
 
     def build(self) -> None:
+        self.check_java_version()
         self.create_gradle_properties()
         self.build_databases()
 
@@ -35,6 +41,30 @@ class Builder:
             self.run_gradle(["integrate"])
             self.run_gradle(["buildUserDB"])
             self.run_gradle([":webapp:war"])
+
+    def check_java_version(self) -> None:
+        output = self.run_with_env(
+            ["java", "-version"], stderr=PIPE
+        ).stderr.decode("utf-8")
+
+        lines = output.splitlines()
+        version_elements = lines[0].split()
+        version_string = version_elements[2].replace('"', "")
+        version_number_elements = version_string.split(".")
+
+        major_version = int(version_number_elements[0])
+        minor_version = int(version_number_elements[1])
+
+        if (
+            major_version != self.major_java_version
+            and minor_version != self.minor_java_version
+        ):
+            print(major_version, minor_version)
+            print(
+                f"Java version is {version_string} and must be"
+                f"{self.major_java_version}.{self.minor_java_version}"
+            )
+            sys.exit(EXIT_FAILURE)
 
     def create_gradle_properties(self) -> None:
         # See also config/lib/install_intermine.py in intermine project
@@ -122,14 +152,19 @@ class Builder:
 
         self.run_with_env(args + postgres_args)
 
-    def run_with_env(self, run_args: list[Any]) -> None:
+    def run_with_env(
+        self,
+        run_args: list[Any],
+        stdout=None,
+        stderr=None,
+    ) -> CompletedProcess[Any]:
         env = os.environ.copy()
         env["PGPASSWORD"] = self.psql_pass
 
         if self.verbose:
             log.info("Running:")
             log.info(run_args)
-        run(run_args, check=True, env=env)
+        return run(run_args, check=True, env=env, stdout=stdout, stderr=stderr)
 
 
 def main() -> None:
