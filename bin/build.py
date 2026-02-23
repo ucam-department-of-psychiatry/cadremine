@@ -11,9 +11,6 @@ from typing import Any
 
 log = logging.getLogger(__name__)
 
-BIN_DIR = os.path.dirname(os.path.realpath(__file__))
-PROJECT_ROOT_DIR = os.path.join(BIN_DIR, "..")
-
 EXIT_FAILURE = -1
 
 
@@ -26,11 +23,15 @@ class Builder:
     psql_user: str
     verbose: bool
     with_sudo: bool
+    environment: str = "dev"
     mine_name: str = "cadremine"
     major_java_version: int = 1
     minor_java_version: int = 8
 
     def build(self) -> None:
+        self.bin_dir = os.path.dirname(os.path.realpath(__file__))
+        self.project_root_dir = os.path.join(self.bin_dir, "..")
+
         self.check_java_version()
         self.create_gradle_properties()
         self.build_databases()
@@ -68,13 +69,16 @@ class Builder:
 
     def create_gradle_properties(self) -> None:
         # See also config/lib/install_intermine.py in intermine project
-        bin_dir = os.path.dirname(os.path.realpath(__file__))
-        root_dir = os.path.join(bin_dir, "..")
-
+        replacement_dict = {
+            "im_checkout": self.intermine_dir,
+            "im_environment": self.environment,
+        }
         for gradle_properties_in in glob.glob(
-            "**/gradle.properties.in", root_dir=root_dir, recursive=True
+            "**/gradle.properties.in",
+            root_dir=self.project_root_dir,
+            recursive=True,
         ):
-            in_file = os.path.join(root_dir, gradle_properties_in)
+            in_file = os.path.join(self.project_root_dir, gradle_properties_in)
             out_file = in_file[:-3]
             with open(out_file, "w") as f_out:
                 f_out.write(
@@ -83,9 +87,9 @@ class Builder:
                 )
                 with open(in_file) as f_in:
                     for line in f_in:
-                        f_out.write(
-                            line.replace("@@im_checkout@@", self.intermine_dir)
-                        )
+                        for key, value in replacement_dict.items():
+                            line = line.replace(f"@@{key}@@", value)
+                        f_out.write(line)
 
             print(f"Written {out_file}")
 
@@ -121,7 +125,7 @@ class Builder:
         )
 
     def run_gradle(self, gradle_args: list[Any]) -> None:
-        os.chdir(PROJECT_ROOT_DIR)
+        os.chdir(self.project_root_dir)
 
         if self.verbose:
             gradle_args.append("--info")
