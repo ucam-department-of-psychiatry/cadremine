@@ -227,7 +227,9 @@ class Installer:
         self.run_with_env(["./gradlew"] + gradle_args)
 
     def deploy_war_file(self) -> None:
-        war_file = os.path.join(self.release_dir, "webapp.war")
+        war_file = os.path.join(
+            self.project_root_dir, "webapp", "build", "libs", "webapp.war"
+        )
         webapps_dir = os.path.join("usr", "local", "tomcat", "webapps")
         dest_path = os.path.join(webapps_dir, f"{self.mine_name}.war")
 
@@ -252,11 +254,7 @@ class Installer:
         raise TimeoutError("Gave up waiting for port {port} on {ip_address}.")
 
     def run_with_env(
-        self,
-        run_args: list[Any],
-        stdout=None,
-        stderr=None,
-        check: bool = True
+        self, run_args: list[Any], stdout=None, stderr=None, check: bool = True
     ) -> CompletedProcess[Any]:
         env = os.environ.copy()
 
