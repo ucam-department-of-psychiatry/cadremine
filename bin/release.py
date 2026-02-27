@@ -47,55 +47,11 @@ class Releaser:
         return self._docker
 
     def release(self) -> None:
-        self.create_gradle_properties()
-        self.create_war_file()
         self.create_release_directories()
         self.copy_files()
         self.save_docker_images()
         self.download_python_packages()
         self.create_archive()
-
-    def create_gradle_properties(self) -> None:
-        # See also config/lib/install_intermine.py in intermine project
-        bin_dir = os.path.dirname(os.path.realpath(__file__))
-        root_dir = os.path.join(bin_dir, "..")
-
-        replacement_dict = {
-            "im_checkout": self.intermine_dir,
-            "im_environment": self.environment,
-        }
-
-        for gradle_properties_in in glob.glob(
-            "**/gradle.properties.in", root_dir=root_dir, recursive=True
-        ):
-            in_file = os.path.join(root_dir, gradle_properties_in)
-            out_file = in_file[:-3]
-            with open(out_file, "w") as f_out:
-                f_out.write(
-                    "# FILE AUTOMATICALLY GENERATED FROM "
-                    f"{gradle_properties_in}. DO NOT EDIT!\n"
-                )
-                with open(in_file) as f_in:
-                    for line in f_in:
-                        for key, value in replacement_dict.items():
-                            line = line.replace(f"@@{key}@@", value)
-                        f_out.write(line)
-
-            print(f"Written {out_file}")
-
-    def create_war_file(self) -> None:
-        if not Path(self.war_file).exists():
-            self.run_gradle([":webapp:war"])
-
-    def run_gradle(self, gradle_args: list[Any]) -> None:
-        os.chdir(self.project_root_dir)
-
-        if self.verbose:
-            gradle_args.append("--info")
-
-        gradle_args.append("--stacktrace")
-
-        self.run_with_env(["./gradlew"] + gradle_args)
 
     def create_release_directories(self) -> None:
         Path(self.release_dir).mkdir(exist_ok=True)
@@ -109,7 +65,7 @@ class Releaser:
 
         top_level_files = [
             os.path.join(self.project_root_dir, f)
-            for f in ["docker-compose.yml", ".env"]
+            for f in ["docker-compose.yml", ".env", "gradle.properties,in", "gradlew", "build.gradle"]
         ]
 
         all_files = (
@@ -124,9 +80,9 @@ class Releaser:
         for filename in all_files:
             shutil.copy(filename, self.release_dir)
 
-        for docker_dir in ["postgres", "solr", "tomcat"]:
-            src_path = os.path.join(self.project_root_dir, docker_dir)
-            dest_path = os.path.join(self.release_dir, docker_dir)
+        for top_level_dir in ["postgres", "solr", "tomcat", "gradle"]:
+            src_path = os.path.join(self.project_root_dir, top_level_dir)
+            dest_path = os.path.join(self.release_dir, top_level_dir)
             shutil.copytree(src_path, dest_path, dirs_exist_ok=True)
 
         dot_gradle_dir = os.path.join(self.release_dir, ".gradle")

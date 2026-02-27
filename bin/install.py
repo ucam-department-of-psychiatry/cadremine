@@ -2,6 +2,7 @@
 
 import argparse
 from dataclasses import dataclass
+import glob
 import logging
 import os
 from pathlib import Path
@@ -50,7 +51,12 @@ class Installer:
         self.make_data_dirs()
         self.start_containers()
         self.build_databases()
-        self.deploy_war_file()
+        self.create_gradle_properties()
+        self.run_gradle(["clean"])
+        self.run_gradle(["buildDB"])
+        self.run_gradle(["integrate"])
+        self.run_gradle(["buildUserDB"])
+        self.run_gradle([":webapp:war"])
 
     def load_docker_images(self) -> None:
         for filename in Path(self.docker_images_dir).glob("*.tar"):
@@ -143,6 +149,44 @@ class Installer:
         args = [command, "-h", self.pg_host, "-U", self.psql_user]
 
         return self.run_with_env(args + postgres_args, check=check)
+
+    def create_gradle_properties(self) -> None:
+        # See also config/lib/install_intermine.py in intermine project
+        bin_dir = os.path.dirname(os.path.realpath(__file__))
+        root_dir = os.path.join(bin_dir, "..")
+
+        replacement_dict = {
+            "im_checkout": self.intermine_dir,
+            "im_environment": self.environment,
+        }
+
+        for gradle_properties_in in glob.glob(
+            "**/gradle.properties.in", root_dir=root_dir, recursive=True
+        ):
+            in_file = os.path.join(root_dir, gradle_properties_in)
+            out_file = in_file[:-3]
+            with open(out_file, "w") as f_out:
+                f_out.write(
+                    "# FILE AUTOMATICALLY GENERATED FROM "
+                    f"{gradle_properties_in}. DO NOT EDIT!\n"
+                )
+                with open(in_file) as f_in:
+                    for line in f_in:
+                        for key, value in replacement_dict.items():
+                            line = line.replace(f"@@{key}@@", value)
+                        f_out.write(line)
+
+            print(f"Written {out_file}")
+
+    def run_gradle(self, gradle_args: list[Any]) -> None:
+        os.chdir(self.release_dir)
+
+        if self.verbose:
+            gradle_args.append("--info")
+
+        gradle_args.append("--stacktrace")
+
+        self.run_with_env(["./gradlew"] + gradle_args)
 
     def deploy_war_file(self) -> None:
         war_file = os.path.join(self.release_dir, "webapp.war")

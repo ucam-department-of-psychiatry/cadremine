@@ -43,7 +43,7 @@ db.userprofile-production.datasource.password=postgres
 # Web application deployment properties
 
 # location of tomcat server and path of webapp - e.g. access http://localhost:8080/malariamine
-webapp.deploy.url=http://localhost:8080
+webapp.deploy.url=http://localhost:8180
 webapp.path=cadremine
 
 # tomcat username and password needed to deploy webapp
@@ -51,7 +51,7 @@ webapp.manager=tomcat
 webapp.password=tomcat
 
 # 'Home' link
-webapp.baseurl=http://localhost:8080
+webapp.baseurl=http://localhost:8180
 
 # account name for superuser (who can edit appearance and publish templates)
 superuser.account=test_user@mail_account

@@ -1,513 +1,531 @@
 <?xml version='1.0' encoding='utf-8'?>
 <classes>
-  <class name="PERSON">
-    <attribute name="person_id" type="java.lang.Integer" />
-    <attribute name="gender_concept_id" type="java.lang.Integer" />
-    <attribute name="year_of_birth" type="java.lang.Integer" />
-    <attribute name="month_of_birth" type="java.lang.Integer" />
-    <attribute name="day_of_birth" type="java.lang.Integer" />
-    <attribute name="birth_datetime" type="java.lang.String" />
-    <attribute name="race_concept_id" type="java.lang.Integer" />
-    <attribute name="ethnicity_concept_id" type="java.lang.Integer" />
-    <attribute name="location_id" type="java.lang.Integer" />
-    <attribute name="provider_id" type="java.lang.Integer" />
-    <attribute name="care_site_id" type="java.lang.Integer" />
-    <attribute name="person_source_value" type="java.lang.String" />
-    <attribute name="gender_source_value" type="java.lang.String" />
-    <attribute name="gender_source_concept_id" type="java.lang.Integer" />
-    <attribute name="race_source_value" type="java.lang.String" />
-    <attribute name="race_source_concept_id" type="java.lang.Integer" />
-    <attribute name="ethnicity_source_value" type="java.lang.String" />
-    <attribute name="ethnicity_source_concept_id" type="java.lang.Integer" />
+  <class name="Person" is-interface="true">
+    <attribute name="personId" type="java.lang.Integer" />
+    <attribute name="genderConceptId" type="java.lang.Integer" />
+    <attribute name="yearOfBirth" type="java.lang.Integer" />
+    <attribute name="monthOfBirth" type="java.lang.Integer" />
+    <attribute name="dayOfBirth" type="java.lang.Integer" />
+    <attribute name="birthDatetime" type="java.util.Date" />
+    <attribute name="raceConceptId" type="java.lang.Integer" />
+    <attribute name="ethnicityConceptId" type="java.lang.Integer" />
+    <attribute name="locationId" type="java.lang.Integer" />
+    <attribute name="providerId" type="java.lang.Integer" />
+    <attribute name="careSiteId" type="java.lang.Integer" />
+    <attribute name="personSourceValue" type="java.lang.String" />
+    <attribute name="genderSourceValue" type="java.lang.String" />
+    <attribute name="genderSourceConceptId" type="java.lang.Integer" />
+    <attribute name="raceSourceValue" type="java.lang.String" />
+    <attribute name="raceSourceConceptId" type="java.lang.Integer" />
+    <attribute name="ethnicitySourceValue" type="java.lang.String" />
+    <attribute name="ethnicitySourceConceptId" type="java.lang.Integer" />
+    <collection name="peObservationPeriods" referenced-type="ObservationPeriod" />
+    <collection name="peVisitOccurrences" referenced-type="VisitOccurrence" />
+    <collection name="peVisitDetails" referenced-type="VisitDetail" />
+    <collection name="peConditionOccurrences" referenced-type="ConditionOccurrence" />
+    <collection name="peDrugExposures" referenced-type="DrugExposure" />
+    <collection name="peProcedureOccurrences" referenced-type="ProcedureOccurrence" />
+    <collection name="peDeviceExposures" referenced-type="DeviceExposure" />
+    <collection name="peMeasurements" referenced-type="Measurement" />
+    <collection name="peObservations" referenced-type="Observation" />
+    <collection name="peDeaths" referenced-type="Death" />
+    <collection name="peNotes" referenced-type="Note" />
+    <collection name="peSpecimens" referenced-type="Specimen" />
+    <collection name="paPayerPlanPeriods" referenced-type="PayerPlanPeriod" />
+    <collection name="pePayerPlanPeriods" referenced-type="PayerPlanPeriod" />
+    <collection name="peDrugEras" referenced-type="DrugEra" />
+    <collection name="peDoseEras" referenced-type="DoseEra" />
+    <collection name="peConditionEras" referenced-type="ConditionEra" />
+    <collection name="peEpisodes" referenced-type="Episode" />
   </class>
-  <class name="OBSERVATION_PERIOD">
-    <attribute name="observation_period_id" type="java.lang.Integer" />
-    <attribute name="person_id" type="java.lang.Integer" />
-    <attribute name="observation_period_start_date" type="java.util.Date" />
-    <attribute name="observation_period_end_date" type="java.util.Date" />
-    <attribute name="period_type_concept_id" type="java.lang.Integer" />
+  <class name="ObservationPeriod" is-interface="true">
+    <attribute name="observationPeriodId" type="java.lang.Integer" />
+    <attribute name="observationPeriodStartDate" type="java.util.Date" />
+    <attribute name="observationPeriodEndDate" type="java.util.Date" />
+    <attribute name="periodTypeConceptId" type="java.lang.Integer" />
+    <reference name="personId" referenced-type="Person" />
   </class>
-  <class name="VISIT_OCCURRENCE">
-    <attribute name="visit_occurrence_id" type="java.lang.Integer" />
-    <attribute name="person_id" type="java.lang.Integer" />
-    <attribute name="visit_concept_id" type="java.lang.Integer" />
-    <attribute name="visit_start_date" type="java.util.Date" />
-    <attribute name="visit_start_datetime" type="java.util.Date" />
-    <attribute name="visit_end_date" type="java.util.Date" />
-    <attribute name="visit_end_datetime" type="java.util.Date" />
-    <attribute name="visit_type_concept_id" type="java.lang.Integer" />
-    <attribute name="provider_id" type="java.lang.Integer" />
-    <attribute name="care_site_id" type="java.lang.Integer" />
-    <attribute name="visit_source_value" type="java.lang.String" />
-    <attribute name="visit_source_concept_id" type="java.lang.Integer" />
-    <attribute name="admitted_from_concept_id" type="java.lang.Integer" />
-    <attribute name="admitted_from_source_value" type="java.lang.String" />
-    <attribute name="discharged_to_concept_id" type="java.lang.Integer" />
-    <attribute name="discharged_to_source_value" type="java.lang.String" />
-    <attribute name="preceding_visit_occurrence_id" type="java.lang.Integer" />
+  <class name="VisitOccurrence" is-interface="true">
+    <attribute name="visitOccurrenceId" type="java.lang.Integer" />
+    <attribute name="visitConceptId" type="java.lang.Integer" />
+    <attribute name="visitStartDate" type="java.util.Date" />
+    <attribute name="visitStartDatetime" type="java.util.Date" />
+    <attribute name="visitEndDate" type="java.util.Date" />
+    <attribute name="visitEndDatetime" type="java.util.Date" />
+    <attribute name="visitTypeConceptId" type="java.lang.Integer" />
+    <attribute name="providerId" type="java.lang.Integer" />
+    <attribute name="careSiteId" type="java.lang.Integer" />
+    <attribute name="visitSourceValue" type="java.lang.String" />
+    <attribute name="visitSourceConceptId" type="java.lang.Integer" />
+    <attribute name="admittedFromConceptId" type="java.lang.Integer" />
+    <attribute name="admittedFromSourceValue" type="java.lang.String" />
+    <attribute name="dischargedToConceptId" type="java.lang.Integer" />
+    <attribute name="dischargedToSourceValue" type="java.lang.String" />
+    <attribute name="precedingVisitOccurrenceId" type="java.lang.Integer" />
+    <reference name="personId" referenced-type="Person" />
   </class>
-  <class name="VISIT_DETAIL">
-    <attribute name="visit_detail_id" type="java.lang.Integer" />
-    <attribute name="person_id" type="java.lang.Integer" />
-    <attribute name="visit_detail_concept_id" type="java.lang.Integer" />
-    <attribute name="visit_detail_start_date" type="java.util.Date" />
-    <attribute name="visit_detail_start_datetime" type="java.util.Date" />
-    <attribute name="visit_detail_end_date" type="java.util.Date" />
-    <attribute name="visit_detail_end_datetime" type="java.util.Date" />
-    <attribute name="visit_detail_type_concept_id" type="java.lang.Integer" />
-    <attribute name="provider_id" type="java.lang.Integer" />
-    <attribute name="care_site_id" type="java.lang.Integer" />
-    <attribute name="visit_detail_source_value" type="java.lang.String" />
-    <attribute name="visit_detail_source_concept_id" type="java.lang.Integer" />
-    <attribute name="admitted_from_concept_id" type="java.lang.Integer" />
-    <attribute name="admitted_from_source_value" type="java.lang.String" />
-    <attribute name="discharged_to_source_value" type="java.lang.String" />
-    <attribute name="discharged_to_concept_id" type="java.lang.Integer" />
-    <attribute name="preceding_visit_detail_id" type="java.lang.Integer" />
-    <attribute name="parent_visit_detail_id" type="java.lang.Integer" />
-    <attribute name="visit_occurrence_id" type="java.lang.Integer" />
+  <class name="VisitDetail" is-interface="true">
+    <attribute name="visitDetailId" type="java.lang.Integer" />
+    <attribute name="visitDetailConceptId" type="java.lang.Integer" />
+    <attribute name="visitDetailStartDate" type="java.util.Date" />
+    <attribute name="visitDetailStartDatetime" type="java.util.Date" />
+    <attribute name="visitDetailEndDate" type="java.util.Date" />
+    <attribute name="visitDetailEndDatetime" type="java.util.Date" />
+    <attribute name="visitDetailTypeConceptId" type="java.lang.Integer" />
+    <attribute name="providerId" type="java.lang.Integer" />
+    <attribute name="careSiteId" type="java.lang.Integer" />
+    <attribute name="visitDetailSourceValue" type="java.lang.String" />
+    <attribute name="visitDetailSourceConceptId" type="java.lang.Integer" />
+    <attribute name="admittedFromConceptId" type="java.lang.Integer" />
+    <attribute name="admittedFromSourceValue" type="java.lang.String" />
+    <attribute name="dischargedToSourceValue" type="java.lang.String" />
+    <attribute name="dischargedToConceptId" type="java.lang.Integer" />
+    <attribute name="precedingVisitDetailId" type="java.lang.Integer" />
+    <attribute name="parentVisitDetailId" type="java.lang.Integer" />
+    <attribute name="visitOccurrenceId" type="java.lang.Integer" />
+    <reference name="personId" referenced-type="Person" />
   </class>
-  <class name="CONDITION_OCCURRENCE">
-    <attribute name="condition_occurrence_id" type="java.lang.Integer" />
-    <attribute name="person_id" type="java.lang.Integer" />
-    <attribute name="condition_concept_id" type="java.lang.Integer" />
-    <attribute name="condition_start_date" type="java.util.Date" />
-    <attribute name="condition_start_datetime" type="java.util.Date" />
-    <attribute name="condition_end_date" type="java.util.Date" />
-    <attribute name="condition_end_datetime" type="java.util.Date" />
-    <attribute name="condition_type_concept_id" type="java.lang.Integer" />
-    <attribute name="condition_status_concept_id" type="java.lang.Integer" />
-    <attribute name="stop_reason" type="java.lang.String" />
-    <attribute name="provider_id" type="java.lang.Integer" />
-    <attribute name="visit_occurrence_id" type="java.lang.Integer" />
-    <attribute name="visit_detail_id" type="java.lang.Integer" />
-    <attribute name="condition_source_value" type="java.lang.String" />
-    <attribute name="condition_source_concept_id" type="java.lang.Integer" />
-    <attribute name="condition_status_source_value" type="java.lang.String" />
+  <class name="ConditionOccurrence" is-interface="true">
+    <attribute name="conditionOccurrenceId" type="java.lang.Integer" />
+    <attribute name="conditionConceptId" type="java.lang.Integer" />
+    <attribute name="conditionStartDate" type="java.util.Date" />
+    <attribute name="conditionStartDatetime" type="java.util.Date" />
+    <attribute name="conditionEndDate" type="java.util.Date" />
+    <attribute name="conditionEndDatetime" type="java.util.Date" />
+    <attribute name="conditionTypeConceptId" type="java.lang.Integer" />
+    <attribute name="conditionStatusConceptId" type="java.lang.Integer" />
+    <attribute name="stopReason" type="java.lang.String" />
+    <attribute name="providerId" type="java.lang.Integer" />
+    <attribute name="visitOccurrenceId" type="java.lang.Integer" />
+    <attribute name="visitDetailId" type="java.lang.Integer" />
+    <attribute name="conditionSourceValue" type="java.lang.String" />
+    <attribute name="conditionSourceConceptId" type="java.lang.Integer" />
+    <attribute name="conditionStatusSourceValue" type="java.lang.String" />
+    <reference name="personId" referenced-type="Person" />
   </class>
-  <class name="DRUG_EXPOSURE">
-    <attribute name="drug_exposure_id" type="java.lang.Integer" />
-    <attribute name="person_id" type="java.lang.Integer" />
-    <attribute name="drug_concept_id" type="java.lang.Integer" />
-    <attribute name="drug_exposure_start_date" type="java.util.Date" />
-    <attribute name="drug_exposure_start_datetime" type="java.util.Date" />
-    <attribute name="drug_exposure_end_date" type="java.util.Date" />
-    <attribute name="drug_exposure_end_datetime" type="java.util.Date" />
-    <attribute name="verbatim_end_date" type="java.util.Date" />
-    <attribute name="drug_type_concept_id" type="java.lang.Integer" />
-    <attribute name="stop_reason" type="java.lang.String" />
+  <class name="DrugExposure" is-interface="true">
+    <attribute name="drugExposureId" type="java.lang.Integer" />
+    <attribute name="drugConceptId" type="java.lang.Integer" />
+    <attribute name="drugExposureStartDate" type="java.util.Date" />
+    <attribute name="drugExposureStartDatetime" type="java.util.Date" />
+    <attribute name="drugExposureEndDate" type="java.util.Date" />
+    <attribute name="drugExposureEndDatetime" type="java.util.Date" />
+    <attribute name="verbatimEndDate" type="java.util.Date" />
+    <attribute name="drugTypeConceptId" type="java.lang.Integer" />
+    <attribute name="stopReason" type="java.lang.String" />
     <attribute name="refills" type="java.lang.Integer" />
-    <attribute name="quantity" type="float" />
-    <attribute name="days_supply" type="java.lang.Integer" />
+    <attribute name="quantity" type="java.lang.Float" />
+    <attribute name="daysSupply" type="java.lang.Integer" />
     <attribute name="sig" type="java.lang.String" />
-    <attribute name="route_concept_id" type="java.lang.Integer" />
-    <attribute name="lot_number" type="java.lang.String" />
-    <attribute name="provider_id" type="java.lang.Integer" />
-    <attribute name="visit_occurrence_id" type="java.lang.Integer" />
-    <attribute name="visit_detail_id" type="java.lang.Integer" />
-    <attribute name="drug_source_value" type="java.lang.String" />
-    <attribute name="drug_source_concept_id" type="java.lang.Integer" />
-    <attribute name="route_source_value" type="java.lang.String" />
-    <attribute name="dose_unit_source_value" type="java.lang.String" />
+    <attribute name="routeConceptId" type="java.lang.Integer" />
+    <attribute name="lotNumber" type="java.lang.String" />
+    <attribute name="providerId" type="java.lang.Integer" />
+    <attribute name="visitOccurrenceId" type="java.lang.Integer" />
+    <attribute name="visitDetailId" type="java.lang.Integer" />
+    <attribute name="drugSourceValue" type="java.lang.String" />
+    <attribute name="drugSourceConceptId" type="java.lang.Integer" />
+    <attribute name="routeSourceValue" type="java.lang.String" />
+    <attribute name="doseUnitSourceValue" type="java.lang.String" />
+    <reference name="personId" referenced-type="Person" />
   </class>
-  <class name="PROCEDURE_OCCURRENCE">
-    <attribute name="procedure_occurrence_id" type="java.lang.Integer" />
-    <attribute name="person_id" type="java.lang.Integer" />
-    <attribute name="procedure_concept_id" type="java.lang.Integer" />
-    <attribute name="procedure_date" type="java.util.Date" />
-    <attribute name="procedure_datetime" type="java.util.Date" />
-    <attribute name="procedure_end_date" type="java.util.Date" />
-    <attribute name="procedure_end_datetime" type="java.util.Date" />
-    <attribute name="procedure_type_concept_id" type="java.lang.Integer" />
-    <attribute name="modifier_concept_id" type="java.lang.Integer" />
+  <class name="ProcedureOccurrence" is-interface="true">
+    <attribute name="procedureOccurrenceId" type="java.lang.Integer" />
+    <attribute name="procedureConceptId" type="java.lang.Integer" />
+    <attribute name="procedureDate" type="java.util.Date" />
+    <attribute name="procedureDatetime" type="java.util.Date" />
+    <attribute name="procedureEndDate" type="java.util.Date" />
+    <attribute name="procedureEndDatetime" type="java.util.Date" />
+    <attribute name="procedureTypeConceptId" type="java.lang.Integer" />
+    <attribute name="modifierConceptId" type="java.lang.Integer" />
     <attribute name="quantity" type="java.lang.Integer" />
-    <attribute name="provider_id" type="java.lang.Integer" />
-    <attribute name="visit_occurrence_id" type="java.lang.Integer" />
-    <attribute name="visit_detail_id" type="java.lang.Integer" />
-    <attribute name="procedure_source_value" type="java.lang.String" />
-    <attribute name="procedure_source_concept_id" type="java.lang.Integer" />
-    <attribute name="modifier_source_value" type="java.lang.String" />
+    <attribute name="providerId" type="java.lang.Integer" />
+    <attribute name="visitOccurrenceId" type="java.lang.Integer" />
+    <attribute name="visitDetailId" type="java.lang.Integer" />
+    <attribute name="procedureSourceValue" type="java.lang.String" />
+    <attribute name="procedureSourceConceptId" type="java.lang.Integer" />
+    <attribute name="modifierSourceValue" type="java.lang.String" />
+    <reference name="personId" referenced-type="Person" />
   </class>
-  <class name="DEVICE_EXPOSURE">
-    <attribute name="device_exposure_id" type="java.lang.Integer" />
-    <attribute name="person_id" type="java.lang.Integer" />
-    <attribute name="device_concept_id" type="java.lang.Integer" />
-    <attribute name="device_exposure_start_date" type="java.util.Date" />
-    <attribute name="device_exposure_start_datetime" type="java.util.Date" />
-    <attribute name="device_exposure_end_date" type="java.util.Date" />
-    <attribute name="device_exposure_end_datetime" type="java.util.Date" />
-    <attribute name="device_type_concept_id" type="java.lang.Integer" />
-    <attribute name="unique_device_id" type="java.lang.String" />
-    <attribute name="production_id" type="java.lang.String" />
+  <class name="DeviceExposure" is-interface="true">
+    <attribute name="deviceExposureId" type="java.lang.Integer" />
+    <attribute name="deviceConceptId" type="java.lang.Integer" />
+    <attribute name="deviceExposureStartDate" type="java.util.Date" />
+    <attribute name="deviceExposureStartDatetime" type="java.util.Date" />
+    <attribute name="deviceExposureEndDate" type="java.util.Date" />
+    <attribute name="deviceExposureEndDatetime" type="java.util.Date" />
+    <attribute name="deviceTypeConceptId" type="java.lang.Integer" />
+    <attribute name="uniqueDeviceId" type="java.lang.String" />
+    <attribute name="productionId" type="java.lang.String" />
     <attribute name="quantity" type="java.lang.Integer" />
-    <attribute name="provider_id" type="java.lang.Integer" />
-    <attribute name="visit_occurrence_id" type="java.lang.Integer" />
-    <attribute name="visit_detail_id" type="java.lang.Integer" />
-    <attribute name="device_source_value" type="java.lang.String" />
-    <attribute name="device_source_concept_id" type="java.lang.Integer" />
-    <attribute name="unit_concept_id" type="java.lang.Integer" />
-    <attribute name="unit_source_value" type="java.lang.String" />
-    <attribute name="unit_source_concept_id" type="java.lang.Integer" />
+    <attribute name="providerId" type="java.lang.Integer" />
+    <attribute name="visitOccurrenceId" type="java.lang.Integer" />
+    <attribute name="visitDetailId" type="java.lang.Integer" />
+    <attribute name="deviceSourceValue" type="java.lang.String" />
+    <attribute name="deviceSourceConceptId" type="java.lang.Integer" />
+    <attribute name="unitConceptId" type="java.lang.Integer" />
+    <attribute name="unitSourceValue" type="java.lang.String" />
+    <attribute name="unitSourceConceptId" type="java.lang.Integer" />
+    <reference name="personId" referenced-type="Person" />
   </class>
-  <class name="MEASUREMENT">
-    <attribute name="measurement_id" type="java.lang.Integer" />
-    <attribute name="person_id" type="java.lang.Integer" />
-    <attribute name="measurement_concept_id" type="java.lang.Integer" />
-    <attribute name="measurement_date" type="java.lang.String" />
-    <attribute name="measurement_datetime" type="java.lang.String" />
-    <attribute name="measurement_time" type="java.lang.String" />
-    <attribute name="measurement_type_concept_id" type="java.lang.Integer" />
-    <attribute name="operator_concept_id" type="java.lang.Integer" />
-    <attribute name="value_as_number" type="float" />
-    <attribute name="value_as_concept_id" type="java.lang.Integer" />
-    <attribute name="unit_concept_id" type="java.lang.Integer" />
-    <attribute name="range_low" type="float" />
-    <attribute name="range_high" type="float" />
-    <attribute name="provider_id" type="java.lang.Integer" />
-    <attribute name="visit_occurrence_id" type="java.lang.Integer" />
-    <attribute name="visit_detail_id" type="java.lang.Integer" />
-    <attribute name="measurement_source_value" type="java.lang.String" />
-    <attribute name="measurement_source_concept_id" type="java.lang.Integer" />
-    <attribute name="unit_source_value" type="java.lang.String" />
-    <attribute name="unit_source_concept_id" type="java.lang.Integer" />
-    <attribute name="value_source_value" type="java.lang.String" />
-    <attribute name="measurement_event_id" type="java.lang.Integer" />
-    <attribute name="meas_event_field_concept_id" type="java.lang.Integer" />
+  <class name="Measurement" is-interface="true">
+    <attribute name="measurementId" type="java.lang.Integer" />
+    <attribute name="measurementConceptId" type="java.lang.Integer" />
+    <attribute name="measurementDate" type="java.util.Date" />
+    <attribute name="measurementDatetime" type="java.util.Date" />
+    <attribute name="measurementTime" type="java.lang.String" />
+    <attribute name="measurementTypeConceptId" type="java.lang.Integer" />
+    <attribute name="operatorConceptId" type="java.lang.Integer" />
+    <attribute name="valueAsNumber" type="java.lang.Float" />
+    <attribute name="valueAsConceptId" type="java.lang.Integer" />
+    <attribute name="unitConceptId" type="java.lang.Integer" />
+    <attribute name="rangeLow" type="java.lang.Float" />
+    <attribute name="rangeHigh" type="java.lang.Float" />
+    <attribute name="providerId" type="java.lang.Integer" />
+    <attribute name="visitOccurrenceId" type="java.lang.Integer" />
+    <attribute name="visitDetailId" type="java.lang.Integer" />
+    <attribute name="measurementSourceValue" type="java.lang.String" />
+    <attribute name="measurementSourceConceptId" type="java.lang.Integer" />
+    <attribute name="unitSourceValue" type="java.lang.String" />
+    <attribute name="unitSourceConceptId" type="java.lang.Integer" />
+    <attribute name="valueSourceValue" type="java.lang.String" />
+    <attribute name="measurementEventId" type="java.lang.Long" />
+    <attribute name="measEventFieldConceptId" type="java.lang.Integer" />
+    <reference name="personId" referenced-type="Person" />
   </class>
-  <class name="OBSERVATION">
-    <attribute name="observation_id" type="java.lang.Integer" />
-    <attribute name="person_id" type="java.lang.Integer" />
-    <attribute name="observation_concept_id" type="java.lang.Integer" />
-    <attribute name="observation_date" type="java.util.Date" />
-    <attribute name="observation_datetime" type="java.util.Date" />
-    <attribute name="observation_type_concept_id" type="java.lang.Integer" />
-    <attribute name="value_as_number" type="float" />
-    <attribute name="value_as_string" type="java.lang.String" />
-    <attribute name="value_as_concept_id" type="java.lang.Integer" />
-    <attribute name="qualifier_concept_id" type="java.lang.Integer" />
-    <attribute name="unit_concept_id" type="java.lang.Integer" />
-    <attribute name="provider_id" type="java.lang.Integer" />
-    <attribute name="visit_occurrence_id" type="java.lang.Integer" />
-    <attribute name="visit_detail_id" type="java.lang.Integer" />
-    <attribute name="observation_source_value" type="java.lang.String" />
-    <attribute name="observation_source_concept_id" type="java.lang.Integer" />
-    <attribute name="unit_source_value" type="java.lang.String" />
-    <attribute name="qualifier_source_value" type="java.lang.String" />
-    <attribute name="value_source_value" type="java.lang.String" />
-    <attribute name="observation_event_id" type="java.lang.Integer" />
-    <attribute name="obs_event_field_concept_id" type="java.lang.Integer" />
+  <class name="Observation" is-interface="true">
+    <attribute name="observationId" type="java.lang.Integer" />
+    <attribute name="observationConceptId" type="java.lang.Integer" />
+    <attribute name="observationDate" type="java.util.Date" />
+    <attribute name="observationDatetime" type="java.util.Date" />
+    <attribute name="observationTypeConceptId" type="java.lang.Integer" />
+    <attribute name="valueAsNumber" type="java.lang.Float" />
+    <attribute name="valueAsString" type="java.lang.String" />
+    <attribute name="valueAsConceptId" type="java.lang.Integer" />
+    <attribute name="qualifierConceptId" type="java.lang.Integer" />
+    <attribute name="unitConceptId" type="java.lang.Integer" />
+    <attribute name="providerId" type="java.lang.Integer" />
+    <attribute name="visitOccurrenceId" type="java.lang.Integer" />
+    <attribute name="visitDetailId" type="java.lang.Integer" />
+    <attribute name="observationSourceValue" type="java.lang.String" />
+    <attribute name="observationSourceConceptId" type="java.lang.Integer" />
+    <attribute name="unitSourceValue" type="java.lang.String" />
+    <attribute name="qualifierSourceValue" type="java.lang.String" />
+    <attribute name="valueSourceValue" type="java.lang.String" />
+    <attribute name="observationEventId" type="java.lang.Long" />
+    <attribute name="obsEventFieldConceptId" type="java.lang.Integer" />
+    <reference name="personId" referenced-type="Person" />
   </class>
-  <class name="DEATH">
-    <attribute name="person_id" type="java.lang.Integer" />
-    <attribute name="death_date" type="java.util.Date" />
-    <attribute name="death_datetime" type="java.util.Date" />
-    <attribute name="death_type_concept_id" type="java.lang.Integer" />
-    <attribute name="cause_concept_id" type="java.lang.Integer" />
-    <attribute name="cause_source_value" type="java.lang.String" />
-    <attribute name="cause_source_concept_id" type="java.lang.Integer" />
+  <class name="Death" is-interface="true">
+    <attribute name="deathDate" type="java.util.Date" />
+    <attribute name="deathDatetime" type="java.util.Date" />
+    <attribute name="deathTypeConceptId" type="java.lang.Integer" />
+    <attribute name="causeConceptId" type="java.lang.Integer" />
+    <attribute name="causeSourceValue" type="java.lang.String" />
+    <attribute name="causeSourceConceptId" type="java.lang.Integer" />
+    <reference name="personId" referenced-type="Person" />
   </class>
-  <class name="NOTE">
-    <attribute name="note_id" type="java.lang.Integer" />
-    <attribute name="person_id" type="java.lang.Integer" />
-    <attribute name="note_date" type="java.util.Date" />
-    <attribute name="note_datetime" type="java.util.Date" />
-    <attribute name="note_type_concept_id" type="java.lang.Integer" />
-    <attribute name="note_class_concept_id" type="java.lang.Integer" />
-    <attribute name="note_title" type="java.lang.String" />
-    <attribute name="note_text" type="java.lang.String" />
-    <attribute name="encoding_concept_id" type="java.lang.Integer" />
-    <attribute name="language_concept_id" type="java.lang.Integer" />
-    <attribute name="provider_id" type="java.lang.Integer" />
-    <attribute name="visit_occurrence_id" type="java.lang.Integer" />
-    <attribute name="visit_detail_id" type="java.lang.Integer" />
-    <attribute name="note_source_value" type="java.lang.String" />
-    <attribute name="note_event_id" type="java.lang.Integer" />
-    <attribute name="note_event_field_concept_id" type="java.lang.Integer" />
+  <class name="Note" is-interface="true">
+    <attribute name="noteId" type="java.lang.Integer" />
+    <attribute name="noteDate" type="java.util.Date" />
+    <attribute name="noteDatetime" type="java.util.Date" />
+    <attribute name="noteTypeConceptId" type="java.lang.Integer" />
+    <attribute name="noteClassConceptId" type="java.lang.Integer" />
+    <attribute name="noteTitle" type="java.lang.String" />
+    <attribute name="noteText" type="java.lang.String" />
+    <attribute name="encodingConceptId" type="java.lang.Integer" />
+    <attribute name="languageConceptId" type="java.lang.Integer" />
+    <attribute name="providerId" type="java.lang.Integer" />
+    <attribute name="visitOccurrenceId" type="java.lang.Integer" />
+    <attribute name="visitDetailId" type="java.lang.Integer" />
+    <attribute name="noteSourceValue" type="java.lang.String" />
+    <attribute name="noteEventId" type="java.lang.Long" />
+    <attribute name="noteEventFieldConceptId" type="java.lang.Integer" />
+    <reference name="personId" referenced-type="Person" />
   </class>
-  <class name="NOTE_NLP">
-    <attribute name="note_nlp_id" type="java.lang.Integer" />
-    <attribute name="note_id" type="java.lang.Integer" />
-    <attribute name="section_concept_id" type="java.lang.Integer" />
+  <class name="NoteNlp" is-interface="true">
+    <attribute name="noteNlpId" type="java.lang.Integer" />
+    <attribute name="noteId" type="java.lang.Integer" />
+    <attribute name="sectionConceptId" type="java.lang.Integer" />
     <attribute name="snippet" type="java.lang.String" />
     <attribute name="offset" type="java.lang.String" />
-    <attribute name="lexical_variant" type="java.lang.String" />
-    <attribute name="note_nlp_concept_id" type="java.lang.Integer" />
-    <attribute name="note_nlp_source_concept_id" type="java.lang.Integer" />
-    <attribute name="nlp_system" type="java.lang.String" />
-    <attribute name="nlp_date" type="java.util.Date" />
-    <attribute name="nlp_datetime" type="java.util.Date" />
-    <attribute name="term_exists" type="java.lang.String" />
-    <attribute name="term_temporal" type="java.lang.String" />
-    <attribute name="term_modifiers" type="java.lang.String" />
+    <attribute name="lexicalVariant" type="java.lang.String" />
+    <attribute name="noteNlpConceptId" type="java.lang.Integer" />
+    <attribute name="noteNlpSourceConceptId" type="java.lang.Integer" />
+    <attribute name="nlpSystem" type="java.lang.String" />
+    <attribute name="nlpDate" type="java.util.Date" />
+    <attribute name="nlpDatetime" type="java.util.Date" />
+    <attribute name="termExists" type="java.lang.String" />
+    <attribute name="termTemporal" type="java.lang.String" />
+    <attribute name="termModifiers" type="java.lang.String" />
   </class>
-  <class name="SPECIMEN">
-    <attribute name="specimen_id" type="java.lang.Integer" />
-    <attribute name="person_id" type="java.lang.Integer" />
-    <attribute name="specimen_concept_id" type="java.lang.Integer" />
-    <attribute name="specimen_type_concept_id" type="java.lang.Integer" />
-    <attribute name="specimen_date" type="java.util.Date" />
-    <attribute name="specimen_datetime" type="java.util.Date" />
-    <attribute name="quantity" type="float" />
-    <attribute name="unit_concept_id" type="java.lang.Integer" />
-    <attribute name="anatomic_site_concept_id" type="java.lang.Integer" />
-    <attribute name="disease_status_concept_id" type="java.lang.Integer" />
-    <attribute name="specimen_source_id" type="java.lang.String" />
-    <attribute name="specimen_source_value" type="java.lang.String" />
-    <attribute name="unit_source_value" type="java.lang.String" />
-    <attribute name="anatomic_site_source_value" type="java.lang.String" />
-    <attribute name="disease_status_source_value" type="java.lang.String" />
+  <class name="Specimen" is-interface="true">
+    <attribute name="specimenId" type="java.lang.Integer" />
+    <attribute name="specimenConceptId" type="java.lang.Integer" />
+    <attribute name="specimenTypeConceptId" type="java.lang.Integer" />
+    <attribute name="specimenDate" type="java.util.Date" />
+    <attribute name="specimenDatetime" type="java.util.Date" />
+    <attribute name="quantity" type="java.lang.Float" />
+    <attribute name="unitConceptId" type="java.lang.Integer" />
+    <attribute name="anatomicSiteConceptId" type="java.lang.Integer" />
+    <attribute name="diseaseStatusConceptId" type="java.lang.Integer" />
+    <attribute name="specimenSourceId" type="java.lang.String" />
+    <attribute name="specimenSourceValue" type="java.lang.String" />
+    <attribute name="unitSourceValue" type="java.lang.String" />
+    <attribute name="anatomicSiteSourceValue" type="java.lang.String" />
+    <attribute name="diseaseStatusSourceValue" type="java.lang.String" />
+    <reference name="personId" referenced-type="Person" />
   </class>
-  <class name="FACT_RELATIONSHIP">
-    <attribute name="domain_concept_id_1" type="java.lang.Integer" />
-    <attribute name="fact_id_1" type="java.lang.Integer" />
-    <attribute name="domain_concept_id_2" type="java.lang.Integer" />
-    <attribute name="fact_id_2" type="java.lang.Integer" />
-    <attribute name="relationship_concept_id" type="java.lang.Integer" />
+  <class name="FactRelationship" is-interface="true">
+    <attribute name="domainConceptId1" type="java.lang.Integer" />
+    <attribute name="factId1" type="java.lang.Integer" />
+    <attribute name="domainConceptId2" type="java.lang.Integer" />
+    <attribute name="factId2" type="java.lang.Integer" />
+    <attribute name="relationshipConceptId" type="java.lang.Integer" />
   </class>
-  <class name="LOCATION">
-    <attribute name="location_id" type="java.lang.Integer" />
-    <attribute name="address_1" type="java.lang.String" />
-    <attribute name="address_2" type="java.lang.String" />
+  <class name="Location" is-interface="true">
+    <attribute name="locationId" type="java.lang.Integer" />
+    <attribute name="address1" type="java.lang.String" />
+    <attribute name="address2" type="java.lang.String" />
     <attribute name="city" type="java.lang.String" />
     <attribute name="state" type="java.lang.String" />
     <attribute name="zip" type="java.lang.String" />
     <attribute name="county" type="java.lang.String" />
-    <attribute name="location_source_value" type="java.lang.String" />
-    <attribute name="country_concept_id" type="java.lang.Integer" />
-    <attribute name="country_source_value" type="java.lang.String" />
-    <attribute name="latitude" type="float" />
-    <attribute name="longitude" type="float" />
+    <attribute name="locationSourceValue" type="java.lang.String" />
+    <attribute name="countryConceptId" type="java.lang.Integer" />
+    <attribute name="countrySourceValue" type="java.lang.String" />
+    <attribute name="latitude" type="java.lang.Float" />
+    <attribute name="longitude" type="java.lang.Float" />
   </class>
-  <class name="CARE_SITE">
-    <attribute name="care_site_id" type="java.lang.Integer" />
-    <attribute name="care_site_name" type="java.lang.String" />
-    <attribute name="place_of_service_concept_id" type="java.lang.Integer" />
-    <attribute name="location_id" type="java.lang.Integer" />
-    <attribute name="care_site_source_value" type="java.lang.String" />
-    <attribute name="place_of_service_source_value" type="java.lang.String" />
+  <class name="CareSite" is-interface="true">
+    <attribute name="careSiteId" type="java.lang.Integer" />
+    <attribute name="careSiteName" type="java.lang.String" />
+    <attribute name="placeOfServiceConceptId" type="java.lang.Integer" />
+    <attribute name="locationId" type="java.lang.Integer" />
+    <attribute name="careSiteSourceValue" type="java.lang.String" />
+    <attribute name="placeOfServiceSourceValue" type="java.lang.String" />
   </class>
-  <class name="PROVIDER">
-    <attribute name="provider_id" type="java.lang.Integer" />
-    <attribute name="provider_name" type="java.lang.String" />
+  <class name="Provider" is-interface="true">
+    <attribute name="providerId" type="java.lang.Integer" />
+    <attribute name="providerName" type="java.lang.String" />
     <attribute name="npi" type="java.lang.String" />
     <attribute name="dea" type="java.lang.String" />
-    <attribute name="specialty_concept_id" type="java.lang.Integer" />
-    <attribute name="care_site_id" type="java.lang.Integer" />
-    <attribute name="year_of_birth" type="java.lang.Integer" />
-    <attribute name="gender_concept_id" type="java.lang.Integer" />
-    <attribute name="provider_source_value" type="java.lang.String" />
-    <attribute name="specialty_source_value" type="java.lang.String" />
-    <attribute name="specialty_source_concept_id" type="java.lang.Integer" />
-    <attribute name="gender_source_value" type="java.lang.String" />
-    <attribute name="gender_source_concept_id" type="java.lang.Integer" />
+    <attribute name="specialtyConceptId" type="java.lang.Integer" />
+    <attribute name="careSiteId" type="java.lang.Integer" />
+    <attribute name="yearOfBirth" type="java.lang.Integer" />
+    <attribute name="genderConceptId" type="java.lang.Integer" />
+    <attribute name="providerSourceValue" type="java.lang.String" />
+    <attribute name="specialtySourceValue" type="java.lang.String" />
+    <attribute name="specialtySourceConceptId" type="java.lang.Integer" />
+    <attribute name="genderSourceValue" type="java.lang.String" />
+    <attribute name="genderSourceConceptId" type="java.lang.Integer" />
   </class>
-  <class name="PAYER_PLAN_PERIOD">
-    <attribute name="payer_plan_period_id" type="java.lang.Integer" />
-    <attribute name="person_id" type="java.lang.Integer" />
-    <attribute name="payer_plan_period_start_date" type="java.util.Date" />
-    <attribute name="payer_plan_period_end_date" type="java.util.Date" />
-    <attribute name="payer_concept_id" type="java.lang.Integer" />
-    <attribute name="payer_source_value" type="java.lang.String" />
-    <attribute name="payer_source_concept_id" type="java.lang.Integer" />
-    <attribute name="plan_concept_id" type="java.lang.Integer" />
-    <attribute name="plan_source_value" type="java.lang.String" />
-    <attribute name="plan_source_concept_id" type="java.lang.Integer" />
-    <attribute name="sponsor_concept_id" type="java.lang.Integer" />
-    <attribute name="sponsor_source_value" type="java.lang.String" />
-    <attribute name="sponsor_source_concept_id" type="java.lang.Integer" />
-    <attribute name="family_source_value" type="java.lang.String" />
-    <attribute name="stop_reason_concept_id" type="java.lang.Integer" />
-    <attribute name="stop_reason_source_value" type="java.lang.String" />
-    <attribute name="stop_reason_source_concept_id" type="java.lang.Integer" />
+  <class name="PayerPlanPeriod" is-interface="true">
+    <attribute name="payerPlanPeriodStartDate" type="java.util.Date" />
+    <attribute name="payerPlanPeriodEndDate" type="java.util.Date" />
+    <attribute name="payerConceptId" type="java.lang.Integer" />
+    <attribute name="payerSourceValue" type="java.lang.String" />
+    <attribute name="payerSourceConceptId" type="java.lang.Integer" />
+    <attribute name="planConceptId" type="java.lang.Integer" />
+    <attribute name="planSourceValue" type="java.lang.String" />
+    <attribute name="planSourceConceptId" type="java.lang.Integer" />
+    <attribute name="sponsorConceptId" type="java.lang.Integer" />
+    <attribute name="sponsorSourceValue" type="java.lang.String" />
+    <attribute name="sponsorSourceConceptId" type="java.lang.Integer" />
+    <attribute name="familySourceValue" type="java.lang.String" />
+    <attribute name="stopReasonConceptId" type="java.lang.Integer" />
+    <attribute name="stopReasonSourceValue" type="java.lang.String" />
+    <attribute name="stopReasonSourceConceptId" type="java.lang.Integer" />
+    <reference name="payerPlanPeriodId" referenced-type="Person" />
+    <reference name="personId" referenced-type="Person" />
   </class>
-  <class name="COST">
-    <attribute name="cost_id" type="java.lang.Integer" />
-    <attribute name="cost_event_id" type="java.lang.Integer" />
-    <attribute name="cost_domain_id" type="java.lang.String" />
-    <attribute name="cost_type_concept_id" type="java.lang.Integer" />
-    <attribute name="currency_concept_id" type="java.lang.Integer" />
-    <attribute name="total_charge" type="float" />
-    <attribute name="total_cost" type="float" />
-    <attribute name="total_paid" type="float" />
-    <attribute name="paid_by_payer" type="float" />
-    <attribute name="paid_by_patient" type="float" />
-    <attribute name="paid_patient_copay" type="float" />
-    <attribute name="paid_patient_coinsurance" type="float" />
-    <attribute name="paid_patient_deductible" type="float" />
-    <attribute name="paid_by_primary" type="float" />
-    <attribute name="paid_ingredient_cost" type="float" />
-    <attribute name="paid_dispensing_fee" type="float" />
-    <attribute name="payer_plan_period_id" type="java.lang.Integer" />
-    <attribute name="amount_allowed" type="float" />
-    <attribute name="revenue_code_concept_id" type="java.lang.Integer" />
-    <attribute name="revenue_code_source_value" type="java.lang.String" />
-    <attribute name="drg_concept_id" type="java.lang.Integer" />
-    <attribute name="drg_source_value" type="java.lang.String" />
+  <class name="Cost" is-interface="true">
+    <attribute name="costId" type="java.lang.Integer" />
+    <attribute name="costEventId" type="java.lang.Integer" />
+    <attribute name="costDomainId" type="java.lang.String" />
+    <attribute name="costTypeConceptId" type="java.lang.Integer" />
+    <attribute name="currencyConceptId" type="java.lang.Integer" />
+    <attribute name="totalCharge" type="java.lang.Float" />
+    <attribute name="totalCost" type="java.lang.Float" />
+    <attribute name="totalPaid" type="java.lang.Float" />
+    <attribute name="paidByPayer" type="java.lang.Float" />
+    <attribute name="paidByPatient" type="java.lang.Float" />
+    <attribute name="paidPatientCopay" type="java.lang.Float" />
+    <attribute name="paidPatientCoinsurance" type="java.lang.Float" />
+    <attribute name="paidPatientDeductible" type="java.lang.Float" />
+    <attribute name="paidByPrimary" type="java.lang.Float" />
+    <attribute name="paidIngredientCost" type="java.lang.Float" />
+    <attribute name="paidDispensingFee" type="java.lang.Float" />
+    <attribute name="payerPlanPeriodId" type="java.lang.Integer" />
+    <attribute name="amountAllowed" type="java.lang.Float" />
+    <attribute name="revenueCodeConceptId" type="java.lang.Integer" />
+    <attribute name="revenueCodeSourceValue" type="java.lang.String" />
+    <attribute name="drgConceptId" type="java.lang.Integer" />
+    <attribute name="drgSourceValue" type="java.lang.String" />
   </class>
-  <class name="DRUG_ERA">
-    <attribute name="drug_era_id" type="java.lang.Integer" />
-    <attribute name="person_id" type="java.lang.Integer" />
-    <attribute name="drug_concept_id" type="java.lang.Integer" />
-    <attribute name="drug_era_start_date" type="java.util.Date" />
-    <attribute name="drug_era_end_date" type="java.util.Date" />
-    <attribute name="drug_exposure_count" type="java.lang.Integer" />
-    <attribute name="gap_days" type="java.lang.Integer" />
+  <class name="DrugEra" is-interface="true">
+    <attribute name="drugEraId" type="java.lang.Integer" />
+    <attribute name="drugConceptId" type="java.lang.Integer" />
+    <attribute name="drugEraStartDate" type="java.util.Date" />
+    <attribute name="drugEraEndDate" type="java.util.Date" />
+    <attribute name="drugExposureCount" type="java.lang.Integer" />
+    <attribute name="gapDays" type="java.lang.Integer" />
+    <reference name="personId" referenced-type="Person" />
   </class>
-  <class name="DOSE_ERA">
-    <attribute name="dose_era_id" type="java.lang.Integer" />
-    <attribute name="person_id" type="java.lang.Integer" />
-    <attribute name="drug_concept_id" type="java.lang.Integer" />
-    <attribute name="unit_concept_id" type="java.lang.Integer" />
-    <attribute name="dose_value" type="float" />
-    <attribute name="dose_era_start_date" type="java.util.Date" />
-    <attribute name="dose_era_end_date" type="java.util.Date" />
+  <class name="DoseEra" is-interface="true">
+    <attribute name="doseEraId" type="java.lang.Integer" />
+    <attribute name="drugConceptId" type="java.lang.Integer" />
+    <attribute name="unitConceptId" type="java.lang.Integer" />
+    <attribute name="doseValue" type="java.lang.Float" />
+    <attribute name="doseEraStartDate" type="java.util.Date" />
+    <attribute name="doseEraEndDate" type="java.util.Date" />
+    <reference name="personId" referenced-type="Person" />
   </class>
-  <class name="CONDITION_ERA">
-    <attribute name="condition_era_id" type="java.lang.Integer" />
-    <attribute name="person_id" type="java.lang.Integer" />
-    <attribute name="condition_concept_id" type="java.lang.Integer" />
-    <attribute name="condition_era_start_date" type="java.util.Date" />
-    <attribute name="condition_era_end_date" type="java.util.Date" />
-    <attribute name="condition_occurrence_count" type="java.lang.Integer" />
+  <class name="ConditionEra" is-interface="true">
+    <attribute name="conditionEraId" type="java.lang.Integer" />
+    <attribute name="conditionConceptId" type="java.lang.Integer" />
+    <attribute name="conditionEraStartDate" type="java.util.Date" />
+    <attribute name="conditionEraEndDate" type="java.util.Date" />
+    <attribute name="conditionOccurrenceCount" type="java.lang.Integer" />
+    <reference name="personId" referenced-type="Person" />
   </class>
-  <class name="EPISODE">
-    <attribute name="episode_id" type="java.lang.Integer" />
-    <attribute name="person_id" type="java.lang.Integer" />
-    <attribute name="episode_concept_id" type="java.lang.Integer" />
-    <attribute name="episode_start_date" type="java.util.Date" />
-    <attribute name="episode_start_datetime" type="java.util.Date" />
-    <attribute name="episode_end_date" type="java.util.Date" />
-    <attribute name="episode_end_datetime" type="java.util.Date" />
-    <attribute name="episode_parent_id" type="java.lang.Integer" />
-    <attribute name="episode_number" type="java.lang.Integer" />
-    <attribute name="episode_object_concept_id" type="java.lang.Integer" />
-    <attribute name="episode_type_concept_id" type="java.lang.Integer" />
-    <attribute name="episode_source_value" type="java.lang.String" />
-    <attribute name="episode_source_concept_id" type="java.lang.Integer" />
+  <class name="Episode" is-interface="true">
+    <attribute name="episodeId" type="java.lang.Long" />
+    <attribute name="episodeConceptId" type="java.lang.Integer" />
+    <attribute name="episodeStartDate" type="java.util.Date" />
+    <attribute name="episodeStartDatetime" type="java.util.Date" />
+    <attribute name="episodeEndDate" type="java.util.Date" />
+    <attribute name="episodeEndDatetime" type="java.util.Date" />
+    <attribute name="episodeParentId" type="java.lang.Long" />
+    <attribute name="episodeNumber" type="java.lang.Integer" />
+    <attribute name="episodeObjectConceptId" type="java.lang.Integer" />
+    <attribute name="episodeTypeConceptId" type="java.lang.Integer" />
+    <attribute name="episodeSourceValue" type="java.lang.String" />
+    <attribute name="episodeSourceConceptId" type="java.lang.Integer" />
+    <reference name="personId" referenced-type="Person" />
   </class>
-  <class name="EPISODE_EVENT">
-    <attribute name="episode_id" type="java.lang.Integer" />
-    <attribute name="event_id" type="java.lang.Integer" />
-    <attribute name="episode_event_field_concept_id" type="java.lang.Integer" />
+  <class name="EpisodeEvent" is-interface="true">
+    <attribute name="episodeId" type="java.lang.Long" />
+    <attribute name="eventId" type="java.lang.Long" />
+    <attribute name="episodeEventFieldConceptId" type="java.lang.Integer" />
   </class>
-  <class name="METADATA">
-    <attribute name="metadata_id" type="java.lang.Integer" />
-    <attribute name="metadata_concept_id" type="java.lang.Integer" />
-    <attribute name="metadata_type_concept_id" type="java.lang.Integer" />
+  <class name="Metadata" is-interface="true">
+    <attribute name="metadataId" type="java.lang.Integer" />
+    <attribute name="metadataConceptId" type="java.lang.Integer" />
+    <attribute name="metadataTypeConceptId" type="java.lang.Integer" />
     <attribute name="name" type="java.lang.String" />
-    <attribute name="value_as_string" type="java.lang.String" />
-    <attribute name="value_as_concept_id" type="java.lang.Integer" />
-    <attribute name="value_as_number" type="float" />
-    <attribute name="metadata_date" type="java.util.Date" />
-    <attribute name="metadata_datetime" type="java.util.Date" />
+    <attribute name="valueAsString" type="java.lang.String" />
+    <attribute name="valueAsConceptId" type="java.lang.Integer" />
+    <attribute name="valueAsNumber" type="java.lang.Float" />
+    <attribute name="metadataDate" type="java.util.Date" />
+    <attribute name="metadataDatetime" type="java.util.Date" />
   </class>
-  <class name="CDM_SOURCE">
-    <attribute name="cdm_source_name" type="java.lang.String" />
-    <attribute name="cdm_source_abbreviation" type="java.lang.String" />
-    <attribute name="cdm_holder" type="java.lang.String" />
-    <attribute name="source_description" type="java.lang.String" />
-    <attribute name="source_documentation_reference" type="java.lang.String" />
-    <attribute name="cdm_etl_reference" type="java.lang.String" />
-    <attribute name="source_release_date" type="java.util.Date" />
-    <attribute name="cdm_release_date" type="java.util.Date" />
-    <attribute name="cdm_version" type="java.lang.String" />
-    <attribute name="cdm_version_concept_id" type="java.lang.Integer" />
-    <attribute name="vocabulary_version" type="java.lang.String" />
+  <class name="CdmSource" is-interface="true">
+    <attribute name="cdmSourceName" type="java.lang.String" />
+    <attribute name="cdmSourceAbbreviation" type="java.lang.String" />
+    <attribute name="cdmHolder" type="java.lang.String" />
+    <attribute name="sourceDescription" type="java.lang.String" />
+    <attribute name="sourceDocumentationReference" type="java.lang.String" />
+    <attribute name="cdmEtlReference" type="java.lang.String" />
+    <attribute name="sourceReleaseDate" type="java.util.Date" />
+    <attribute name="cdmReleaseDate" type="java.util.Date" />
+    <attribute name="cdmVersion" type="java.lang.String" />
+    <attribute name="cdmVersionConceptId" type="java.lang.Integer" />
+    <attribute name="vocabularyVersion" type="java.lang.String" />
   </class>
-  <class name="CONCEPT">
-    <attribute name="concept_id" type="java.lang.Integer" />
-    <attribute name="concept_name" type="java.lang.String" />
-    <attribute name="domain_id" type="java.lang.String" />
-    <attribute name="vocabulary_id" type="java.lang.String" />
-    <attribute name="concept_class_id" type="java.lang.String" />
-    <attribute name="standard_concept" type="java.lang.String" />
-    <attribute name="concept_code" type="java.lang.String" />
-    <attribute name="valid_start_date" type="java.util.Date" />
-    <attribute name="valid_end_date" type="java.util.Date" />
-    <attribute name="invalid_reason" type="java.lang.String" />
+  <class name="Concept" is-interface="true">
+    <attribute name="conceptId" type="java.lang.Integer" />
+    <attribute name="conceptName" type="java.lang.String" />
+    <attribute name="domainId" type="java.lang.String" />
+    <attribute name="vocabularyId" type="java.lang.String" />
+    <attribute name="conceptClassId" type="java.lang.String" />
+    <attribute name="standardConcept" type="java.lang.String" />
+    <attribute name="conceptCode" type="java.lang.String" />
+    <attribute name="validStartDate" type="java.util.Date" />
+    <attribute name="validEndDate" type="java.util.Date" />
+    <attribute name="invalidReason" type="java.lang.String" />
   </class>
-  <class name="VOCABULARY">
-    <attribute name="vocabulary_id" type="java.lang.String" />
-    <attribute name="vocabulary_name" type="java.lang.String" />
-    <attribute name="vocabulary_reference" type="java.lang.String" />
-    <attribute name="vocabulary_version" type="java.lang.String" />
-    <attribute name="vocabulary_concept_id" type="java.lang.Integer" />
+  <class name="Vocabulary" is-interface="true">
+    <attribute name="vocabularyId" type="java.lang.String" />
+    <attribute name="vocabularyName" type="java.lang.String" />
+    <attribute name="vocabularyReference" type="java.lang.String" />
+    <attribute name="vocabularyVersion" type="java.lang.String" />
+    <attribute name="vocabularyConceptId" type="java.lang.Integer" />
   </class>
-  <class name="DOMAIN">
-    <attribute name="domain_id" type="java.lang.String" />
-    <attribute name="domain_name" type="java.lang.String" />
-    <attribute name="domain_concept_id" type="java.lang.Integer" />
+  <class name="Domain" is-interface="true">
+    <attribute name="domainId" type="java.lang.String" />
+    <attribute name="domainName" type="java.lang.String" />
+    <attribute name="domainConceptId" type="java.lang.Integer" />
   </class>
-  <class name="CONCEPT_CLASS">
-    <attribute name="concept_class_id" type="java.lang.String" />
-    <attribute name="concept_class_name" type="java.lang.String" />
-    <attribute name="concept_class_concept_id" type="java.lang.Integer" />
+  <class name="ConceptClass" is-interface="true">
+    <attribute name="conceptClassId" type="java.lang.String" />
+    <attribute name="conceptClassName" type="java.lang.String" />
+    <attribute name="conceptClassConceptId" type="java.lang.Integer" />
   </class>
-  <class name="CONCEPT_RELATIONSHIP">
-    <attribute name="concept_id_1" type="java.lang.Integer" />
-    <attribute name="concept_id_2" type="java.lang.Integer" />
-    <attribute name="relationship_id" type="java.lang.String" />
-    <attribute name="valid_start_date" type="java.util.Date" />
-    <attribute name="valid_end_date" type="java.util.Date" />
-    <attribute name="invalid_reason" type="java.lang.String" />
+  <class name="ConceptRelationship" is-interface="true">
+    <attribute name="conceptId1" type="java.lang.Integer" />
+    <attribute name="conceptId2" type="java.lang.Integer" />
+    <attribute name="relationshipId" type="java.lang.String" />
+    <attribute name="validStartDate" type="java.util.Date" />
+    <attribute name="validEndDate" type="java.util.Date" />
+    <attribute name="invalidReason" type="java.lang.String" />
   </class>
-  <class name="RELATIONSHIP">
-    <attribute name="relationship_id" type="java.lang.String" />
-    <attribute name="relationship_name" type="java.lang.String" />
-    <attribute name="is_hierarchical" type="java.lang.String" />
-    <attribute name="defines_ancestry" type="java.lang.String" />
-    <attribute name="reverse_relationship_id" type="java.lang.String" />
-    <attribute name="relationship_concept_id" type="java.lang.Integer" />
+  <class name="Relationship" is-interface="true">
+    <attribute name="relationshipId" type="java.lang.String" />
+    <attribute name="relationshipName" type="java.lang.String" />
+    <attribute name="isHierarchical" type="java.lang.String" />
+    <attribute name="definesAncestry" type="java.lang.String" />
+    <attribute name="reverseRelationshipId" type="java.lang.String" />
+    <attribute name="relationshipConceptId" type="java.lang.Integer" />
   </class>
-  <class name="CONCEPT_SYNONYM">
-    <attribute name="concept_id" type="java.lang.Integer" />
-    <attribute name="concept_synonym_name" type="java.lang.String" />
-    <attribute name="language_concept_id" type="java.lang.Integer" />
+  <class name="ConceptSynonym" is-interface="true">
+    <attribute name="conceptId" type="java.lang.Integer" />
+    <attribute name="conceptSynonymName" type="java.lang.String" />
+    <attribute name="languageConceptId" type="java.lang.Integer" />
   </class>
-  <class name="CONCEPT_ANCESTOR">
-    <attribute name="ancestor_concept_id" type="java.lang.Integer" />
-    <attribute name="descendant_concept_id" type="java.lang.Integer" />
-    <attribute name="min_levels_of_separation" type="java.lang.Integer" />
-    <attribute name="max_levels_of_separation" type="java.lang.Integer" />
+  <class name="ConceptAncestor" is-interface="true">
+    <attribute name="ancestorConceptId" type="java.lang.Integer" />
+    <attribute name="descendantConceptId" type="java.lang.Integer" />
+    <attribute name="minLevelsOfSeparation" type="java.lang.Integer" />
+    <attribute name="maxLevelsOfSeparation" type="java.lang.Integer" />
   </class>
-  <class name="SOURCE_TO_CONCEPT_MAP">
-    <attribute name="source_code" type="java.lang.String" />
-    <attribute name="source_concept_id" type="java.lang.Integer" />
-    <attribute name="source_vocabulary_id" type="java.lang.String" />
-    <attribute name="source_code_description" type="java.lang.String" />
-    <attribute name="target_concept_id" type="java.lang.Integer" />
-    <attribute name="target_vocabulary_id" type="java.lang.String" />
-    <attribute name="valid_start_date" type="java.util.Date" />
-    <attribute name="valid_end_date" type="java.util.Date" />
-    <attribute name="invalid_reason" type="java.lang.String" />
+  <class name="SourceToConceptMap" is-interface="true">
+    <attribute name="sourceCode" type="java.lang.String" />
+    <attribute name="sourceConceptId" type="java.lang.Integer" />
+    <attribute name="sourceVocabularyId" type="java.lang.String" />
+    <attribute name="sourceCodeDescription" type="java.lang.String" />
+    <attribute name="targetConceptId" type="java.lang.Integer" />
+    <attribute name="targetVocabularyId" type="java.lang.String" />
+    <attribute name="validStartDate" type="java.util.Date" />
+    <attribute name="validEndDate" type="java.util.Date" />
+    <attribute name="invalidReason" type="java.lang.String" />
   </class>
-  <class name="DRUG_STRENGTH">
-    <attribute name="drug_concept_id" type="java.lang.Integer" />
-    <attribute name="ingredient_concept_id" type="java.lang.Integer" />
-    <attribute name="amount_value" type="float" />
-    <attribute name="amount_unit_concept_id" type="java.lang.Integer" />
-    <attribute name="numerator_value" type="float" />
-    <attribute name="numerator_unit_concept_id" type="java.lang.Integer" />
-    <attribute name="denominator_value" type="float" />
-    <attribute name="denominator_unit_concept_id" type="java.lang.Integer" />
-    <attribute name="box_size" type="java.lang.Integer" />
-    <attribute name="valid_start_date" type="java.util.Date" />
-    <attribute name="valid_end_date" type="java.util.Date" />
-    <attribute name="invalid_reason" type="java.lang.String" />
+  <class name="DrugStrength" is-interface="true">
+    <attribute name="drugConceptId" type="java.lang.Integer" />
+    <attribute name="ingredientConceptId" type="java.lang.Integer" />
+    <attribute name="amountValue" type="java.lang.Float" />
+    <attribute name="amountUnitConceptId" type="java.lang.Integer" />
+    <attribute name="numeratorValue" type="java.lang.Float" />
+    <attribute name="numeratorUnitConceptId" type="java.lang.Integer" />
+    <attribute name="denominatorValue" type="java.lang.Float" />
+    <attribute name="denominatorUnitConceptId" type="java.lang.Integer" />
+    <attribute name="boxSize" type="java.lang.Integer" />
+    <attribute name="validStartDate" type="java.util.Date" />
+    <attribute name="validEndDate" type="java.util.Date" />
+    <attribute name="invalidReason" type="java.lang.String" />
   </class>
-  <class name="COHORT">
-    <attribute name="cohort_definition_id" type="java.lang.Integer" />
-    <attribute name="subject_id" type="java.lang.Integer" />
-    <attribute name="cohort_start_date" type="java.util.Date" />
-    <attribute name="cohort_end_date" type="java.util.Date" />
+  <class name="Cohort" is-interface="true">
+    <attribute name="cohortDefinitionId" type="java.lang.Integer" />
+    <attribute name="subjectId" type="java.lang.Integer" />
+    <attribute name="cohortStartDate" type="java.util.Date" />
+    <attribute name="cohortEndDate" type="java.util.Date" />
   </class>
-  <class name="COHORT_DEFINITION">
-    <attribute name="cohort_definition_id" type="java.lang.Integer" />
-    <attribute name="cohort_definition_name" type="java.lang.String" />
-    <attribute name="cohort_definition_description" type="java.lang.String" />
-    <attribute name="definition_type_concept_id" type="java.lang.Integer" />
-    <attribute name="cohort_definition_syntax" type="java.lang.String" />
-    <attribute name="subject_concept_id" type="java.lang.Integer" />
-    <attribute name="cohort_initiation_date" type="java.util.Date" />
+  <class name="CohortDefinition" is-interface="true">
+    <attribute name="cohortDefinitionId" type="java.lang.Integer" />
+    <attribute name="cohortDefinitionName" type="java.lang.String" />
+    <attribute name="cohortDefinitionDescription" type="java.lang.String" />
+    <attribute name="definitionTypeConceptId" type="java.lang.Integer" />
+    <attribute name="cohortDefinitionSyntax" type="java.lang.String" />
+    <attribute name="subjectConceptId" type="java.lang.Integer" />
+    <attribute name="cohortInitiationDate" type="java.util.Date" />
   </class>
 </classes>
