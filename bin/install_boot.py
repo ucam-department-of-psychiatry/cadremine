@@ -5,7 +5,7 @@ from dataclasses import dataclass
 import logging
 import os
 import socket
-from subprocess import CompletedProcess, PIPE, Popen, run
+from subprocess import CompletedProcess, run
 import sys
 import time
 from typing import Any
@@ -32,9 +32,6 @@ class Booter:
         self.bin_dir = os.path.dirname(os.path.realpath(__file__))
         self.project_root_dir = os.path.join(self.bin_dir, "..")
         self.release_dir = os.path.join(self.project_root_dir, "release")
-        self.docker_images_dir = os.path.join(
-            self.release_dir, "docker_images"
-        )
         self.python_packages_dir = os.path.join(
             self.release_dir, "python_packages"
         )
@@ -50,13 +47,6 @@ class Booter:
             self.install_requirements()
 
         self.run_install_script()
-
-    def install_local_pypi_server(self) -> None:
-        pypi_tar_file = os.path.join(
-            self.docker_images_dir, "pypiserver-v2.4.tar"
-        )
-
-        self.run_with_env(["docker", "load", "-i", pypi_tar_file])
 
     def run_local_pypi_server(self) -> None:
         container_name = "cadre_pypi_server"

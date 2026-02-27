@@ -9,8 +9,6 @@ from pathlib import Path
 from subprocess import CompletedProcess, PIPE, run
 from typing import Any, Optional
 
-from python_on_whales import DockerClient
-
 log = logging.getLogger(__name__)
 
 
@@ -34,20 +32,11 @@ class Releaser:
         self.python_packages_dir = os.path.join(
             self.release_dir, "python_packages"
         )
-        self._docker = None
-
-    @property
-    def docker(self) -> DockerClient:
-        if self._docker is None:
-            self._docker = DockerClient()
-
-        return self._docker
 
     def release(self) -> None:
         self.create_release_directories()
         self.create_intermine_bundle()
         self.create_cadremine_bundle()
-        self.save_docker_images()
         self.download_python_packages()
         self.create_archive()
 
@@ -94,30 +83,6 @@ class Releaser:
         return self.run_with_env(
             ["git", "rev-parse", "--verify", ref], stdout=PIPE
         ).stdout.decode("utf-8")
-
-    def save_docker_images(self) -> None:
-        docker_images_dir = os.path.join(self.release_dir, "docker_images")
-        Path(docker_images_dir).mkdir(exist_ok=True)
-
-        images = [
-            "intermine/bluegenes:1.4.5-dx",
-            "postgres:14",
-            "pypiserver/pypiserver:v2.4",
-            "sonatype/nexus3:3.89.1",
-            "solr:8.11-slim",
-            "tomcat:9-jre8-temurin-jammy",
-        ]
-
-        self.docker.pull(images)
-
-        for image in images:
-            filename = image.split("/")[-1].replace(":", "-")
-            path = os.path.join(docker_images_dir, f"{filename}.tar")
-
-            # TODO: Will not save newer images that match the version
-            # if already saved
-            if not os.path.exists(path):
-                self.docker.save(image, path)
 
     def download_python_packages(self) -> None:
         self.run_with_env(

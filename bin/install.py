@@ -35,9 +35,6 @@ class Installer:
         self.bin_dir = os.path.dirname(os.path.realpath(__file__))
         self.project_root_dir = os.path.join(self.bin_dir, "..")
         self.release_dir = os.path.join(self.project_root_dir, "release")
-        self.docker_images_dir = os.path.join(
-            self.release_dir, "docker_images"
-        )
         self.psql_host = (os.getenv("PSQL_HOST", "localhost"),)
         self.psql_user = (os.getenv("PSQL_USER", "postgres"),)
         self.psql_pass = (os.getenv("PSQL_PWD", "postgres"),)
@@ -56,7 +53,6 @@ class Installer:
 
     def install(self) -> None:
         self.check_java_version()
-        self.load_docker_images()
         self.make_data_dirs()
         self.start_containers()
         self.build_databases()
@@ -91,10 +87,6 @@ class Installer:
                 f"{self.major_java_version}.{self.minor_java_version}"
             )
             sys.exit(EXIT_FAILURE)
-
-    def load_docker_images(self) -> None:
-        for filename in Path(self.docker_images_dir).glob("*.tar"):
-            self.docker.load(filename)
 
     def make_data_dirs(self) -> None:
         for data_dir in [
