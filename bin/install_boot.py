@@ -20,6 +20,7 @@ class BootException(Exception):
 
 @dataclass
 class Booter:
+    intermine_dir: str
     recreate_venv: bool
     verbose: bool
     postgres_host_port: int
@@ -28,7 +29,9 @@ class Booter:
     recreate_databases: bool
 
     def __post_init__(self) -> None:
-        self.release_dir = os.path.dirname(os.path.realpath(__file__))
+        self.bin_dir = os.path.dirname(os.path.realpath(__file__))
+        self.project_root_dir = os.path.join(self.bin_dir, "..")
+        self.release_dir = os.path.join(self.project_root_dir, "release")
         self.docker_images_dir = os.path.join(
             self.release_dir, "docker_images"
         )
@@ -116,14 +119,15 @@ class Booter:
                 "--extra-index-url",
                 f"http://localhost:{self.pypi_host_port}",
                 "-r",
-                f"{self.release_dir}/requirements.txt",
+                f"{self.project_root_dir}/requirements.txt",
             ]
         )
 
     def run_install_script(self) -> None:
         install_args = [
             self.venv_python,
-            f"{self.release_dir}/install.py",
+            f"{self.bin_dir}/install.py",
+            self.intermine_dir,
             "--postgres_host_port",
             str(self.postgres_host_port),
             "--tomcat_host_port",
@@ -153,6 +157,9 @@ class Booter:
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Install cadremine",
+    )
+    parser.add_argument(
+        "intermine_dir", help="Top level directory containing Intermine"
     )
     parser.add_argument(
         "--recreate_venv",

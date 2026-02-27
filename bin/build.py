@@ -18,7 +18,7 @@ EXIT_FAILURE = -1
 class Builder:
     init_only: bool
     intermine_dir: str
-    pg_host: str
+    psql_host: str
     psql_pass: str
     psql_user: str
     verbose: bool
@@ -149,7 +149,7 @@ class Builder:
         if postgres_args is None:
             postgres_args = []
 
-        args = [command, "-h", self.pg_host]
+        args = [command, "-h", self.psql_host]
 
         if self.with_sudo:
             args = ["sudo", "-E", "-u", self.psql_user] + args
@@ -202,7 +202,7 @@ def main() -> None:
     builder_args = dict(
         intermine_dir=args.intermine_dir,
         init_only=args.init_only,
-        pg_host=os.getenv("PSQL_HOST", "localhost"),
+        psql_host=os.getenv("PSQL_HOST", "localhost"),
         psql_user=os.getenv("PSQL_USER", "postgres"),
         psql_pass=os.getenv("PSQL_PWD", "postgres"),
         with_sudo=args.with_sudo,

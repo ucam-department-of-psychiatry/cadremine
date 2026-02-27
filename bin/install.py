@@ -7,7 +7,8 @@ import logging
 import os
 from pathlib import Path
 import socket
-from subprocess import CompletedProcess, run
+from subprocess import CompletedProcess, PIPE, run
+import sys
 import time
 from typing import Any
 
@@ -16,23 +17,30 @@ from python_on_whales import DockerClient
 log = logging.getLogger(__name__)
 
 DEFAULT_TIMEOUT_S = 60
+EXIT_FAILURE = -1
 
 
 @dataclass
 class Installer:
+    intermine_dir: str
     verbose: bool
     postgres_host_port: int
     tomcat_host_port: int
     recreate_databases: bool
+    major_java_version: int = 1
+    minor_java_version: int = 8
 
     def __post_init__(self) -> None:
         self.mine_name = "cadremine"
-        self.release_dir = os.path.dirname(os.path.realpath(__file__))
+        self.bin_dir = os.path.dirname(os.path.realpath(__file__))
+        self.project_root_dir = os.path.join(self.bin_dir, "..")
+        self.release_dir = os.path.join(self.project_root_dir, "release")
         self.docker_images_dir = os.path.join(
             self.release_dir, "docker_images"
         )
-        self.pg_host = "localhost"
-        self.psql_user = "postgres"
+        self.psql_host = (os.getenv("PSQL_HOST", "localhost"),)
+        self.psql_user = (os.getenv("PSQL_USER", "postgres"),)
+        self.psql_pass = (os.getenv("PSQL_PWD", "postgres"),)
 
         self._docker = None
 
@@ -40,23 +48,49 @@ class Installer:
     def docker(self) -> DockerClient:
         if self._docker is None:
             compose_files = [
-                os.path.join(self.release_dir, "docker-compose.yml")
+                os.path.join(self.project_root_dir, "docker-compose.yml")
             ]
             self._docker = DockerClient(compose_files=compose_files)
 
         return self._docker
 
     def install(self) -> None:
+        self.check_java_version()
         self.load_docker_images()
         self.make_data_dirs()
         self.start_containers()
         self.build_databases()
         self.create_gradle_properties()
+        self.install_intermine()
         self.run_gradle(["clean"])
         self.run_gradle(["buildDB"])
         self.run_gradle(["integrate"])
         self.run_gradle(["buildUserDB"])
         self.run_gradle([":webapp:war"])
+
+    def check_java_version(self) -> None:
+        output = self.run_with_env(
+            ["java", "-version"], stderr=PIPE
+        ).stderr.decode("utf-8")
+
+        lines = output.splitlines()
+        version_elements = lines[0].split()
+        version_string = version_elements[2].replace('"', "")
+        version_number_elements = version_string.split(".")
+
+        major_version = int(version_number_elements[0])
+        minor_version = int(version_number_elements[1])
+
+        if (
+            major_version != self.major_java_version
+            and minor_version != self.minor_java_version
+        ):
+            print(major_version, minor_version)
+            print(
+                f"Java version is {version_string} and must be"
+                f"{self.major_java_version}.{self.minor_java_version}"
+            )
+            sys.exit(EXIT_FAILURE)
 
     def load_docker_images(self) -> None:
         for filename in Path(self.docker_images_dir).glob("*.tar"):
@@ -70,7 +104,7 @@ class Installer:
             "bluegenes_tools",
             "nexus",
         ]:
-            full_path = os.path.join(self.release_dir, "data", data_dir)
+            full_path = os.path.join(self.project_root_dir, "data", data_dir)
             Path(full_path).mkdir(parents=True, exist_ok=True)
 
     def start_containers(self) -> None:
@@ -146,24 +180,23 @@ class Installer:
         if postgres_args is None:
             postgres_args = []
 
-        args = [command, "-h", self.pg_host, "-U", self.psql_user]
+        args = [command, "-h", self.psql_host, "-U", self.psql_user]
 
         return self.run_with_env(args + postgres_args, check=check)
 
     def create_gradle_properties(self) -> None:
         # See also config/lib/install_intermine.py in intermine project
-        bin_dir = os.path.dirname(os.path.realpath(__file__))
-        root_dir = os.path.join(bin_dir, "..")
-
         replacement_dict = {
             "im_checkout": self.intermine_dir,
             "im_environment": self.environment,
         }
 
         for gradle_properties_in in glob.glob(
-            "**/gradle.properties.in", root_dir=root_dir, recursive=True
+            "**/gradle.properties.in",
+            root_dir=self.project_root_dir,
+            recursive=True,
         ):
-            in_file = os.path.join(root_dir, gradle_properties_in)
+            in_file = os.path.join(self.project_root_dir, gradle_properties_in)
             out_file = in_file[:-3]
             with open(out_file, "w") as f_out:
                 f_out.write(
@@ -178,8 +211,21 @@ class Installer:
 
             print(f"Written {out_file}")
 
+    def install_intermine(self) -> None:
+        os.environ["PSQL_HOST"] = self.psql_host
+        os.environ["PSQL_USER"] = self.psql_user
+        os.environ["PSQL_PWD"] = self.psql_pass
+
+        self.run_with_env(
+            [
+                os.path.join(
+                    self.intermine_dir, "config", "lib", "install_intermine.py"
+                )
+            ]
+        )
+
     def run_gradle(self, gradle_args: list[Any]) -> None:
-        os.chdir(self.release_dir)
+        os.chdir(self.project_root_dir)
 
         if self.verbose:
             gradle_args.append("--info")
@@ -232,6 +278,9 @@ class Installer:
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Install cadremine",
+    )
+    parser.add_argument(
+        "intermine_dir", help="Top level directory containing Intermine"
     )
     parser.add_argument(
         "--postgres_host_port",

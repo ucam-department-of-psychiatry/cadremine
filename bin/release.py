@@ -21,6 +21,8 @@ class Releaser:
     environment: str
     intermine_dir: str
     verbose: bool
+    cadremine_git_branch: str = "main"
+    intermine_git_branch: str = "eclipse-setup"
 
     def __post_init__(self) -> None:
         self.bin_dir = os.path.dirname(os.path.realpath(__file__))
@@ -33,10 +35,6 @@ class Releaser:
         self.python_packages_dir = os.path.join(
             self.release_dir, "python_packages"
         )
-        self.war_file = os.path.join(
-            self.project_root_dir, "webapp", "build", "libs", "webapp.war"
-        )
-
         self._docker = None
 
     @property
@@ -48,7 +46,8 @@ class Releaser:
 
     def release(self) -> None:
         self.create_release_directories()
-        self.copy_files()
+        self.create_intermine_bundle()
+        self.create_cadremine_bundle()
         self.save_docker_images()
         self.download_python_packages()
         self.create_archive()
@@ -57,38 +56,31 @@ class Releaser:
         Path(self.release_dir).mkdir(exist_ok=True)
         Path(self.python_packages_dir).mkdir(exist_ok=True)
 
-    def copy_files(self) -> None:
-        install_scripts = [
-            os.path.join(self.bin_dir, f)
-            for f in ["install_boot.py", "install.py"]
-        ]
-
-        top_level_files = [
-            os.path.join(self.project_root_dir, f)
-            for f in ["docker-compose.yml", ".env", "gradle.properties,in", "gradlew", "build.gradle"]
-        ]
-
-        all_files = (
-            [
-                self.war_file,
-                self.requirements_file,
-            ]
-            + install_scripts
-            + top_level_files
+    def create_intermine_bundle(self) -> None:
+        self.create_git_bundle(
+            self.intermine_dir, "intermine", self.intermine_git_branch
         )
 
-        for filename in all_files:
-            shutil.copy(filename, self.release_dir)
+    def create_cadremine_bundle(self) -> None:
+        self.create_git_bundle(
+            self.project_root_dir, "cadremine", self.cadremine_git_branch
+        )
 
-        for top_level_dir in ["postgres", "solr", "tomcat", "gradle"]:
-            src_path = os.path.join(self.project_root_dir, top_level_dir)
-            dest_path = os.path.join(self.release_dir, top_level_dir)
-            shutil.copytree(src_path, dest_path, dirs_exist_ok=True)
+    def create_git_bundle(
+        self, project_dir: str, name: str, branch: str
+    ) -> None:
+        os.chdir(project_dir)
 
-        dot_gradle_dir = os.path.join(self.release_dir, ".gradle")
-        Path(dot_gradle_dir).mkdir(exist_ok=True)
-        init_dot_gradle = os.path.join(self.project_root_dir, "init.gradle")
-        shutil.copy(init_dot_gradle, dot_gradle_dir)
+        tag = "last_release_bundle"
+
+        filename = os.path.join(self.release_dir, f"{name}.bundle")
+        if not os.path.exists(filename):
+            ref = branch
+        else:
+            ref = "{tag}..{branch}"
+
+        self.run_with_env(["git", "bundle", "create", filename, ref])
+        self.run_with_env(["git", "tag", "-f", tag, branch])
 
     def save_docker_images(self) -> None:
         docker_images_dir = os.path.join(self.release_dir, "docker_images")

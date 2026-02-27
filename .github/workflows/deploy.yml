@@ -28,9 +28,6 @@ on:
 jobs:
     deploy:
         runs-on: ubuntu-latest
-        env:
-            VENV: /home/runner/venv
-            PYTHON: /home/runner/venv/bin/python
         steps:
             - name: Install prerequisites
               run: |
@@ -53,20 +50,6 @@ jobs:
                   ref: "eclipse-setup"
                   path: "intermine"
 
-            - name: Python setup
-              run: |
-                  set -euxo pipefail
-                  python3 -m venv ${{ env.VENV }}
-                  ${{ env.PYTHON }} -m pip install -r ${GITHUB_WORKSPACE}/cadremine/requirements.txt
-
-            - name: Install intermine
-              run: |
-                  set -euxo pipefail
-                  export PSQL_USER=test
-                  export PSQL_PWD=test
-                  export PSQL_HOST=localhost
-                  ${{ env.PYTHON }}  ${GITHUB_WORKSPACE}/intermine/config/lib/install_intermine.py
-
             - name: Release
               run: |
                   set -euxo pipefail
@@ -77,7 +60,7 @@ jobs:
                   set -euxo pipefail
                   export PGPASSWORD=postgres
                   # Note: System python3
-                  python3 ${GITHUB_WORKSPACE}/cadremine/release/install_boot.py -v
+                  python3 ${GITHUB_WORKSPACE}/cadremine/release/install_boot.py ${GITHUB_WORKSPACE}/intermine -v
 
             - name: Dump Docker logs
               if: failure()
