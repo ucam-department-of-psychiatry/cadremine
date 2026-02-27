@@ -68,7 +68,7 @@ jobs:
                   set -euo pipefail
                   cd ${GITHUB_WORKSPACE}
                   sleep 120
-                  compose_file=${GITHUB_WORKSPACE}/cadremine/release/docker-compose.yml
+                  compose_file=${GITHUB_WORKSPACE}/cadremine/docker-compose.yml
                   docker compose -f ${compose_file} logs bluegenes
                   docker compose -f ${compose_file} logs nexus
                   docker compose -f ${compose_file} logs postgres
