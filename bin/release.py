@@ -92,7 +92,7 @@ class Releaser:
 
     def get_git_commit_id(self, ref: str) -> str:
         return self.run_with_env(
-            ["git", "rev-parse", "--verify", self.bundle_tag], stdout=PIPE
+            ["git", "rev-parse", "--verify", ref], stdout=PIPE
         ).stdout.decode("utf-8")
 
     def save_docker_images(self) -> None:
