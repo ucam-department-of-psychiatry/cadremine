@@ -3,12 +3,10 @@
 import argparse
 from dataclasses import dataclass
 from datetime import datetime
-import glob
 import logging
 import os
 from pathlib import Path
-import shutil
-from subprocess import run
+from subprocess import CompletedProcess, PIPE, run
 from typing import Any, Optional
 
 from python_on_whales import DockerClient
@@ -23,6 +21,7 @@ class Releaser:
     verbose: bool
     cadremine_git_branch: str = "main"
     intermine_git_branch: str = "eclipse-setup"
+    bundle_tag: str = "last_release_bundle"
 
     def __post_init__(self) -> None:
         self.bin_dir = os.path.dirname(os.path.realpath(__file__))
@@ -69,18 +68,32 @@ class Releaser:
     def create_git_bundle(
         self, project_dir: str, name: str, branch: str
     ) -> None:
-        os.chdir(project_dir)
-
-        tag = "last_release_bundle"
-
         filename = os.path.join(self.release_dir, f"{name}.bundle")
         if not os.path.exists(filename):
             ref = branch
         else:
-            ref = "{tag}..{branch}"
+            if not self.repository_has_changed(project_dir, branch):
+                print(f"Repository {name} has not changed")
+                return
+
+            ref = f"{self.bundle_tag}..{branch}"
+
+        os.chdir(project_dir)
 
         self.run_with_env(["git", "bundle", "create", filename, ref])
-        self.run_with_env(["git", "tag", "-f", tag, branch])
+        self.run_with_env(["git", "tag", "-f", self.bundle_tag, branch])
+
+    def repository_has_changed(self, project_dir: str, branch: str) -> bool:
+        os.chdir(project_dir)
+        tag_commit = self.get_git_commit_id(self.bundle_tag)
+        branch_commit = self.get_git_commit_id(branch)
+
+        return tag_commit != branch_commit
+
+    def get_git_commit_id(self, ref: str) -> str:
+        return self.run_with_env(
+            ["git", "rev-parse", "--verify", self.bundle_tag], stdout=PIPE
+        ).stdout.decode("utf-8")
 
     def save_docker_images(self) -> None:
         docker_images_dir = os.path.join(self.release_dir, "docker_images")
@@ -176,13 +189,19 @@ class Releaser:
         )
         return incremental_prefix, previous_prefix
 
-    def run_with_env(self, run_args: list[Any]) -> None:
+    def run_with_env(
+        self,
+        run_args: list[Any],
+        stdout=None,
+        stderr=None,
+    ) -> CompletedProcess[Any]:
         env = os.environ.copy()
 
         if self.verbose:
             log.info("Running:")
             log.info(run_args)
-        run(run_args, check=True, env=env)
+
+        return run(run_args, check=True, env=env, stdout=stdout, stderr=stderr)
 
 
 def main() -> None:
