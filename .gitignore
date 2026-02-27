@@ -24,6 +24,8 @@ failures.list
 *.iml
 out/
 .gradle/
+.project
+.classpath
 
 # Silver searcher
 .ignore
