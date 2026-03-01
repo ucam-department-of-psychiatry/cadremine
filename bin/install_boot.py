@@ -24,7 +24,6 @@ class Booter:
     recreate_venv: bool
     verbose: bool
     postgres_host_port: int
-    pypi_host_port: int
     tomcat_host_port: int
     recreate_databases: bool
 
@@ -32,49 +31,15 @@ class Booter:
         self.bin_dir = os.path.dirname(os.path.realpath(__file__))
         self.project_root_dir = os.path.join(self.bin_dir, "..")
         self.release_dir = os.path.join(self.project_root_dir, "release")
-        self.python_packages_dir = os.path.join(
-            self.release_dir, "python_packages"
-        )
         self.venv_dir = os.path.join(self.release_dir, "venv")
         self.venv_python = os.path.join(self.venv_dir, "bin", "python")
 
     def boot(self) -> None:
-        self.run_local_pypi_server()
-
         if self.recreate_venv or not os.path.exists(self.venv_dir):
             self.create_virtual_environment()
             self.install_requirements()
 
         self.run_install_script()
-
-    def run_local_pypi_server(self) -> None:
-        container_name = "cadre_pypi_server"
-
-        result = self.run_with_env(
-            [
-                "docker",
-                "start",
-                container_name,
-            ],
-            check=False,
-        )
-        if result.returncode != 0:
-            self.run_with_env(
-                [
-                    "docker",
-                    "run",
-                    "--name",
-                    container_name,
-                    "-p",
-                    f"{self.pypi_host_port}:8080",
-                    "-v",
-                    f"{self.python_packages_dir}:/data/packages",
-                    "--detach",
-                    "pypiserver/pypiserver:v2.4",
-                    "run",
-                ]
-            )
-        self.wait_for_port("127.0.0.1", self.pypi_host_port, 60)
 
     def wait_for_port(
         self, ip_address: str, port: int, timeout_s: float
@@ -105,8 +70,6 @@ class Booter:
                 "-m",
                 "pip",
                 "install",
-                "--extra-index-url",
-                f"http://localhost:{self.pypi_host_port}",
                 "-r",
                 f"{self.project_root_dir}/requirements.txt",
             ]
@@ -157,12 +120,6 @@ def main() -> None:
     )
     parser.add_argument(
         "--verbose", "-v", action="store_true", help="Be verbose"
-    )
-    parser.add_argument(
-        "--pypi_host_port",
-        type=int,
-        default=8080,
-        help="Host port to use for the PyPI server",
     )
     parser.add_argument(
         "--postgres_host_port",
