@@ -35,9 +35,9 @@ class Installer:
         self.bin_dir = os.path.dirname(os.path.realpath(__file__))
         self.project_root_dir = os.path.join(self.bin_dir, "..")
         self.release_dir = os.path.join(self.project_root_dir, "release")
-        self.psql_host = (os.getenv("PSQL_HOST", "localhost"),)
-        self.psql_user = (os.getenv("PSQL_USER", "postgres"),)
-        self.psql_pass = (os.getenv("PSQL_PWD", "postgres"),)
+        self.psql_host = os.getenv("PSQL_HOST", "localhost")
+        self.psql_user = os.getenv("PSQL_USER", "postgres")
+        self.psql_pass = os.getenv("PSQL_PWD", "postgres")
 
         self._docker = None
 
