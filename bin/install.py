@@ -65,11 +65,10 @@ class Installer:
         self.run_gradle([":webapp:war"])
 
     def check_java_version(self) -> None:
-        output = self.run_with_env(
-            ["java", "-version"], stderr=PIPE
-        ).stderr.decode("utf-8")
-
-        lines = output.splitlines()
+        java_home = self.get_java_home()
+        java_executable = os.path.join(java_home, "bin", "java")
+        output = self.run_with_env([java_executable, "-version"], stderr=PIPE)
+        lines = output.stderr.decode("utf-8").splitlines()
         version_elements = lines[0].split()
         version_string = version_elements[2].replace('"', "")
         version_number_elements = version_string.split(".")
@@ -87,6 +86,17 @@ class Installer:
                 f"{self.major_java_version}.{self.minor_java_version}"
             )
             sys.exit(EXIT_FAILURE)
+
+    def get_java_home(self) -> str:
+        return self.getenv_or_exit("JAVA_HOME")
+
+    def getenv_or_exit(self, name: str) -> str:
+        value = os.getenv(name)
+        if value is None:
+            print(f"{name} is not defined")
+            sys.exit(EXIT_FAILURE)
+
+        return value
 
     def make_data_dirs(self) -> None:
         for data_dir in [
@@ -266,7 +276,9 @@ class Installer:
                 v = env[k]
                 log.info(f"{k}={v}")
 
-        return run(run_args, check=check, env=env)
+        return run(
+            run_args, stdout=stdout, stderr=stderr, check=check, env=env
+        )
 
 
 def main() -> None:
