@@ -27,11 +27,12 @@ class Installer:
     postgres_host_port: int
     tomcat_host_port: int
     recreate_databases: bool
+    environment: str = "dev"
+    mine_name:str = "cadremine"
     major_java_version: int = 1
     minor_java_version: int = 8
 
     def __post_init__(self) -> None:
-        self.mine_name = "cadremine"
         self.bin_dir = os.path.dirname(os.path.realpath(__file__))
         self.project_root_dir = os.path.join(self.bin_dir, "..")
         self.release_dir = os.path.join(self.project_root_dir, "release")
