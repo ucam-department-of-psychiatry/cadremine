@@ -41,7 +41,6 @@ class Booter:
         self.venv_python = os.path.join(self.venv_dir, "bin", "python")
 
     def boot(self) -> None:
-        self.install_local_pypi_server()
         self.run_local_pypi_server()
 
         if self.recreate_venv or not os.path.exists(self.venv_dir):
