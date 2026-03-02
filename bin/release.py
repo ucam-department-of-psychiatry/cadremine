@@ -36,22 +36,17 @@ class Releaser:
         self.requirements_file = os.path.join(
             self.project_root_dir, "requirements.txt"
         )
-        self.python_packages_dir = os.path.join(
-            self.release_dir, "python_packages"
-        )
         self.gradle_dir = os.path.join(self.release_dir, "gradle")
 
     def release(self) -> None:
         self.create_release_directories()
         self.create_intermine_bundle()
         self.create_cadremine_bundle()
-        self.download_python_packages()
         self.download_gradle_zip()
         self.create_archive()
 
     def create_release_directories(self) -> None:
         Path(self.release_dir).mkdir(exist_ok=True)
-        Path(self.python_packages_dir).mkdir(exist_ok=True)
         Path(self.gradle_dir).mkdir(exist_ok=True)
 
     def create_intermine_bundle(self) -> None:
@@ -93,33 +88,6 @@ class Releaser:
         return self.run_with_env(
             ["git", "rev-parse", "--verify", ref], stdout=PIPE
         ).stdout.decode("utf-8")
-
-    def download_python_packages(self) -> None:
-        self.run_with_env(
-            [
-                "python3",
-                "-m",
-                "pip",
-                "download",
-                "-r",
-                self.base_requirements_file,
-                "--dest",
-                self.python_packages_dir,
-            ]
-        )
-
-        self.run_with_env(
-            [
-                "python3",
-                "-m",
-                "pip",
-                "download",
-                "-r",
-                self.requirements_file,
-                "--dest",
-                self.python_packages_dir,
-            ]
-        )
 
     def download_gradle_zip(self) -> None:
         zip_file = self.gradle_zip_url.rsplit("/", 1)[-1]

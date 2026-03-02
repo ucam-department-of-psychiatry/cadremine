@@ -6,10 +6,8 @@ import glob
 import logging
 import os
 import shutil
-import socket
 from subprocess import CompletedProcess, run
 import sys
-import time
 from typing import Any
 from venv import EnvBuilder
 
@@ -24,7 +22,6 @@ class BootException(Exception):
 class Booter:
     intermine_dir: str
     postgres_host_port: int
-    pypi_url: str
     recreate_databases: bool
     recreate_venv: bool
     release_dir: str
@@ -36,64 +33,15 @@ class Booter:
     def __post_init__(self) -> None:
         self.bin_dir = os.path.dirname(os.path.realpath(__file__))
         self.project_root_dir = os.path.join(self.bin_dir, "..")
-        self.python_packages_dir = os.path.join(
-            self.release_dir, "python_packages"
-        )
         self.venv_dir = os.path.join(self.release_dir, "venv")
         self.venv_python = os.path.join(self.venv_dir, "bin", "python")
 
     def boot(self) -> None:
-        self.run_local_pypi_server()
-
         if self.recreate_venv or not os.path.exists(self.venv_dir):
             self.create_virtual_environment()
             self.install_requirements()
 
         self.run_install_script()
-
-    def run_local_pypi_server(self) -> None:
-        container_name = "cadre_pypi_server"
-
-        result = self.run_with_env(
-            [
-                "docker",
-                "start",
-                container_name,
-            ],
-            check=False,
-        )
-        if result.returncode != 0:
-            self.run_with_env(
-                [
-                    "docker",
-                    "run",
-                    "--name",
-                    container_name,
-                    "-p",
-                    f"{self.pypi_host_port}:8080",
-                    "-v",
-                    f"{self.python_packages_dir}:/data/packages",
-                    "--detach",
-                    "pypiserver/pypiserver:v2.4",
-                    "run",
-                ]
-            )
-        self.wait_for_port("127.0.0.1", self.pypi_host_port, 60)
-
-    def wait_for_port(
-        self, ip_address: str, port: int, timeout_s: float
-    ) -> None:
-        start_time = time.time()
-
-        while time.time() - start_time < timeout_s:
-            try:
-                with socket.create_connection((ip_address, port), timeout_s):
-                    return
-
-            except OSError:
-                time.sleep(1)
-
-        raise TimeoutError("Gave up waiting for port {port} on {ip_address}.")
 
     def create_virtual_environment(self) -> None:
         builder = EnvBuilder(
@@ -111,9 +59,6 @@ class Booter:
             "-r",
             f"{self.project_root_dir}/requirements.txt",
         ]
-
-        if self.pypi_url:
-            install_args += ["--extra-index-url", self.pypi_url]
 
         self.run_with_env(install_args)
 
@@ -193,7 +138,6 @@ def main() -> None:
         action="store_true",
         help="Recreate databases",
     )
-    parser.add_argument("--pypi_url", help="Location of PyPI packages")
 
     args = parser.parse_args()
     log_level = logging.DEBUG if args.verbose else logging.INFO
