@@ -26,6 +26,9 @@ class Releaser:
         self.project_root_dir = os.path.join(self.bin_dir, "..")
         self.release_dir = os.path.join(self.project_root_dir, "release")
         self.archive_dir = os.path.join(self.project_root_dir, "archive")
+        self.base_requirements_file = os.path.join(
+            self.project_root_dir, "base_requirements.txt"
+        )
         self.requirements_file = os.path.join(
             self.project_root_dir, "requirements.txt"
         )
@@ -85,6 +88,19 @@ class Releaser:
         ).stdout.decode("utf-8")
 
     def download_python_packages(self) -> None:
+        self.run_with_env(
+            [
+                "python3",
+                "-m",
+                "pip",
+                "download",
+                "-r",
+                self.base_requirements_file,
+                "--dest",
+                self.python_packages_dir,
+            ]
+        )
+
         self.run_with_env(
             [
                 "python3",
