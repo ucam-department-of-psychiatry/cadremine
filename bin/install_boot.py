@@ -2,8 +2,10 @@
 
 import argparse
 from dataclasses import dataclass
+import glob
 import logging
 import os
+import shutil
 import socket
 from subprocess import CompletedProcess, run
 import sys
@@ -37,6 +39,7 @@ class Booter:
         self.python_packages_dir = os.path.join(
             self.release_dir, "python_packages"
         )
+        self.gradle_dir = os.path.join(self.release_dir, "gradle")
         self.venv_dir = os.path.join(self.release_dir, "venv")
         self.venv_python = os.path.join(self.venv_dir, "bin", "python")
 
@@ -47,6 +50,7 @@ class Booter:
             self.create_virtual_environment()
             self.install_requirements()
 
+        self.copy_gradle_zip()
         self.run_install_script()
 
     def run_local_pypi_server(self) -> None:
@@ -115,6 +119,14 @@ class Booter:
 
         self.run_with_env(install_args)
 
+    def copy_gradle_zip(self) -> None:
+        gradle_wrapper_dir = os.path.join(
+            self.project_root_dir, "gradle", "wrapper"
+        )
+
+        for zip_file in glob.glob(os.path.join(self.gradle_dir, "*.zip")):
+            shutil.copy(zip_file, gradle_wrapper_dir)
+
     def run_install_script(self) -> None:
         install_args = [
             self.venv_python,
@@ -178,9 +190,7 @@ def main() -> None:
         action="store_true",
         help="Recreate databases",
     )
-    parser.add_argument(
-        "--pypi_url", help="Location of PyPI packages"
-    )
+    parser.add_argument("--pypi_url", help="Location of PyPI packages")
 
     args = parser.parse_args()
     log_level = logging.DEBUG if args.verbose else logging.INFO

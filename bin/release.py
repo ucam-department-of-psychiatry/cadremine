@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 from subprocess import CompletedProcess, PIPE, run
 from typing import Any, Optional
+import urllib.request
 
 log = logging.getLogger(__name__)
 
@@ -20,6 +21,9 @@ class Releaser:
     cadremine_git_branch: str = "main"
     intermine_git_branch: str = "eclipse-setup"
     bundle_tag: str = "last_release_bundle"
+    gradle_zip_url = (
+        "https://services.gradle.org/distributions/gradle-4.9-bin.zip"
+    )
 
     def __post_init__(self) -> None:
         self.bin_dir = os.path.dirname(os.path.realpath(__file__))
@@ -35,17 +39,20 @@ class Releaser:
         self.python_packages_dir = os.path.join(
             self.release_dir, "python_packages"
         )
+        self.gradle_dir = os.path.join(self.release_dir, "gradle")
 
     def release(self) -> None:
         self.create_release_directories()
         self.create_intermine_bundle()
         self.create_cadremine_bundle()
         self.download_python_packages()
+        self.download_gradle_zip()
         self.create_archive()
 
     def create_release_directories(self) -> None:
         Path(self.release_dir).mkdir(exist_ok=True)
         Path(self.python_packages_dir).mkdir(exist_ok=True)
+        Path(self.gradle_dir).mkdir(exist_ok=True)
 
     def create_intermine_bundle(self) -> None:
         self.create_git_bundle(
@@ -113,6 +120,11 @@ class Releaser:
                 self.python_packages_dir,
             ]
         )
+
+    def download_gradle_zip(self) -> None:
+        zip_file = self.gradle_zip_url.rsplit("/", 1)[-1]
+        path = os.path.join(self.gradle_dir, zip_file)
+        urllib.request.urlretrieve(self.gradle_zip_url, path)
 
     def create_archive(self) -> None:
         Path(self.archive_dir).mkdir(exist_ok=True)
