@@ -34,3 +34,4 @@ out/
 gradle.properties
 release/
 archive/
+gradle-*-bin.zip

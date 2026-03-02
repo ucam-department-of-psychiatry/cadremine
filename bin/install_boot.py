@@ -39,7 +39,6 @@ class Booter:
         self.python_packages_dir = os.path.join(
             self.release_dir, "python_packages"
         )
-        self.gradle_dir = os.path.join(self.release_dir, "gradle")
         self.venv_dir = os.path.join(self.release_dir, "venv")
         self.venv_python = os.path.join(self.venv_dir, "bin", "python")
 
@@ -50,7 +49,6 @@ class Booter:
             self.create_virtual_environment()
             self.install_requirements()
 
-        self.copy_gradle_zip()
         self.run_install_script()
 
     def run_local_pypi_server(self) -> None:
@@ -132,6 +130,7 @@ class Booter:
             self.venv_python,
             f"{self.bin_dir}/install.py",
             self.intermine_dir,
+            self.release_dir,
             "--postgres_host_port",
             str(self.postgres_host_port),
             "--tomcat_host_port",

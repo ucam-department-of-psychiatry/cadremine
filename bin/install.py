@@ -6,6 +6,7 @@ import glob
 import logging
 import os
 from pathlib import Path
+import shutil
 import socket
 from subprocess import CompletedProcess, PIPE, run
 import sys
@@ -23,10 +24,12 @@ EXIT_FAILURE = -1
 @dataclass
 class Installer:
     intermine_dir: str
-    verbose: bool
     postgres_host_port: int
-    tomcat_host_port: int
     recreate_databases: bool
+    release_dir: str
+    tomcat_host_port: int
+    verbose: bool
+
     environment: str = "dev"
     mine_name: str = "cadremine"
     major_java_version: int = 1
@@ -57,6 +60,7 @@ class Installer:
         self.start_containers()
         self.build_databases()
         self.create_gradle_properties()
+        self.copy_gradle_zip()
         self.install_intermine()
         self.run_gradle(["clean"])
         self.run_gradle(["buildDB"])
@@ -213,6 +217,41 @@ class Installer:
 
             print(f"Written {out_file}")
 
+    def copy_gradle_zip(self) -> None:
+        gradle_dir = os.path.join(self.release_dir, "gradle")
+        gradle_wrapper_dir = os.path.join(
+            self.project_root_dir,
+            "gradle",
+            "wrapper",
+        )
+
+        cadremine_gradle_wrapper_properties = os.path.join(
+            gradle_wrapper_dir,
+            "gradle-wrapper.properties",
+        )
+
+        zip_path = None
+        for zip_file in glob.glob(os.path.join(gradle_dir, "*.zip")):
+            zip_path = os.path.join(gradle_dir, zip_file)
+
+        if zip_path is None:
+            print(f"Could not find Gradle zip file in {gradle_dir}")
+            sys.exit(EXIT_FAILURE)
+
+        shutil.copy(zip_path, gradle_wrapper_dir)
+
+        for gradle_wrapper_properties in glob.glob(
+            "**/gradle-wrapper.properties",
+            root_dir=self.intermine_dir,
+            recursive=True,
+        ):
+            properties_file = os.path.join(
+                self.intermine_dir, gradle_wrapper_properties
+            )
+            properties_dir = os.path.dirname(properties_file)
+            shutil.copy(cadremine_gradle_wrapper_properties, properties_dir)
+            shutil.copy(zip_path, properties_dir)
+
     def install_intermine(self) -> None:
         os.environ["PSQL_HOST"] = self.psql_host
         os.environ["PSQL_USER"] = self.psql_user
@@ -287,6 +326,10 @@ def main() -> None:
     )
     parser.add_argument(
         "intermine_dir", help="Top level directory containing Intermine"
+    )
+    parser.add_argument(
+        "release_dir",
+        help="Top level directory containing files outside of version control",
     )
     parser.add_argument(
         "--postgres_host_port",
