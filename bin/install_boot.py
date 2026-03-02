@@ -27,6 +27,7 @@ class Booter:
     pypi_url: str
     recreate_databases: bool
     recreate_venv: bool
+    release_dir: str
     tomcat_host_port: int
     verbose: bool
 
@@ -35,7 +36,6 @@ class Booter:
     def __post_init__(self) -> None:
         self.bin_dir = os.path.dirname(os.path.realpath(__file__))
         self.project_root_dir = os.path.join(self.bin_dir, "..")
-        self.release_dir = os.path.join(self.project_root_dir, "release")
         self.python_packages_dir = os.path.join(
             self.release_dir, "python_packages"
         )
@@ -164,6 +164,10 @@ def main() -> None:
     )
     parser.add_argument(
         "intermine_dir", help="Top level directory containing Intermine"
+    )
+    parser.add_argument(
+        "release_dir",
+        help="Top level directory containing files outside of version control",
     )
     parser.add_argument(
         "--recreate_venv",
