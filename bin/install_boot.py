@@ -21,11 +21,12 @@ class BootException(Exception):
 @dataclass
 class Booter:
     intermine_dir: str
-    recreate_venv: bool
-    verbose: bool
     postgres_host_port: int
-    tomcat_host_port: int
+    pypi_url: str
     recreate_databases: bool
+    recreate_venv: bool
+    tomcat_host_port: int
+    verbose: bool
 
     def __post_init__(self) -> None:
         self.bin_dir = os.path.dirname(os.path.realpath(__file__))
