@@ -64,16 +64,19 @@ class Booter:
         builder.create(self.venv_dir)
 
     def install_requirements(self) -> None:
-        self.run_with_env(
-            [
-                self.venv_python,
-                "-m",
-                "pip",
-                "install",
-                "-r",
-                f"{self.project_root_dir}/requirements.txt",
-            ]
-        )
+        install_args = [
+            self.venv_python,
+            "-m",
+            "pip",
+            "install",
+            "-r",
+            f"{self.project_root_dir}/requirements.txt",
+        ]
+
+        if self.pypi_url:
+            install_args += ["--extra-index-url", self.pypi_url]
+
+        self.run_with_env(install_args)
 
     def run_install_script(self) -> None:
         install_args = [
@@ -137,6 +140,9 @@ def main() -> None:
         "--recreate_databases",
         action="store_true",
         help="Recreate databases",
+    )
+    parser.add_argument(
+        "--pypi_url", help="Location of PyPI packages"
     )
 
     args = parser.parse_args()
