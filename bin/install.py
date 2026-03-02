@@ -28,7 +28,7 @@ class Installer:
     tomcat_host_port: int
     recreate_databases: bool
     environment: str = "dev"
-    mine_name:str = "cadremine"
+    mine_name: str = "cadremine"
     major_java_version: int = 1
     minor_java_version: int = 8
 
