@@ -42,9 +42,7 @@ dependencies {
     compile group: 'org.apache.lucene', name: 'lucene-analyzers', version: '3.0.2'
     compile group: 'org.apache.lucene', name: 'lucene-highlighter', version: '3.0.2'
     compile group: 'org.apache.lucene', name: 'lucene-snowball', version: '3.0.2'
-    compile group: 'org.apache.solr', name: 'solr-solrj', version: '7.2.1'
-
-    onlyRunTime group: 'org.intermine', name: 'bluegenes', version: System.getProperty("blueGenesVersion")
+    compile group: 'org.apache.solr', name: 'solr-solrj', version: '8.11.4'
 }
 
 war {
@@ -173,16 +171,4 @@ String getServerName(String deployUrl) {
     }
 
     return deployUrl
-}
-
-task blueGenesStart(type: JavaExec) {
-    classpath = configurations.onlyRunTime
-    main = "bluegenes.core"
-    //println "Loading blue genes for '" + props.getProperty("project.title") + "' at '" + props.getProperty("webapp.baseurl") + "/" + props.getProperty("webapp.path") + "'"
-
-    //:bluegenes-default-service-root "http://beta.flymine.org/beta"
-    environment("bluegenes-default-service-root", props.getProperty("webapp.baseurl") + "/" + props.getProperty("webapp.path"))
-    // FlyMine Beta
-    environment("bluegenes-default-mine-name", props.getProperty("project.title"))
-    environment("bluegenes-jar-version", System.getProperty("blueGenesVersion"))
 }
