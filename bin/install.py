@@ -39,7 +39,6 @@ class Installer:
         self.bin_dir = os.path.dirname(os.path.realpath(__file__))
         self.project_root_dir = os.path.join(self.bin_dir, "..")
         self.data_dir = os.path.join(self.project_root_dir, "data")
-        self.nexus_data_dir = os.path.join(self.data_dir, "nexus")
         self.gradle_dir = os.path.join(self.release_dir, "gradle")
 
         self.psql_host = os.getenv("PSQL_HOST", "localhost")
@@ -62,7 +61,6 @@ class Installer:
         self.check_java_version()
         self.make_data_dirs()
         self.stop_containers()
-        self.copy_nexus_data_volume()
         self.start_containers()
         self.build_databases()
         self.create_gradle_properties()
@@ -119,13 +117,6 @@ class Installer:
         ]:
             full_path = os.path.join(self.data_dir, subdir)
             Path(full_path).mkdir(parents=True, exist_ok=True)
-
-    def copy_nexus_data_volume(self) -> None:
-        src_dir = os.path.join(self.release_dir, "nexus")
-
-        shutil.copytree(
-            src_dir, self.nexus_data_dir, dirs_exist_ok=True
-        )
 
     def start_containers(self) -> None:
         self.docker.compose.up(detach=True)
