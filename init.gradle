@@ -1,6 +1,6 @@
-# Source - https://stackoverflow.com/a/27058232
-# Posted by Rene Groeschke, modified by community. See post 'Timeline' for change history
-# Retrieved 2026-02-12, License - CC BY-SA 3.0
+// Source - https://stackoverflow.com/a/27058232
+// Posted by Rene Groeschke, modified by community. See post 'Timeline' for change history
+// Retrieved 2026-02-12, License - CC BY-SA 3.0
 
 allprojects{
     repositories {
