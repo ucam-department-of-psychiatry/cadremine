@@ -67,6 +67,7 @@ class Installer:
         self.build_databases()
         self.create_gradle_properties()
         self.copy_gradle_zip()
+        self.copy_init_gradle()
         self.install_intermine()
         self.run_gradle(["clean"])
         self.run_gradle(["buildDB"])
@@ -266,6 +267,12 @@ class Installer:
             properties_dir = os.path.dirname(properties_file)
             shutil.copy(cadremine_gradle_wrapper_properties, properties_dir)
             shutil.copy(zip_path, properties_dir)
+
+    def copy_init_gradle(self) -> None:
+        user_gradle = os.path.join(Path.home(), ".gradle")
+        init_gradle = os.path.join(self.project_root_dir, "init.gradle")
+
+        shutil.copy(init_gradle, user_gradle)
 
     def install_intermine(self) -> None:
         os.environ["PSQL_HOST"] = self.psql_host
