@@ -38,6 +38,10 @@ class Installer:
     def __post_init__(self) -> None:
         self.bin_dir = os.path.dirname(os.path.realpath(__file__))
         self.project_root_dir = os.path.join(self.bin_dir, "..")
+        self.data_dir = os.path.join(self.project_root_dir, "data")
+        self.nexus_data_dir = os.path.join(self.data_dir, "nexus")
+        self.gradle_dir = os.path.join(self.release_dir, "gradle")
+
         self.psql_host = os.getenv("PSQL_HOST", "localhost")
         self.psql_user = os.getenv("PSQL_USER", "postgres")
         self.psql_pass = os.getenv("PSQL_PWD", "postgres")
@@ -57,6 +61,8 @@ class Installer:
     def install(self) -> None:
         self.check_java_version()
         self.make_data_dirs()
+        self.stop_containers()
+        self.copy_nexus_data_volume()
         self.start_containers()
         self.build_databases()
         self.create_gradle_properties()
@@ -103,15 +109,22 @@ class Installer:
         return value
 
     def make_data_dirs(self) -> None:
-        for data_dir in [
+        for subdir in [
             "postgres",
             "solr",
             "tomcat",
             "bluegenes_tools",
             "nexus",
         ]:
-            full_path = os.path.join(self.project_root_dir, "data", data_dir)
+            full_path = os.path.join(self.data_dir, subdir)
             Path(full_path).mkdir(parents=True, exist_ok=True)
+
+    def copy_nexus_data_volume(self) -> None:
+        src_dir = os.path.join(self.release_dir, "nexus")
+
+        shutil.copytree(
+            src_dir, self.nexus_data_dir, dirs_exist_ok=True
+        )
 
     def start_containers(self) -> None:
         self.docker.compose.up(detach=True)
@@ -123,6 +136,9 @@ class Installer:
 
         # https://github.com/docker-library/postgres/issues/146
         self.wait_for_postgres()
+
+    def stop_containers(self) -> None:
+        self.docker.compose.down(volumes=True)
 
     def wait_for_postgres(self, timeout_s: float = DEFAULT_TIMEOUT_S) -> None:
         start_time = time.time()
@@ -218,7 +234,6 @@ class Installer:
             print(f"Written {out_file}")
 
     def copy_gradle_zip(self) -> None:
-        gradle_dir = os.path.join(self.release_dir, "gradle")
         gradle_wrapper_dir = os.path.join(
             self.project_root_dir,
             "gradle",
@@ -231,11 +246,11 @@ class Installer:
         )
 
         zip_path = None
-        for zip_file in glob.glob(os.path.join(gradle_dir, "*.zip")):
-            zip_path = os.path.join(gradle_dir, zip_file)
+        for zip_file in glob.glob(os.path.join(self.gradle_dir, "*.zip")):
+            zip_path = os.path.join(self.gradle_dir, zip_file)
 
         if zip_path is None:
-            print(f"Could not find Gradle zip file in {gradle_dir}")
+            print(f"Could not find Gradle zip file in {self.gradle_dir}")
             sys.exit(EXIT_FAILURE)
 
         shutil.copy(zip_path, gradle_wrapper_dir)

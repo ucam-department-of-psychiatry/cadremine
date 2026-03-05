@@ -6,6 +6,7 @@ from datetime import datetime
 import logging
 import os
 from pathlib import Path
+import shutil
 from subprocess import CompletedProcess, PIPE, run
 from typing import Any, Optional
 import urllib.request
@@ -37,17 +38,20 @@ class Releaser:
             self.project_root_dir, "requirements.txt"
         )
         self.gradle_dir = os.path.join(self.release_dir, "gradle")
+        self.data_dir = os.path.join(self.project_root_dir, "data")
+        self.nexus_data_dir = os.path.join(self.project_root_dir, "nexus")
 
     def release(self) -> None:
         self.create_release_directories()
         self.create_intermine_bundle()
         self.create_cadremine_bundle()
         self.download_gradle_zip()
-        self.create_archive()
+        self.copy_nexus_data_volume()
 
     def create_release_directories(self) -> None:
         Path(self.release_dir).mkdir(exist_ok=True)
         Path(self.gradle_dir).mkdir(exist_ok=True)
+        Path(self.nexus_data_dir).mkdir(exist_ok=True, parents=True)
 
     def create_intermine_bundle(self) -> None:
         self.create_git_bundle(
@@ -93,6 +97,11 @@ class Releaser:
         zip_file = self.gradle_zip_url.rsplit("/", 1)[-1]
         path = os.path.join(self.gradle_dir, zip_file)
         urllib.request.urlretrieve(self.gradle_zip_url, path)
+
+    def copy_nexus_data_volume(self) -> None:
+        shutil.copytree(
+            self.nexus_data_dir, self.release_dir, dirs_exist_ok=True
+        )
 
     def create_archive(self) -> None:
         Path(self.archive_dir).mkdir(exist_ok=True)
