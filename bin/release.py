@@ -39,7 +39,7 @@ class Releaser:
         )
         self.gradle_dir = os.path.join(self.release_dir, "gradle")
         self.data_dir = os.path.join(self.project_root_dir, "data")
-        self.nexus_data_dir = os.path.join(self.project_root_dir, "nexus")
+        self.nexus_data_dir = os.path.join(self.data_dir, "nexus")
 
     def release(self) -> None:
         self.create_release_directories()
@@ -100,8 +100,13 @@ class Releaser:
         urllib.request.urlretrieve(self.gradle_zip_url, path)
 
     def copy_nexus_data_volume(self) -> None:
+        dest_dir = os.path.join(self.release_dir, "nexus")
+
         shutil.copytree(
-            self.nexus_data_dir, self.release_dir, dirs_exist_ok=True
+            self.nexus_data_dir,
+            dest_dir,
+            dirs_exist_ok=True,
+            ignore=shutil.ignore_patterns(".userPrefs"),
         )
 
     def create_archive(self) -> None:
