@@ -21,6 +21,7 @@ class BootException(Exception):
 @dataclass
 class Booter:
     intermine_dir: str
+    nexus_host_port: int
     postgres_host_port: int
     recreate_databases: bool
     recreate_venv: bool
@@ -76,6 +77,8 @@ class Booter:
             f"{self.bin_dir}/install.py",
             self.intermine_dir,
             self.release_dir,
+            "--nexus_host_port",
+            str(self.nexus_host_port),
             "--postgres_host_port",
             str(self.postgres_host_port),
             "--tomcat_host_port",
@@ -120,6 +123,12 @@ def main() -> None:
     )
     parser.add_argument(
         "--verbose", "-v", action="store_true", help="Be verbose"
+    )
+    parser.add_argument(
+        "--nexus_host_port",
+        type=int,
+        default=8081,
+        help="Host port to use for the Sonatype Nexus server",
     )
     parser.add_argument(
         "--postgres_host_port",

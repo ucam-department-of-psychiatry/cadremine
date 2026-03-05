@@ -24,6 +24,7 @@ EXIT_FAILURE = -1
 @dataclass
 class Installer:
     intermine_dir: str
+    nexus_host_port: int
     postgres_host_port: int
     recreate_databases: bool
     release_dir: str
@@ -120,7 +121,7 @@ class Installer:
     def start_containers(self) -> None:
         self.docker.compose.up(detach=True)
 
-        self.wait_for_port("127.0.0.1", self.tomcat_host_port)
+        self.wait_for_port("127.0.0.1", self.nexus_host_port)
 
         # Not enough on its own as the container stops and restarts
         self.wait_for_port("127.0.0.1", self.postgres_host_port)
@@ -339,6 +340,12 @@ def main() -> None:
     parser.add_argument(
         "release_dir",
         help="Top level directory containing files outside of version control",
+    )
+    parser.add_argument(
+        "--nexus_host_port",
+        type=int,
+        default=8081,
+        help="Host port to use for the Sonatype Nexus server",
     )
     parser.add_argument(
         "--postgres_host_port",
