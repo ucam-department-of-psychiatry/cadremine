@@ -47,6 +47,7 @@ class Releaser:
         self.create_cadremine_bundle()
         self.download_gradle_zip()
         self.copy_nexus_data_volume()
+        self.create_archive()
 
     def create_release_directories(self) -> None:
         Path(self.release_dir).mkdir(exist_ok=True)
