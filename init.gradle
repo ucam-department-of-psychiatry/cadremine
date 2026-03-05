@@ -5,7 +5,11 @@
 allprojects{
     repositories {
         all { ArtifactRepository repo ->
-            if ((repo instanceof MavenArtifactRepository) && repo.url.toString().startsWith("https://repo1.maven.org/maven2")) {
+            if ((repo instanceof MavenArtifactRepository) && (
+                repo.url.toString().startsWith("https://repo1.maven.org") ||
+                repo.url.toString().startsWith("https://repo.maven.apache.org") ||
+                repo.url.toString().startsWith("https://www.ebi.ac.uk")
+            ) {
                 project.logger.warn "Repository ${repo.url} removed."
                 remove repo
             }
