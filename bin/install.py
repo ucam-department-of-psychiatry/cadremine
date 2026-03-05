@@ -60,7 +60,6 @@ class Installer:
     def install(self) -> None:
         self.check_java_version()
         self.make_data_dirs()
-        self.stop_containers()
         self.start_containers()
         self.build_databases()
         self.create_gradle_properties()
@@ -128,9 +127,6 @@ class Installer:
 
         # https://github.com/docker-library/postgres/issues/146
         self.wait_for_postgres()
-
-    def stop_containers(self) -> None:
-        self.docker.compose.down(volumes=True)
 
     def wait_for_postgres(self, timeout_s: float = DEFAULT_TIMEOUT_S) -> None:
         start_time = time.time()
