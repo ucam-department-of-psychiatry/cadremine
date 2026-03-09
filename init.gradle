@@ -5,13 +5,17 @@
 allprojects{
     repositories {
         all { ArtifactRepository repo ->
-            if ((repo instanceof MavenArtifactRepository) && (
-                repo.url.toString().startsWith("https://repo1.maven.org") ||
-                repo.url.toString().startsWith("https://repo.maven.apache.org") ||
-                repo.url.toString().startsWith("https://www.ebi.ac.uk")
-            )) {
-                project.logger.warn "Repository ${repo.url} removed."
-                remove repo
+            if (repo instanceof MavenArtifactRepository) {
+                if (repo.url.toString().startsWith("https://repo1.maven.org") ||
+                    repo.url.toString().startsWith("https://repo.maven.apache.org") ||
+                    repo.url.toString().startsWith("https://www.ebi.ac.uk") ||
+                    repo.url.toString().startsWith("https://plugins.gradle.org")) {
+
+                    project.logger.warn "Repository ${repo.url} removed."
+                    remove repo
+                } else {
+                    project.logger.warn "Repository ${repo.url} kept."
+                }
             }
         }
         maven {
