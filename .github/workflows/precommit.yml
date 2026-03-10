@@ -21,7 +21,9 @@ jobs:
               run: |
                   set -euo pipefail
                   python3 -m venv ${HOME}/venv
-                  PYTHON=${HOME}/venv/bin/python
+                  VENV_BIN=${HOME}/venv/bin/
+                  PYTHON=${VENV_BIN}/python
+                  PRE_COMMIT=${VENV_BIN}/pre-commit
                   ${PYTHON} -m pip install -r ${GITHUB_WORKSPACE}/requirements.txt
                   ${PYTHON} -m pip install pre-commit
-                  ${PYTHON} pre-commit run --all-files
+                  ${PRE_COMMIT} run --all-files
