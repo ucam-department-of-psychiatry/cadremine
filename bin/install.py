@@ -264,17 +264,19 @@ class Installer:
         os.environ["PSQL_USER"] = self.psql_user
         os.environ["PSQL_PWD"] = self.psql_pass
 
-        self.run_with_env(
-            [
+        install_args = [
                 os.path.join(
                     self.intermine_dir,
                     "config",
                     "lib",
                     "install_intermine.py",
-                    "--offline",
-                )
+                ),
             ]
-        )
+
+        if self.offline:
+            install_args.append("--offline")
+
+        self.run_with_env(install_args)
 
     def run_gradle(self, gradle_args: list[Any]) -> None:
         os.chdir(self.project_root_dir)
