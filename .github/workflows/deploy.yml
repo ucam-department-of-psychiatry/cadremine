@@ -16,6 +16,7 @@ on:
             - .env
             - extra/**
             - gradle.properties.in
+            - gradle-wrapper.properties.in
             - make-loader.sh
             - postgres/**
             - project_build

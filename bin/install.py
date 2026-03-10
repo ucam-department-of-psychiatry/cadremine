@@ -23,8 +23,15 @@ EXIT_FAILURE = -1
 
 @dataclass
 class Installer:
+    central_url: str
+    clojars_url: str
+    ebi_url: str
+    gradle_distribution_url: str
     intermine_dir: str
     nexus_host_port: int
+    offline: bool
+    offline_url: str
+    plugins_url: str
     postgres_host_port: int
     recreate_databases: bool
     release_dir: str
@@ -65,7 +72,6 @@ class Installer:
         self.build_databases()
         self.create_gradle_properties()
         self.copy_gradle_zip()
-        self.copy_init_gradle()
         self.install_intermine()
         self.run_gradle(["clean"])
         self.run_gradle(["buildDB"])
@@ -200,38 +206,47 @@ class Installer:
         replacement_dict = {
             "im_checkout": self.intermine_dir,
             "im_environment": self.environment,
+            "im_central_url": self.central_url,
+            "im_clojars_url": self.clojars_url,
+            "im_ebi_url": self.ebi_url,
+            "im_plugins_url": self.plugins_url,
         }
 
-        for gradle_properties_in in glob.glob(
-            "**/gradle.properties.in",
-            root_dir=self.project_root_dir,
-            recursive=True,
+        self.create_properties("gradle.properties", replacement_dict)
+
+    def create_gradle_wrapper_properties(self) -> None:
+        replacement_dict = {
+            "im_gradle_distribution_url": self.gradle_distribution_url,
+        }
+
+        self.create_properties("gradle-wrapper.properties", replacement_dict)
+
+    def create_properties(
+        self, filename: str, replacement_dict: dict[str, Any]
+    ) -> None:
+        for properties_in in glob.glob(
+            f"**/{filename}.in", root_dir=self.checkout, recursive=True
         ):
-            in_file = os.path.join(self.project_root_dir, gradle_properties_in)
-            out_file = in_file[:-3]
-            with open(out_file, "w") as f_out:
+            path_in = os.path.join(self.checkout, properties_in)
+            path_out = path_in[:-3]
+            with open(path_out, "w") as f_out:
                 f_out.write(
                     "# FILE AUTOMATICALLY GENERATED FROM "
-                    f"{gradle_properties_in}. DO NOT EDIT!\n"
+                    f"{properties_in}. DO NOT EDIT!\n"
                 )
-                with open(in_file) as f_in:
+                with open(path_in) as f_in:
                     for line in f_in:
                         for key, value in replacement_dict.items():
                             line = line.replace(f"@@{key}@@", value)
                         f_out.write(line)
 
-            print(f"Written {out_file}")
+            print(f"Written {path_out}")
 
     def copy_gradle_zip(self) -> None:
         gradle_wrapper_dir = os.path.join(
             self.project_root_dir,
             "gradle",
             "wrapper",
-        )
-
-        cadremine_gradle_wrapper_properties = os.path.join(
-            gradle_wrapper_dir,
-            "gradle-wrapper.properties",
         )
 
         zip_path = None
@@ -244,24 +259,6 @@ class Installer:
 
         shutil.copy(zip_path, gradle_wrapper_dir)
 
-        for gradle_wrapper_properties in glob.glob(
-            "**/gradle-wrapper.properties",
-            root_dir=self.intermine_dir,
-            recursive=True,
-        ):
-            properties_file = os.path.join(
-                self.intermine_dir, gradle_wrapper_properties
-            )
-            properties_dir = os.path.dirname(properties_file)
-            shutil.copy(cadremine_gradle_wrapper_properties, properties_dir)
-            shutil.copy(zip_path, properties_dir)
-
-    def copy_init_gradle(self) -> None:
-        user_gradle = os.path.join(Path.home(), ".gradle")
-        init_gradle = os.path.join(self.project_root_dir, "init.gradle")
-
-        shutil.copy(init_gradle, user_gradle)
-
     def install_intermine(self) -> None:
         os.environ["PSQL_HOST"] = self.psql_host
         os.environ["PSQL_USER"] = self.psql_user
@@ -270,7 +267,7 @@ class Installer:
         self.run_with_env(
             [
                 os.path.join(
-                    self.intermine_dir, "config", "lib", "install_intermine.py"
+                    self.intermine_dir, "config", "lib", "install_intermine.py", "--offline",
                 )
             ]
         )
@@ -364,11 +361,64 @@ def main() -> None:
         action="store_true",
         help="Recreate databases",
     )
+
+    parser.add_argument(
+        "--offline",
+        action="store_true",
+        help="Use offline Maven repositories",
+    )
+
+    parser.add_argument(
+        "--offline_url",
+        default="http://localhost:8081/repository/maven-public/",
+        help="URL of offline Maven repository",
+    )
+
+    parser.add_argument(
+        "--central_url",
+        default="https://repo1.maven.org/maven2/",
+        help="URL of Maven Central repository",
+    )
+
+    parser.add_argument(
+        "--clojars_url",
+        default="https://clojars.org/repo",
+        help="URL of Clojars Maven repository",
+    )
+
+    parser.add_argument(
+        "--ebi_url",
+        default="https://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-repo/",
+        help="URL of EMBL-EBI Maven repository",
+    )
+
+    parser.add_argument(
+        "--plugins_url",
+        default="https://plugins.gradle.org/m2/",
+        help="URL of Gradle plugins Maven repository",
+    )
+
     parser.add_argument(
         "--verbose", "-v", action="store_true", help="Be verbose"
     )
 
+    parser.add_argument(
+        "--gradle_distribution_url",
+        default="https://services.gradle.org/distributions/gradle-4.9-bin.zip",
+        help="URL of Gradle plugins Maven repository",
+    )
+
     args = parser.parse_args()
+
+    if args.offline:
+        args.central_url = args.offline_url
+        args.clojars_url = args.offline_url
+        args.ebi_url = args.offline_url
+        args.plugins_url = args.offline_url
+
+        gradle_zip = args.gradle_distribution_url.rsplit("/", 1)[-1]
+        args.gradle_distribution_url = gradle_zip
+
     log_level = logging.DEBUG if args.verbose else logging.INFO
 
     logging.basicConfig(level=log_level)

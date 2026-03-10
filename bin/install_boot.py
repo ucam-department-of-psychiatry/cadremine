@@ -22,6 +22,7 @@ class BootException(Exception):
 class Booter:
     intermine_dir: str
     nexus_host_port: int
+    offline: bool
     postgres_host_port: int
     recreate_databases: bool
     recreate_venv: bool
@@ -63,14 +64,6 @@ class Booter:
 
         self.run_with_env(install_args)
 
-    def copy_gradle_zip(self) -> None:
-        gradle_wrapper_dir = os.path.join(
-            self.project_root_dir, "gradle", "wrapper"
-        )
-
-        for zip_file in glob.glob(os.path.join(self.gradle_dir, "*.zip")):
-            shutil.copy(zip_file, gradle_wrapper_dir)
-
     def run_install_script(self) -> None:
         install_args = [
             self.venv_python,
@@ -84,6 +77,9 @@ class Booter:
             "--tomcat_host_port",
             str(self.tomcat_host_port),
         ]
+
+        if self.offline:
+            install_args.append("--offline")
 
         if self.recreate_databases:
             install_args.append("--recreate_databases")
@@ -146,6 +142,12 @@ def main() -> None:
         "--recreate_databases",
         action="store_true",
         help="Recreate databases",
+    )
+
+    parser.add_argument(
+        "--offline",
+        action="store_true",
+        help="Use offline Maven repositories",
     )
 
     args = parser.parse_args()
