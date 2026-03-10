@@ -19,15 +19,17 @@ class Builder:
     init_only: bool
     intermine_dir: str
     gradle_distribution_url: str
-    psql_host: str
-    psql_pass: str
-    psql_user: str
     verbose: bool
     with_sudo: bool
     environment: str = "dev"
     mine_name: str = "cadremine"
     major_java_version: int = 1
     minor_java_version: int = 8
+
+    def __post_init__(self) -> None:
+        self.psql_host = os.getenv("PSQL_HOST", "localhost")
+        self.psql_user = os.getenv("PSQL_USER", "postgres")
+        self.psql_pass = os.getenv("PSQL_PWD", "postgres")
 
     def build(self) -> None:
         self.bin_dir = os.path.dirname(os.path.realpath(__file__))
@@ -218,17 +220,7 @@ def main() -> None:
 
     logging.basicConfig(level=log_level)
 
-    builder_args = dict(
-        intermine_dir=args.intermine_dir,
-        init_only=args.init_only,
-        psql_host=os.getenv("PSQL_HOST", "localhost"),
-        psql_user=os.getenv("PSQL_USER", "postgres"),
-        psql_pass=os.getenv("PSQL_PWD", "postgres"),
-        with_sudo=args.with_sudo,
-        verbose=args.verbose,
-    )
-
-    builder = Builder(**builder_args)
+    builder = Builder(**vars(args))
     builder.build()
 
 
