@@ -225,9 +225,9 @@ class Installer:
         self, filename: str, replacement_dict: dict[str, Any]
     ) -> None:
         for properties_in in glob.glob(
-            f"**/{filename}.in", root_dir=self.checkout, recursive=True
+            f"**/{filename}.in", root_dir=self.project_root_dir, recursive=True
         ):
-            path_in = os.path.join(self.checkout, properties_in)
+            path_in = os.path.join(self.project_root_dir, properties_in)
             path_out = path_in[:-3]
             with open(path_out, "w") as f_out:
                 f_out.write(
