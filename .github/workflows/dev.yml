@@ -6,7 +6,7 @@ on:
     push:
         paths:
             - .github/workflows/dev.yml
-            - bin
+            - bin/build.py
             - build.gradle
             - data/**
             - dbmodel/**
