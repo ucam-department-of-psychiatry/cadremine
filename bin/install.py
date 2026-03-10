@@ -71,6 +71,7 @@ class Installer:
         self.start_containers()
         self.build_databases()
         self.create_gradle_properties()
+        self.create_gradle_wrapper_properties()
         self.copy_gradle_zip()
         self.install_intermine()
         self.run_gradle(["clean"])
