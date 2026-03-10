@@ -93,9 +93,8 @@ class Booter:
     ) -> CompletedProcess[Any]:
         env = os.environ.copy()
 
-        if self.verbose:
-            log.info("Running:")
-            log.info(run_args)
+        log.debug("Running:")
+        log.debug(run_args)
         return run(run_args, check=check, env=env)
 
 
