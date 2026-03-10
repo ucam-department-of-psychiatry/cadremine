@@ -266,13 +266,13 @@ class Installer:
         os.environ["PSQL_PWD"] = self.psql_pass
 
         install_args = [
-                os.path.join(
-                    self.intermine_dir,
-                    "config",
-                    "lib",
-                    "install_intermine.py",
-                ),
-            ]
+            os.path.join(
+                self.intermine_dir,
+                "config",
+                "lib",
+                "install_intermine.py",
+            ),
+        ]
 
         if self.offline:
             install_args.append("--offline")
