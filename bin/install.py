@@ -267,7 +267,11 @@ class Installer:
         self.run_with_env(
             [
                 os.path.join(
-                    self.intermine_dir, "config", "lib", "install_intermine.py", "--offline",
+                    self.intermine_dir,
+                    "config",
+                    "lib",
+                    "install_intermine.py",
+                    "--offline",
                 )
             ]
         )
@@ -388,7 +392,9 @@ def main() -> None:
 
     parser.add_argument(
         "--ebi_url",
-        default="https://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-repo/",
+        default=(
+            "https://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-repo/"
+        ),
         help="URL of EMBL-EBI Maven repository",
     )
 

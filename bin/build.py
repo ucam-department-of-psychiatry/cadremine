@@ -18,6 +18,7 @@ EXIT_FAILURE = -1
 class Builder:
     init_only: bool
     intermine_dir: str
+    gradle_distribution_url: str
     psql_host: str
     psql_pass: str
     psql_user: str
@@ -34,6 +35,7 @@ class Builder:
 
         self.check_java_version()
         self.create_gradle_properties()
+        self.create_gradle_wrapper_properties()
         self.build_databases()
 
         if not self.init_only:
@@ -67,31 +69,43 @@ class Builder:
             )
             sys.exit(EXIT_FAILURE)
 
+    def create_gradle_wrapper_properties(self) -> None:
+        replacement_dict = {
+            "im_gradle_distribution_url": self.gradle_distribution_url,
+        }
+
+        self.create_properties("gradle-wrapper.properties", replacement_dict)
+
     def create_gradle_properties(self) -> None:
         # See also config/lib/install_intermine.py in intermine project
         replacement_dict = {
             "im_checkout": self.intermine_dir,
             "im_environment": self.environment,
         }
+        self.create_properties("gradle.properties", replacement_dict)
+
+    def create_properties(
+        self, filename: str, replacement_dict: dict[str, Any]
+    ) -> None:
         for gradle_properties_in in glob.glob(
-            "**/gradle.properties.in",
+            f"**/{filename}.in",
             root_dir=self.project_root_dir,
             recursive=True,
         ):
-            in_file = os.path.join(self.project_root_dir, gradle_properties_in)
-            out_file = in_file[:-3]
-            with open(out_file, "w") as f_out:
+            path_in = os.path.join(self.project_root_dir, gradle_properties_in)
+            path_out = path_in[:-3]
+            with open(path_out, "w") as f_out:
                 f_out.write(
                     "# FILE AUTOMATICALLY GENERATED FROM "
                     f"{gradle_properties_in}. DO NOT EDIT!\n"
                 )
-                with open(in_file) as f_in:
+                with open(path_in) as f_in:
                     for line in f_in:
                         for key, value in replacement_dict.items():
                             line = line.replace(f"@@{key}@@", value)
                         f_out.write(line)
 
-            print(f"Written {out_file}")
+            print(f"Written {path_out}")
 
     def build_databases(self) -> None:
         log.info("Connect and create Postgres databases")
@@ -177,6 +191,11 @@ def main() -> None:
     )
     parser.add_argument(
         "intermine_dir", help="Top level directory containing Intermine"
+    )
+    parser.add_argument(
+        "--gradle_distribution_url",
+        default="https://services.gradle.org/distributions/gradle-4.9-bin.zip",
+        help="URL of Gradle plugins Maven repository",
     )
     parser.add_argument(
         "--init_only",
