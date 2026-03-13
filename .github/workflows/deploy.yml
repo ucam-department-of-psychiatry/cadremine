@@ -60,7 +60,7 @@ jobs:
               run: |
                   set -euxo pipefail
                   export PGPASSWORD=postgres
-                  python3 ${GITHUB_WORKSPACE}/cadremine/bin/install_boot.py ${GITHUB_WORKSPACE}/intermine ${GITHUB_WORKSPACE}/cadremine/release -v --recreate_databases
+                  python3 ${GITHUB_WORKSPACE}/cadremine/bin/install_boot.py ${GITHUB_WORKSPACE}/intermine ${GITHUB_WORKSPACE}/cadremine/release -v --recreate_databases --offline
 
             - name: Dump Docker logs
               if: failure()
