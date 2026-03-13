@@ -31,15 +31,16 @@ class Releaser:
         self.project_root_dir = os.path.join(self.bin_dir, "..")
         self.release_dir = os.path.join(self.project_root_dir, "release")
         self.archive_dir = os.path.join(self.project_root_dir, "archive")
+        self.data_dir = os.path.join(self.project_root_dir, "data")
+        self.nexus_data_dir = os.path.join(self.data_dir, "nexus")
         self.base_requirements_file = os.path.join(
             self.project_root_dir, "base_requirements.txt"
         )
         self.requirements_file = os.path.join(
             self.project_root_dir, "requirements.txt"
         )
-        self.gradle_dir = os.path.join(self.release_dir, "gradle")
-        self.data_dir = os.path.join(self.project_root_dir, "data")
-        self.nexus_data_dir = os.path.join(self.data_dir, "nexus")
+        self.gradle_release_dir = os.path.join(self.release_dir, "gradle")
+        self.nexus_release_dir = os.path.join(self.release_dir, "nexus")
 
     def release(self) -> None:
         self.create_release_directories()
@@ -50,9 +51,11 @@ class Releaser:
         self.create_archive()
 
     def create_release_directories(self) -> None:
+        Path(self.data_dir).mkdir(exist_ok=True)
+
         Path(self.release_dir).mkdir(exist_ok=True)
-        Path(self.gradle_dir).mkdir(exist_ok=True)
-        Path(self.nexus_data_dir).mkdir(exist_ok=True, parents=True)
+        Path(self.gradle_release_dir).mkdir(exist_ok=True)
+        Path(self.nexus_release_dir).mkdir(exist_ok=True)
 
     def create_intermine_bundle(self) -> None:
         self.create_git_bundle(
@@ -96,15 +99,13 @@ class Releaser:
 
     def download_gradle_zip(self) -> None:
         zip_file = self.gradle_zip_url.rsplit("/", 1)[-1]
-        path = os.path.join(self.gradle_dir, zip_file)
+        path = os.path.join(self.gradle_release_dir, zip_file)
         urllib.request.urlretrieve(self.gradle_zip_url, path)
 
     def copy_nexus_data_volume(self) -> None:
-        dest_dir = os.path.join(self.release_dir, "nexus")
-
         shutil.copytree(
             self.nexus_data_dir,
-            dest_dir,
+            self.nexus_release_dir,
             dirs_exist_ok=True,
             ignore=shutil.ignore_patterns(".userPrefs"),
         )
