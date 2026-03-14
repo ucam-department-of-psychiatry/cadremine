@@ -54,7 +54,13 @@ jobs:
             - name: Release
               run: |
                   set -euxo pipefail
+                  # TODO: Also created in install.py but need to be in place when containers start
+                  mkdir ${GITHUB_WORKSPACE}/cadremine/data/bluegenes_tools
                   mkdir ${GITHUB_WORKSPACE}/cadremine/data/nexus
+                  mkdir ${GITHUB_WORKSPACE}/cadremine/data/postgres
+                  mkdir ${GITHUB_WORKSPACE}/cadremine/data/solr
+                  mkdir ${GITHUB_WORKSPACE}/cadremine/data/tomcat
+
                   python3 ${GITHUB_WORKSPACE}/cadremine/bin/release.py ${GITHUB_WORKSPACE}/intermine docker
 
             - name: Start Docker
