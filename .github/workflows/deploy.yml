@@ -54,6 +54,7 @@ jobs:
             - name: Release
               run: |
                   set -euxo pipefail
+                  mkdir ${GITHUB_WORKSPACE}/cadremine/data/nexus
                   python3 ${GITHUB_WORKSPACE}/cadremine/bin/release.py ${GITHUB_WORKSPACE}/intermine docker
 
             - name: Start Docker
@@ -71,7 +72,6 @@ jobs:
                   python3 -m virtualenv ${HOME}/venv
                   PYTHON=${HOME}/venv/bin/python
                   ${PYTHON} -m pip install ${GITHUB_WORKSPACE}/requirements.txt
-                  mkdir ${GITHUB_WORKSPACE}/cadremine/data/nexus
                   ${PYTHON} ${GITHUB_WORKSPACE}/cadremine/bin/initialise_nexus.py -v
                   python3 ${GITHUB_WORKSPACE}/cadremine/bin/download_maven_artifacts.py ${GITHUB_WORKSPACE}/intermine http://localhost:8081/repository/maven-public -v
 
