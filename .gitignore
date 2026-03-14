@@ -12,6 +12,12 @@ executeLog*
 productionLog
 *~
 
+# Docker containers
+data/bluegenes_tools
+data/nexus
+data/postgres
+data/solr
+data/tomcat
 
 # IDEs
 nbproject/

@@ -148,6 +148,7 @@ def main() -> None:
     # maven-public:
     # https://repo.clojars.org/ (Might not be needed Bluegenes?)
     # https://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-repo/
+    # https://plugins.gradle.org/m2/
     parser.add_argument(
         "nexus_urls",
         help="Location of Sonatype Nexus repositories, comma separated",

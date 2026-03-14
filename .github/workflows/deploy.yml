@@ -33,7 +33,7 @@ jobs:
             - name: Install prerequisites
               run: |
                   set -euo pipefail
-                  sudo apt-get -y install dar
+                  sudo apt-get -y install dar wait-for-it
             - name: Set up JDK 8
               uses: actions/setup-java@v1
               with:
@@ -55,6 +55,24 @@ jobs:
               run: |
                   set -euxo pipefail
                   python3 ${GITHUB_WORKSPACE}/cadremine/bin/release.py ${GITHUB_WORKSPACE}/intermine docker
+
+            - name: Start Docker
+              run: |
+                  set -euxo pipefail
+                  cd ${GITHUB_WORKSPACE}
+                  compose_file=${GITHUB_WORKSPACE}/cadremine/docker-compose.yml
+                  docker compose -f ${compose_file} up
+                  # Wait for Nexus
+                  wait-for-it localhost:8081
+
+            - name: Populate Sonatype Nexus repository
+              run: |
+                  set -euxo pipefail
+                  python3 -m virtualenv ${HOME}/venv
+                  PYTHON=${HOME}/venv/bin/python
+                  ${PYTHON} -m pip install ${GITHUB_WORKSPACE}/requirements.txt
+                  ${PYTHON} ${GITHUB_WORKSPACE}/cadremine/bin/initialise_nexus.py -v
+                  python3 ${GITHUB_WORKSPACE}/cadremine/bin/download_maven_artifacts.py ${GITHUB_WORKSPACE}/intermine http://localhost:8081/repository/maven-public -v
 
             - name: Install
               run: |
