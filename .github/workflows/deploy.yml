@@ -6,6 +6,7 @@ on:
     push:
         paths:
             - .github/workflows/deploy.yml
+            - bin/initialise_nexus.py
             - bin/install_boot.py
             - bin/install.py
             - bin/release.py
