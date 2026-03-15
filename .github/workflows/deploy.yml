@@ -68,7 +68,7 @@ jobs:
                   set -euxo pipefail
                   cd ${GITHUB_WORKSPACE}
                   compose_file=${GITHUB_WORKSPACE}/cadremine/docker-compose.yml
-                  docker compose -f ${compose_file} up
+                  docker compose -f ${compose_file} up -d
                   # Wait for Nexus
                   wait-for-it localhost:8081
 
