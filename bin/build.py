@@ -18,9 +18,13 @@ EXIT_FAILURE = -1
 
 @dataclass
 class Builder:
+    central_url: str
+    clojars_url: str
+    ebi_url: str
     init_only: bool
     intermine_dir: str
     gradle_distribution_url: str
+    plugins_url: str
     verbose: bool
     with_sudo: bool
     environment: str = "dev"
@@ -85,6 +89,10 @@ class Builder:
         replacement_dict = {
             "im_checkout": self.intermine_dir,
             "im_environment": self.environment,
+            "im_central_url": self.central_url,
+            "im_clojars_url": self.clojars_url,
+            "im_ebi_url": self.ebi_url,
+            "im_plugins_url": self.plugins_url,
         }
         self.create_properties("gradle.properties", replacement_dict)
 
@@ -213,6 +221,33 @@ def main() -> None:
         help="Use sudo when executing Postgres commands",
         default=False,
     )
+
+    parser.add_argument(
+        "--central_url",
+        default="https://repo1.maven.org/maven2/",
+        help="URL of Maven Central repository",
+    )
+
+    parser.add_argument(
+        "--clojars_url",
+        default="https://clojars.org/repo",
+        help="URL of Clojars Maven repository",
+    )
+
+    parser.add_argument(
+        "--ebi_url",
+        default=(
+            "https://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-repo/"
+        ),
+        help="URL of EMBL-EBI Maven repository",
+    )
+
+    parser.add_argument(
+        "--plugins_url",
+        default="https://plugins.gradle.org/m2/",
+        help="URL of Gradle plugins Maven repository",
+    )
+
     parser.add_argument(
         "--verbose", "-v", action="store_true", help="Be verbose"
     )
