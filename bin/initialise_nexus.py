@@ -4,6 +4,7 @@ import argparse
 from dataclasses import dataclass
 import logging
 import os
+from pathlib import Path
 import requests
 import time
 
@@ -22,12 +23,12 @@ class Initialiser:
         self.bin_dir = os.path.dirname(os.path.realpath(__file__))
         self.project_root_dir = os.path.join(self.bin_dir, "..")
 
-        self._docker = None
+        self._docker: DockerClient | None = None
 
     @property
     def docker(self) -> DockerClient:
         if self._docker is None:
-            compose_files = [
+            compose_files: list[str | Path] = [
                 os.path.join(self.project_root_dir, "docker-compose.yml")
             ]
             self._docker = DockerClient(compose_files=compose_files)
@@ -35,7 +36,7 @@ class Initialiser:
         return self._docker
 
     def initialise(self) -> None:
-        self.get_admin_user_password()
+        self.admin_user_password = self.get_admin_user_password()
         self.create_proxy_repository(
             "maven-clojars", "https://repo.clojars.org/"
         )
@@ -48,7 +49,7 @@ class Initialiser:
         )
         self.add_repositories_to_group()
 
-    def get_admin_user_password(self) -> None:
+    def get_admin_user_password(self) -> str:
         password_file = "/nexus-data/admin.password"
 
         timeout_s = 300
@@ -58,14 +59,16 @@ class Initialiser:
 
         while time.time() - start_time < timeout_s:
             try:
-                self.admin_user_password = self.docker.compose.execute(
+                admin_user_password = self.docker.compose.execute(
                     "nexus",
                     ["cat", password_file],
                     tty=False,
                 )
+
                 log.debug(f"Admin password is {self.admin_user_password}")
 
-                return
+                # TODO: Raise issue with python-on-whales
+                return admin_user_password  # type: ignore
 
             except DockerException:
                 time.sleep(sleep_s)

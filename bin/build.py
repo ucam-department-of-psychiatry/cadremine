@@ -7,9 +7,11 @@ import logging
 import os
 from subprocess import CompletedProcess, PIPE, run
 import sys
-from typing import Any
+from typing import Any, IO, TypeAlias
 
 log = logging.getLogger(__name__)
+
+_FILE: TypeAlias = None | int | IO[Any]
 
 EXIT_FAILURE = -1
 
@@ -160,7 +162,7 @@ class Builder:
         self.run_postgres("psql", ["-c", sql])
 
     def run_postgres(
-        self, command: str, postgres_args: list[Any] = None
+        self, command: str, postgres_args: list[Any] | None = None
     ) -> None:
         if postgres_args is None:
             postgres_args = []
@@ -175,8 +177,8 @@ class Builder:
     def run_with_env(
         self,
         run_args: list[Any],
-        stdout=None,
-        stderr=None,
+        stdout: _FILE = None,
+        stderr: _FILE = None,
     ) -> CompletedProcess[Any]:
         env = os.environ.copy()
         env["PGPASSWORD"] = self.psql_pass

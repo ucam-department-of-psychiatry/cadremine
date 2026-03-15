@@ -89,7 +89,7 @@ class Booter:
         sys.exit(returned_value.returncode)
 
     def run_with_env(
-        self, run_args: list[Any], check=True
+        self, run_args: list[Any], check: bool = True
     ) -> CompletedProcess[Any]:
         env = os.environ.copy()
 

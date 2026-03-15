@@ -8,9 +8,11 @@ import os
 from pathlib import Path
 import re
 from subprocess import CompletedProcess, PIPE, run
-from typing import Any, Generator
+from typing import Any, Generator, IO, TypeAlias
 
 log = logging.getLogger(__name__)
+
+_FILE: TypeAlias = None | int | IO[Any]
 
 
 @dataclass
@@ -122,7 +124,11 @@ class Downloader:
             log.info(artifact)
 
     def run_with_env(
-        self, run_args: list[Any], stdout=None, stderr=None, check: bool = True
+        self,
+        run_args: list[Any],
+        stdout: _FILE = None,
+        stderr: _FILE = None,
+        check: bool = True,
     ) -> CompletedProcess[Any]:
         env = os.environ.copy()
 

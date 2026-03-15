@@ -29,7 +29,7 @@ class Collection:
     attribute_name: str
     referenced_type: str
     class_name: str
-    unique_name: str = None
+    unique_name: str | None = None
 
 
 @dataclass
@@ -45,7 +45,7 @@ class Key:
     class_name: str
     attribute_name: str
 
-    def __eq__(self, other: object):
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, Key):
             return False
 
@@ -54,7 +54,7 @@ class Key:
 
         return self.attribute_name == other.attribute_name
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash((self.class_name, self.attribute_name))
 
 
@@ -69,7 +69,7 @@ class Processor:
         self.resources_dir = os.path.join(
             self.project_root_dir, "dbmodel", "resources"
         )
-        self.keys: dict(str, Key) = {}
+        self.keys: dict[str, list[Key]] = {}
         self.omop_classes: dict[str, OmopClass] = {}
         self.column_dict: dict[str, dict[str, str]] = {}
         self.supported_classes = [
@@ -202,6 +202,8 @@ class Processor:
         self.ensure_collection_names_unique(omop_class)
 
         for collection in omop_class.collections:
+            assert collection.unique_name is not None
+
             collection_element = ET.SubElement(
                 class_element,
                 "collection",

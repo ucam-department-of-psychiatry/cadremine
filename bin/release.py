@@ -8,8 +8,10 @@ import os
 from pathlib import Path
 import shutil
 from subprocess import CompletedProcess, PIPE, run
-from typing import Any, Optional
+from typing import Any, IO, Optional, TypeAlias
 import urllib.request
+
+_FILE: TypeAlias = None | int | IO[Any]
 
 log = logging.getLogger(__name__)
 
@@ -169,9 +171,9 @@ class Releaser:
     def run_with_env(
         self,
         run_args: list[Any],
-        stdout=None,
-        stderr=None,
-    ) -> CompletedProcess[Any]:
+        stdout: _FILE = None,
+        stderr: _FILE = None,
+    ) -> CompletedProcess[bytes]:
         env = os.environ.copy()
 
         if self.verbose:

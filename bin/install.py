@@ -11,9 +11,11 @@ import socket
 from subprocess import CompletedProcess, PIPE, run
 import sys
 import time
-from typing import Any
+from typing import Any, IO, TypeAlias
 
 from python_on_whales import DockerClient
+
+_FILE: TypeAlias = None | int | IO[Any]
 
 log = logging.getLogger(__name__)
 
@@ -53,12 +55,12 @@ class Installer:
         self.psql_user = os.getenv("PSQL_USER", "postgres")
         self.psql_pass = os.getenv("PSQL_PWD", "postgres")
 
-        self._docker = None
+        self._docker: DockerClient | None = None
 
     @property
     def docker(self) -> DockerClient:
         if self._docker is None:
-            compose_files = [
+            compose_files: list[str | Path] = [
                 os.path.join(self.project_root_dir, "docker-compose.yml")
             ]
             self._docker = DockerClient(compose_files=compose_files)
@@ -192,7 +194,7 @@ class Installer:
     def run_postgres(
         self,
         command: str,
-        postgres_args: list[Any] = None,
+        postgres_args: list[Any] | None = None,
         check: bool = True,
     ) -> CompletedProcess[Any]:
         if postgres_args is None:
@@ -317,7 +319,11 @@ class Installer:
         raise TimeoutError("Gave up waiting for port {port} on {ip_address}.")
 
     def run_with_env(
-        self, run_args: list[Any], stdout=None, stderr=None, check: bool = True
+        self,
+        run_args: list[Any],
+        stdout: _FILE = None,
+        stderr: _FILE = None,
+        check: bool = True,
     ) -> CompletedProcess[Any]:
         env = os.environ.copy()
 

@@ -16,7 +16,7 @@ class Extractor:
     release_dir: str
     verbose: bool
 
-    def extract(self):
+    def extract(self) -> None:
         Path(self.release_dir).mkdir(exist_ok=True)
         archives = sorted(os.listdir(self.archive_dir))
 
@@ -36,7 +36,7 @@ class Extractor:
             self.run_with_env(dar_args)
 
     def run_with_env(
-        self, run_args: list[Any], check=True
+        self, run_args: list[Any], check: bool = True
     ) -> CompletedProcess[Any]:
         env = os.environ.copy()
 
