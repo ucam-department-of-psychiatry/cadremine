@@ -74,7 +74,7 @@ class Installer:
         self.build_databases()
         self.create_gradle_properties()
         self.create_gradle_wrapper_properties()
-        self.copy_gradle_zip()
+        self.copy_all_gradle_zip()
         self.install_intermine()
         self.run_gradle(["clean"])
         self.run_gradle(["buildDB"])
@@ -245,13 +245,23 @@ class Installer:
 
             print(f"Written {path_out}")
 
-    def copy_gradle_zip(self) -> None:
-        gradle_wrapper_dir = os.path.join(
-            self.project_root_dir,
-            "gradle",
-            "wrapper",
-        )
+    def copy_all_gradle_zip(self) -> None:
+        self.copy_gradle_zip(os.path.join(self.project_root_dir))
 
+        intermine_dirs = [
+            "bio",
+            "bio/postprocess",
+            "bio/postprocess-test",
+            "bio/sources",
+            "intermine",
+            "plugin",
+            "testmine",
+        ]
+
+        for intermine_dir in intermine_dirs:
+            self.copy_gradle_zip(os.path.join(self.intermine_dir))
+
+    def copy_gradle_zip(self, project_dir: str) -> None:
         zip_path = None
         for zip_file in glob.glob(os.path.join(self.gradle_dir, "*.zip")):
             zip_path = os.path.join(self.gradle_dir, zip_file)
@@ -259,6 +269,8 @@ class Installer:
         if zip_path is None:
             print(f"Could not find Gradle zip file in {self.gradle_dir}")
             sys.exit(EXIT_FAILURE)
+
+        gradle_wrapper_dir = os.path.join(project_dir, "gradle", "wrapper")
 
         shutil.copy(zip_path, gradle_wrapper_dir)
 
