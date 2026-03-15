@@ -77,7 +77,7 @@ jobs:
                   set -euxo pipefail
                   python3 -m venv ${HOME}/venv
                   PYTHON=${HOME}/venv/bin/python
-                  ${PYTHON} -m pip install -r ${GITHUB_WORKSPACE}/requirements.txt
+                  ${PYTHON} -m pip install -r ${GITHUB_WORKSPACE}/cadremine/requirements.txt
                   ${PYTHON} ${GITHUB_WORKSPACE}/cadremine/bin/initialise_nexus.py -v
                   python3 ${GITHUB_WORKSPACE}/cadremine/bin/download_maven_artifacts.py ${GITHUB_WORKSPACE}/intermine http://localhost:8081/repository/maven-public -v
 
