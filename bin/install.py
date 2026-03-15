@@ -248,7 +248,7 @@ class Installer:
     def copy_all_gradle_zip(self) -> None:
         self.copy_gradle_zip(os.path.join(self.project_root_dir))
 
-        intermine_dirs = [
+        project_dirs = [
             "bio",
             "bio/postprocess",
             "bio/postprocess-test",
@@ -258,8 +258,8 @@ class Installer:
             "testmine",
         ]
 
-        for intermine_dir in intermine_dirs:
-            self.copy_gradle_zip(os.path.join(self.intermine_dir))
+        for project_dir in project_dirs:
+            self.copy_gradle_zip(os.path.join(self.intermine_dir, project_dir))
 
     def copy_gradle_zip(self, project_dir: str) -> None:
         zip_path = None
