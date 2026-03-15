@@ -65,7 +65,7 @@ class Initialiser:
                     tty=False,
                 )
 
-                log.debug(f"Admin password is {self.admin_user_password}")
+                log.debug(f"Admin password is {admin_user_password}")
 
                 # TODO: Raise issue with python-on-whales
                 return admin_user_password  # type: ignore
