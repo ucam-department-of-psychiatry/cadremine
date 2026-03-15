@@ -37,6 +37,8 @@ class Initialiser:
 
     def initialise(self) -> None:
         self.admin_user_password = self.get_admin_user_password()
+        self.accept_eula()
+        self.enable_anonymous_access()
         self.create_proxy_repository(
             "maven-clojars", "https://repo.clojars.org/"
         )
@@ -75,6 +77,39 @@ class Initialiser:
                 sleep_s *= 2
 
         raise TimeoutError("Gave up waiting for the admin password.")
+
+    def accept_eula(self) -> None:
+        eula_url = f"{self.nexus_url}/service/rest/v1/system/eula"
+
+        response = requests.get(
+            eula_url,
+            auth=(self.admin_user, self.admin_user_password),
+        )
+        response.raise_for_status()
+
+        data = response.json()
+        data["accepted"] = True
+
+        response = requests.post(
+            eula_url,
+            json=data,
+            auth=(self.admin_user, self.admin_user_password),
+        )
+        response.raise_for_status()
+
+    def enable_anonymous_access(self) -> None:
+        data = {
+            "enabled": True,
+            "userId": "anonymous",
+            "realmName": "NexusAuthorizingRealm",
+        }
+
+        response = requests.put(
+            f"{self.nexus_url}/service/rest/v1/security/anonymous",
+            json=data,
+            auth=(self.admin_user, self.admin_user_password),
+        )
+        response.raise_for_status()
 
     def create_proxy_repository(self, name: str, url: str) -> None:
         data = {
