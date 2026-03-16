@@ -84,8 +84,12 @@ subprojects {
             }
         }
     }
-    mavenCentral()
-    maven { url 'https://clojars.org/repo' }
+    maven {
+        url project.getProperty("intermine.maven.central")
+    }
+    maven {
+        url project.getProperty("intermine.maven.clojars")
+    }
   }
 
   dependencies {
