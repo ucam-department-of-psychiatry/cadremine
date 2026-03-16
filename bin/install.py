@@ -40,7 +40,7 @@ class Installer:
     tomcat_host_port: int
     verbose: bool
 
-    environment: str = "dev"
+    environment: str = "docker"
     mine_name: str = "cadremine"
     major_java_version: int = 1
     minor_java_version: int = 8
