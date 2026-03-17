@@ -31,7 +31,7 @@ class Builder:
     mine_name: str = "cadremine"
     major_java_version: int = 1
     minor_java_version: int = 8
-    war_environment: str = "docker"
+    war_environment: str = "dev"
 
     def __post_init__(self) -> None:
         self.psql_host = os.getenv("PSQL_HOST", "localhost")
