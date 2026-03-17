@@ -301,7 +301,12 @@ class Installer:
         if self.verbose:
             gradle_args.append("--info")
 
-        gradle_args.append("--stacktrace")
+        gradle_args += [
+            "-Dorg.gradle.jvmargs=-Xmx4g",
+            "--max-workers=4",
+            "--no-daemon",
+            "--stacktrace",
+        ]
 
         self.run_with_env(["./gradlew"] + gradle_args)
 
