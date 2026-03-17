@@ -70,7 +70,6 @@ task copyWarProperties(type: Copy) {
     into sourceSets.main.output.resourcesDir
     rename { fileName -> fileName.replace("$mineWarPropertyFileName", "intermine.properties") }
     inputs.sourceFiles.stopExecutionIfEmpty()
-  }
 }
 
 task warWebApp(type: War) {
