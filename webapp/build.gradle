@@ -46,7 +46,7 @@ dependencies {
 }
 
 war {
-    dependsOn 'declareExplodedWebApp', 'mergeProperties', 'summariseObjectStore', 'unwarBioWebApp', 'addStrutsConfig'
+    dependsOn 'declareExplodedWebApp', 'copyWarProperties', 'mergeProperties', 'summariseObjectStore', 'unwarBioWebApp', 'addStrutsConfig'
     finalizedBy 'warWebApp'
 }
 
@@ -57,6 +57,20 @@ task declareExplodedWebApp() {
     doLast{
         mkdir "$explodedWebAppDir/donotdeleteme"
     }
+}
+
+task copyWarProperties(type: Copy) {
+    // copyMineProperties copies the intermine.properties used for building the database
+    // and this might not be the same as the one needed in the WAR file where the host
+    // might have a different name. So we need to overwrite it with this before building
+    // the WAR file
+    description "Copies mine specific intermine.properties file into resources output to be included in the WAR"
+    dependsOn 'processResources'
+    from (mineWarPropertyFile)
+    into sourceSets.main.output.resourcesDir
+    rename { fileName -> fileName.replace("$mineWarPropertyFileName", "intermine.properties") }
+    inputs.sourceFiles.stopExecutionIfEmpty()
+  }
 }
 
 task warWebApp(type: War) {

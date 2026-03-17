@@ -106,11 +106,11 @@ subprojects {
   }
 
   task copyMineProperties(type: Copy) {
-    description "Copies mine specific intermine.properties file into resources output to be included in the war"
+    description "Copies mine specific intermine.properties file into resources output to be used for building the database"
     dependsOn 'processResources'
-    from (mineWarPropertyFile)
+    from (mineBuildPropertyFile)
     into sourceSets.main.output.resourcesDir
-    rename { fileName -> fileName.replace("$mineWarPropertyFileName", "intermine.properties") }
+    rename { fileName -> fileName.replace("$mineBuildPropertyFileName", "intermine.properties") }
     inputs.sourceFiles.stopExecutionIfEmpty()
   }
 }
