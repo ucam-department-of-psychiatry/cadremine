@@ -40,7 +40,8 @@ class Installer:
     tomcat_host_port: int
     verbose: bool
 
-    environment: str = "docker"
+    build_environment: str = "dev"
+    war_environment: str = "docker"
     mine_name: str = "cadremine"
     major_java_version: int = 1
     minor_java_version: int = 8
@@ -208,11 +209,12 @@ class Installer:
         # See also config/lib/install_intermine.py in intermine project
         replacement_dict = {
             "im_checkout": self.intermine_dir,
-            "im_environment": self.environment,
+            "im_build_environment": self.build_environment,
             "im_central_url": self.central_url,
             "im_clojars_url": self.clojars_url,
             "im_ebi_url": self.ebi_url,
             "im_plugins_url": self.plugins_url,
+            "im_war_environment": self.war_environment,
         }
 
         self.create_properties("gradle.properties", replacement_dict)

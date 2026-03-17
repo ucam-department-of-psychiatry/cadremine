@@ -12,7 +12,8 @@ intermine.maven.plugins=@@im_plugins_url@@
 
 # Where to find the Intermine plugin locally on file system
 intermine.plugin.repo=file://@@im_checkout@@/plugin/build/libs
-intermine.development.environment=@@im_environment@@
+intermine.development.buildEnvironment=@@im_build_environment@@
+intermine.development.warEnvironment=@@im_war_environment@@
 intermine.development.intermineRootDir=@@im_checkout@@/intermine
 intermine.development.intermineModules=api,integrate,jbrowse-endpoint,model,objectstore,pathquery,resources,testresources,webapp,webtasks
 

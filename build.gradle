@@ -23,12 +23,17 @@ buildscript {
 }
 
 ext {
-  mineRelease = project.hasProperty('release') ? "." + release : ''
   mineName = "cadremine"
-  environment = project.getProperty("intermine.development.environment")
-  minePropertyFileName = "${mineName}.properties$mineRelease.$environment"
-  minePropertyFile = file("data/$minePropertyFileName")
-  println "Using properties file: '$minePropertyFile'"
+  buildEnvironment = project.getProperty("intermine.development.buildEnvironment")
+  warEnvironment = project.getProperty("intermine.development.warEnvironment")
+
+  mineBuildPropertyFileName = "${mineName}-${buildEnvironment}.properties"
+  mineBuildPropertyFile = file("data/$mineBuildPropertyFileName")
+  println "Using build properties file: '$mineBuildPropertyFile'"
+
+  mineWarPropertyFileName = "${mineName}-${warEnvironment}.properties"
+  mineWarPropertyFile = file("data/$mineWarPropertyFileName")
+  println "Using WAR properties file: '$mineWarPropertyFile'"
 }
 
 subprojects {
@@ -101,11 +106,11 @@ subprojects {
   }
 
   task copyMineProperties(type: Copy) {
-    description "Copies mine specific intermine.properties file (from .intermine directory) into resources output to be included in the war"
+    description "Copies mine specific intermine.properties file into resources output to be included in the war"
     dependsOn 'processResources'
-    from (minePropertyFile)
+    from (mineWarPropertyFile)
     into sourceSets.main.output.resourcesDir
-    rename { fileName -> fileName.replace("$minePropertyFileName", "intermine.properties") }
+    rename { fileName -> fileName.replace("$mineWarPropertyFileName", "intermine.properties") }
     inputs.sourceFiles.stopExecutionIfEmpty()
   }
 }

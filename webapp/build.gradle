@@ -75,8 +75,11 @@ task copyWebappContent(type: Copy) {
 // java.utils.Properties so getProperty() returns null if it doesn't exist
 def props = new Properties()
 
-// read in mine.properties to get the contextPath
-file(minePropertyFile).withInputStream { props.load(it) }
+// read in build properties file to get the contextPath
+// This has the databases as seen from the host
+// mineWarPropertyFile is the one that is copied into the WAR file
+// These might be the same.
+file(mineBuildPropertyFile).withInputStream { props.load(it) }
 
 webappConfig {
     mineName = "cadremine"
