@@ -46,7 +46,7 @@ dependencies {
 }
 
 war {
-    dependsOn 'declareExplodedWebApp', 'copyWarProperties', 'mergeProperties', 'summariseObjectStore', 'unwarBioWebApp', 'addStrutsConfig'
+    dependsOn 'declareExplodedWebApp', 'mergeProperties', 'summariseObjectStore', 'unwarBioWebApp', 'addStrutsConfig'
     finalizedBy 'warWebApp'
 }
 
@@ -57,6 +57,14 @@ task declareExplodedWebApp() {
     doLast{
         mkdir "$explodedWebAppDir/donotdeleteme"
     }
+}
+
+task warWebApp(type: War) {
+    dependsOn 'copyWebappContent', 'copyWarProperties'
+    description "Create the war from the build/explodedWebAppDir directory"
+    from "${explodedWebAppDir}"
+    exclude "WEB-INF/web.properties"
+    webInf { from "${mergePropsDir}" }
 }
 
 task copyWarProperties(type: Copy) {
@@ -70,14 +78,6 @@ task copyWarProperties(type: Copy) {
     into sourceSets.main.output.resourcesDir
     rename { fileName -> fileName.replace("$mineWarPropertyFileName", "intermine.properties") }
     inputs.sourceFiles.stopExecutionIfEmpty()
-}
-
-task warWebApp(type: War) {
-    dependsOn 'copyWebappContent'
-    description "Create the war from the build/explodedWebAppDir directory"
-    from "${explodedWebAppDir}"
-    exclude "WEB-INF/web.properties"
-    webInf { from "${mergePropsDir}" }
 }
 
 task copyWebappContent(type: Copy) {
