@@ -68,7 +68,7 @@ services:
 
   bluegenes:
     container_name: intermine_bluegenes
-    image: intermine/bluegenes:1.4.5-dx
+    image: intermine/bluegenes:1.4.6-rc1
     volumes:
       - bluegenes_volume:/tools
     environment:

@@ -11,6 +11,8 @@ from subprocess import CompletedProcess, PIPE, run
 from typing import Any, IO, Optional, TypeAlias
 import urllib.request
 
+from python_on_whales import DockerClient
+
 _FILE: TypeAlias = None | int | IO[Any]
 
 log = logging.getLogger(__name__)
@@ -18,15 +20,19 @@ log = logging.getLogger(__name__)
 
 @dataclass
 class Releaser:
+    bluegenes_dir: str
     environment: str
     intermine_dir: str
     verbose: bool
-    cadremine_git_branch: str = "main"
-    intermine_git_branch: str = "eclipse-setup"
+
+    # TODO: Sync with docker-compose.yml
+    bluegenes_version: str = "intermine/bluegenes:1.4.6-rc1"
     bundle_tag: str = "last_release_bundle"
-    gradle_zip_url = (
+    cadremine_git_branch: str = "main"
+    gradle_zip_url: str = (
         "https://services.gradle.org/distributions/gradle-4.9-bin.zip"
     )
+    intermine_git_branch: str = "eclipse-setup"
 
     def __post_init__(self) -> None:
         self.bin_dir = os.path.dirname(os.path.realpath(__file__))
@@ -44,12 +50,22 @@ class Releaser:
         self.gradle_release_dir = os.path.join(self.release_dir, "gradle")
         self.nexus_release_dir = os.path.join(self.release_dir, "nexus")
 
+        self._docker = None
+
+    @property
+    def docker(self) -> DockerClient:
+        if self._docker is None:
+            self._docker = DockerClient()
+
+        return self._docker
+
     def release(self) -> None:
         self.create_release_directories()
-        self.create_intermine_bundle()
-        self.create_cadremine_bundle()
         self.download_gradle_zip()
         self.copy_nexus_data_volume()
+        self.create_bluegenes_image()
+        self.create_intermine_bundle()
+        self.create_cadremine_bundle()
         self.create_archive()
 
     def create_release_directories(self) -> None:
@@ -112,6 +128,22 @@ class Releaser:
             dirs_exist_ok=True,
             ignore=shutil.ignore_patterns(".userPrefs"),
         )
+
+    def create_bluegenes_image(self) -> None:
+        docker_images_dir = os.path.join(self.release_dir, "docker_images")
+        Path(docker_images_dir).mkdir(exist_ok=True)
+
+        image = self.bluegenes_version
+        filename = image.split("/")[-1].replace(":", "-")
+        path = os.path.join(docker_images_dir, f"{filename}.tar")
+
+        # TODO: Will not save newer images that match the version
+        # if already saved
+        if not os.path.exists(path):
+            os.chdir(self.bluegenes_dir)
+            self.run_with_env(["lein", "uberjar"])
+            self.docker.build(self.bluegenes_dir, tags=self.bluegenes_version)
+            self.docker.save(image, path)
 
     def create_archive(self) -> None:
         Path(self.archive_dir).mkdir(exist_ok=True)
@@ -190,6 +222,9 @@ def main() -> None:
     )
     parser.add_argument(
         "intermine_dir", help="Top level directory containing Intermine"
+    )
+    parser.add_argument(
+        "bluegenes_dir", help="Top level directory containing Bluegenes"
     )
     parser.add_argument(
         "environment", help="Environment to deploy to e.g. dev, docker"

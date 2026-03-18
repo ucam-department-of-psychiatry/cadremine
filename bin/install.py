@@ -51,7 +51,9 @@ class Installer:
         self.project_root_dir = os.path.join(self.bin_dir, "..")
         self.data_dir = os.path.join(self.project_root_dir, "data")
         self.gradle_dir = os.path.join(self.release_dir, "gradle")
-
+        self.docker_images_dir = os.path.join(
+            self.release_dir, "docker_images"
+        )
         self.psql_host = os.getenv("PSQL_HOST", "localhost")
         self.psql_user = os.getenv("PSQL_USER", "postgres")
         self.psql_pass = os.getenv("PSQL_PWD", "postgres")
@@ -70,6 +72,7 @@ class Installer:
 
     def install(self) -> None:
         self.check_java_version()
+        self.load_docker_images()
         self.make_data_dirs()
         self.start_containers()
         self.build_databases()
@@ -116,6 +119,10 @@ class Installer:
             sys.exit(EXIT_FAILURE)
 
         return value
+
+    def load_docker_images(self) -> None:
+        for filename in Path(self.docker_images_dir).glob("*.tar"):
+            self.docker.load(filename)
 
     def make_data_dirs(self) -> None:
         for subdir in [
