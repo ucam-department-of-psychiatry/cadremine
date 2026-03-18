@@ -85,6 +85,7 @@ class Installer:
         self.run_gradle(["integrate"])
         self.run_gradle(["buildUserDB"])
         self.run_gradle([":webapp:war"])
+        self.deploy_war_file()
 
     def check_java_version(self) -> None:
         java_home = self.get_java_home()
