@@ -59,6 +59,13 @@ jobs:
                   ref: "sde-fixes"
                   path: "bluegenes"
 
+            - name: Create virtualenv
+              run: |
+                  set -euxo pipefail
+                  python3 -m venv ${HOME}/venv
+                  PYTHON=${HOME}/venv/bin/python
+                  ${PYTHON} -m pip install -r ${GITHUB_WORKSPACE}/cadremine/requirements.txt
+
             - name: Release
               run: |
                   set -euxo pipefail
@@ -69,7 +76,8 @@ jobs:
                   mkdir ${GITHUB_WORKSPACE}/cadremine/data/solr
                   mkdir ${GITHUB_WORKSPACE}/cadremine/data/tomcat
 
-                  python3 ${GITHUB_WORKSPACE}/cadremine/bin/release.py ${GITHUB_WORKSPACE}/intermine ${GITHUB_WORKSPACE}/bluegenes
+                  PYTHON=${HOME}/venv/bin/python
+                  ${PYTHON} ${GITHUB_WORKSPACE}/cadremine/bin/release.py ${GITHUB_WORKSPACE}/intermine ${GITHUB_WORKSPACE}/bluegenes
 
             - name: Start Docker
               run: |
@@ -83,9 +91,7 @@ jobs:
             - name: Populate Sonatype Nexus repository
               run: |
                   set -euxo pipefail
-                  python3 -m venv ${HOME}/venv
                   PYTHON=${HOME}/venv/bin/python
-                  ${PYTHON} -m pip install -r ${GITHUB_WORKSPACE}/cadremine/requirements.txt
                   ${PYTHON} ${GITHUB_WORKSPACE}/cadremine/bin/initialise_nexus.py -v
                   python3 ${GITHUB_WORKSPACE}/cadremine/bin/download_maven_artifacts.py ${GITHUB_WORKSPACE}/intermine http://localhost:8081/repository/maven-public -v
 
@@ -93,6 +99,7 @@ jobs:
               run: |
                   set -euxo pipefail
                   export PGPASSWORD=postgres
+                  # install_boot.py runs with system python, no third party dependencies
                   python3 ${GITHUB_WORKSPACE}/cadremine/bin/install_boot.py ${GITHUB_WORKSPACE}/intermine ${GITHUB_WORKSPACE}/cadremine/release -v --recreate_databases --offline
 
             - name: Dump Docker logs
