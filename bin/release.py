@@ -102,7 +102,8 @@ class Releaser:
     def download_gradle_zip(self) -> None:
         zip_file = self.gradle_zip_url.rsplit("/", 1)[-1]
         path = os.path.join(self.gradle_release_dir, zip_file)
-        urllib.request.urlretrieve(self.gradle_zip_url, path)
+        if not os.path.exists(path):
+            urllib.request.urlretrieve(self.gradle_zip_url, path)
 
     def copy_nexus_data_volume(self) -> None:
         shutil.copytree(
