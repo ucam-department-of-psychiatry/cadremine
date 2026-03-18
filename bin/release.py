@@ -21,7 +21,6 @@ log = logging.getLogger(__name__)
 @dataclass
 class Releaser:
     bluegenes_dir: str
-    environment: str
     intermine_dir: str
     verbose: bool
 
@@ -225,9 +224,6 @@ def main() -> None:
     )
     parser.add_argument(
         "bluegenes_dir", help="Top level directory containing Bluegenes"
-    )
-    parser.add_argument(
-        "environment", help="Environment to deploy to e.g. dev, docker"
     )
     parser.add_argument(
         "--verbose", "-v", action="store_true", help="Be verbose"
