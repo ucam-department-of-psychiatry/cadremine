@@ -52,6 +52,13 @@ jobs:
                   ref: "eclipse-setup"
                   path: "intermine"
 
+            - name: Checkout bluegenes
+              uses: actions/checkout@v4
+              with:
+                  repository: "ucam-department-of-psychiatry/bluegenes"
+                  ref: "sde-fixes"
+                  path: "bluegenes"
+
             - name: Release
               run: |
                   set -euxo pipefail
@@ -62,7 +69,7 @@ jobs:
                   mkdir ${GITHUB_WORKSPACE}/cadremine/data/solr
                   mkdir ${GITHUB_WORKSPACE}/cadremine/data/tomcat
 
-                  python3 ${GITHUB_WORKSPACE}/cadremine/bin/release.py ${GITHUB_WORKSPACE}/intermine docker
+                  python3 ${GITHUB_WORKSPACE}/cadremine/bin/release.py ${GITHUB_WORKSPACE}/intermine ${GITHUB_WORKSPACE}/bluegenes
 
             - name: Start Docker
               run: |
