@@ -25,7 +25,7 @@ class Releaser:
     verbose: bool
 
     # TODO: Sync with docker-compose.yml
-    bluegenes_version: str = "intermine/bluegenes:1.4.6-rc1"
+    bluegenes_version: str = "intermine/bluegenes:1.4.6-rc2"
     bundle_tag: str = "last_release_bundle"
     cadremine_git_branch: str = "main"
     gradle_zip_url: str = (
