@@ -27,6 +27,12 @@ volumes:
       type: none
       device: "./data/nexus"
 
+  tomcat_volume:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: "./data/tomcat"
 
 services:
   postgres:
@@ -61,6 +67,8 @@ services:
     build:
       context: ./tomcat
       dockerfile: ./tomcat.Dockerfile
+    volumes:
+      - tomcat_volume:/usr/local/tomcat/webapps
     environment:
       - MEM_OPTS=${TOMCAT_MEM_OPTS}
     ports:
