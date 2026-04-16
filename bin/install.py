@@ -75,15 +75,17 @@ class Installer:
         self.load_docker_images()
         self.make_data_dirs()
         self.start_containers()
-        self.build_databases()
+        if self.recreate_databases:
+            self.build_databases()
         self.create_gradle_properties()
         self.create_gradle_wrapper_properties()
         self.copy_all_gradle_zip()
         self.install_intermine()
-        self.run_gradle(["clean"])
-        self.run_gradle(["buildDB"])
-        self.run_gradle(["integrate"])
-        self.run_gradle(["buildUserDB"])
+        if self.recreate_databases:
+            self.run_gradle(["clean"])
+            self.run_gradle(["buildDB"])
+            self.run_gradle(["integrate"])
+            self.run_gradle(["buildUserDB"])
         self.run_gradle([":webapp:war"])
         self.deploy_war_file()
 
