@@ -69,7 +69,7 @@ class Initialiser:
 
                 log.debug(f"Admin password is {admin_user_password}")
 
-                # TODO: Raise issue with python-on-whales
+                # https://github.com/gabrieldemarmiesse/python-on-whales/issues/711
                 return admin_user_password  # type: ignore
 
             except DockerException:
