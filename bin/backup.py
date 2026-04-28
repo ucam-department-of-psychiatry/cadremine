@@ -32,6 +32,7 @@ class Backup:
         self.delete_before_time = (
             current_time - self.days_to_keep * seconds_per_day
         )
+        self.timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
     def backup(self) -> None:
         self.ensure_backup_dir_exists()
@@ -54,9 +55,8 @@ class Backup:
         Path(self.backup_dir).mkdir(parents=True, exist_ok=True)
 
     def backup_database(self, database_name: str) -> None:
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = os.path.join(
-            self.backup_dir, f"{database_name}_{timestamp}.sql.gz"
+            self.backup_dir, f"{database_name}_{self.timestamp}.sql.gz"
         )
 
         if self.dry_run:
