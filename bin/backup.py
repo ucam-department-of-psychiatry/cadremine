@@ -20,7 +20,6 @@ class Backup:
     backup_dir: str
     days_to_keep: int
     dry_run: bool
-    postgres_host_port: int
     verbose: bool
 
     def __post_init__(self) -> None:
@@ -147,12 +146,6 @@ def main() -> None:
         "--dry_run",
         action="store_true",
         help="Don't create or delete anything",
-    )
-    parser.add_argument(
-        "--postgres_host_port",
-        type=int,
-        default=5432,
-        help="Host port to use for the Postgres server",
     )
     parser.add_argument(
         "--verbose", "-v", action="store_true", help="Be verbose"
