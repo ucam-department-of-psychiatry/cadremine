@@ -25,7 +25,6 @@ class Backup:
     def __post_init__(self) -> None:
         self.psql_host = os.getenv("PSQL_HOST", "localhost")
         self.psql_user = os.getenv("PSQL_USER", "postgres")
-        self.psql_pass = os.getenv("PSQL_PWD", "postgres")
         current_time = time.time()
         seconds_per_day = 60 * 60 * 24
         self.delete_before_time = (
