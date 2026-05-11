@@ -40,5 +40,5 @@ out/
 gradle.properties
 gradle-wrapper.properties
 release_*/
-archive/
+archive_*/
 gradle-*-bin.zip
