@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 class Releaser:
     bluegenes_dir: str
     intermine_dir: str
+    release_dir: str
     verbose: bool
 
     # TODO: Sync with docker-compose.yml
@@ -36,7 +37,6 @@ class Releaser:
     def __post_init__(self) -> None:
         self.bin_dir = os.path.dirname(os.path.realpath(__file__))
         self.project_root_dir = os.path.join(self.bin_dir, "..")
-        self.release_dir = os.path.join(self.project_root_dir, "release")
         self.archive_dir = os.path.join(self.project_root_dir, "archive")
         self.data_dir = os.path.join(self.project_root_dir, "data")
         self.nexus_data_dir = os.path.join(self.data_dir, "nexus")
@@ -225,6 +225,7 @@ def main() -> None:
     parser.add_argument(
         "bluegenes_dir", help="Top level directory containing Bluegenes"
     )
+    parser.add_argument("release_dir", help="Release directory")
     parser.add_argument(
         "--verbose", "-v", action="store_true", help="Be verbose"
     )
