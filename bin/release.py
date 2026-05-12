@@ -20,15 +20,13 @@ log = logging.getLogger(__name__)
 
 @dataclass
 class Releaser:
-    archive_dir: str
     bluegenes_dir: str
     intermine_dir: str
-    release_dir: str
+    name: str
     verbose: bool
 
     # TODO: Sync with docker-compose.yml
     bluegenes_version: str = "intermine/bluegenes:1.4.6-rc3"
-    bundle_tag: str = "last_release_bundle"
     cadremine_git_branch: str = "main"
     gradle_zip_url: str = (
         "https://services.gradle.org/distributions/gradle-4.9-bin.zip"
@@ -38,6 +36,13 @@ class Releaser:
     def __post_init__(self) -> None:
         self.bin_dir = os.path.dirname(os.path.realpath(__file__))
         self.project_root_dir = os.path.join(self.bin_dir, "..")
+        self.release_dir = os.path.join(
+            self.project_root_dir, f"release_{self.name}"
+        )
+        self.archive_dir = os.path.join(
+            self.project_root_dir, f"archive_{self.name}"
+        )
+        self.bundle_tag = "last_release_bundle_{self.name}"
         self.data_dir = os.path.join(self.project_root_dir, "data")
         self.nexus_data_dir = os.path.join(self.data_dir, "nexus")
         self.base_requirements_file = os.path.join(
@@ -225,8 +230,13 @@ def main() -> None:
     parser.add_argument(
         "bluegenes_dir", help="Top level directory containing Bluegenes"
     )
-    parser.add_argument("archive_dir", help="Archive directory")
-    parser.add_argument("release_dir", help="Release directory")
+    parser.add_argument(
+        "name",
+        help=(
+            "Name used for archive, release directory etc, such as 'main' or "
+            "'projects'"
+        ),
+    )
     parser.add_argument(
         "--verbose", "-v", action="store_true", help="Be verbose"
     )
