@@ -42,7 +42,7 @@ class Releaser:
         self.archive_dir = os.path.join(
             self.project_root_dir, f"archive_{self.name}"
         )
-        self.bundle_tag = "last_release_bundle_{self.name}"
+        self.bundle_tag = f"last_release_bundle_{self.name}"
         self.data_dir = os.path.join(self.project_root_dir, "data")
         self.nexus_data_dir = os.path.join(self.data_dir, "nexus")
         self.base_requirements_file = os.path.join(
