@@ -50,6 +50,9 @@ class Installer:
         self.bin_dir = os.path.dirname(os.path.realpath(__file__))
         self.project_root_dir = os.path.join(self.bin_dir, "..")
         self.data_dir = os.path.join(self.project_root_dir, "data")
+        self.m2_settings_xml = os.path.join(
+            self.project_root_dir, "settings.xml"
+        )
         self.gradle_dir = os.path.join(self.release_dir, "gradle")
         self.docker_images_dir = os.path.join(
             self.release_dir, "docker_images"
@@ -80,6 +83,7 @@ class Installer:
         self.create_gradle_properties()
         self.create_gradle_wrapper_properties()
         self.copy_all_gradle_zip()
+        self.copy_m2_settings()
         self.install_intermine()
         if self.recreate_databases:
             self.run_gradle(["clean"])
@@ -272,6 +276,11 @@ class Installer:
 
         for project_dir in project_dirs:
             self.copy_gradle_zip(os.path.join(self.intermine_dir, project_dir))
+
+    def copy_m2_settings(self) -> None:
+        m2_dir = os.path.join(Path.home(), ".m2")
+        Path(m2_dir).mkdir(parents=True, exist_ok=True)
+        shutil.copy(self.m2_settings_xml, m2_dir)
 
     def copy_gradle_zip(self, project_dir: str) -> None:
         zip_path = None
