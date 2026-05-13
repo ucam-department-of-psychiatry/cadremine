@@ -44,10 +44,10 @@ jobs:
               uses: actions/setup-java@v1
               with:
                 java-version: '8'
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
               with:
                   path: "cadremine"
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
               with:
                   repository: "intermine/intermine"
                   ref: "eclipse-setup"

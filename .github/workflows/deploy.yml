@@ -41,19 +41,19 @@ jobs:
                   java-version: '8'
 
             - name: Checkout cadremine
-              uses: actions/checkout@v4
+              uses: actions/checkout@v6
               with:
                   path: "cadremine"
 
             - name: Checkout intermine
-              uses: actions/checkout@v4
+              uses: actions/checkout@v6
               with:
                   repository: "intermine/intermine"
                   ref: "eclipse-setup"
                   path: "intermine"
 
             - name: Checkout bluegenes
-              uses: actions/checkout@v4
+              uses: actions/checkout@v6
               with:
                   repository: "ucam-department-of-psychiatry/bluegenes"
                   ref: "sde-fixes"
