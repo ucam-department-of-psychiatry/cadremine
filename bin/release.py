@@ -45,12 +45,6 @@ class Releaser:
         self.bundle_tag = f"last_release_bundle_{self.name}"
         self.data_dir = os.path.join(self.project_root_dir, "data")
         self.nexus_data_dir = os.path.join(self.data_dir, "nexus")
-        self.base_requirements_file = os.path.join(
-            self.project_root_dir, "base_requirements.txt"
-        )
-        self.requirements_file = os.path.join(
-            self.project_root_dir, "requirements.txt"
-        )
         self.gradle_release_dir = os.path.join(self.release_dir, "gradle")
         self.nexus_release_dir = os.path.join(self.release_dir, "nexus")
 
