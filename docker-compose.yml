@@ -80,7 +80,7 @@ services:
     volumes:
       - bluegenes_volume:/tools
     environment:
-      - BLUEGENES_DEFAULT_SERVICE_ROOT=${BLUEGENES_DEFAULT_SERVICE_ROOT}
+      - BLUEGENES_DEFAULT_SERVICE_ROOT="http://${TOMCAT_HOST}:${TOMCAT_HOST_PORT}/cadremine"
       - BLUEGENES_BACKEND_SERVICE_ROOT="http://tomcat:${TOMCAT_PORT}/cadremine"
       - BLUEGENES_DEFAULT_MINE_NAME=CADREMine
       - BLUEGENES_DEFAULT_NAMESPACE=cadremine

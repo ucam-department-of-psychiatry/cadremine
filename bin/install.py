@@ -37,7 +37,7 @@ class Installer:
     postgres_host_port: int
     recreate_databases: bool
     release_dir: str
-    tomcat_host_port: int
+    tomcat_host: str
     verbose: bool
 
     build_environment: str = "dev"
@@ -143,6 +143,8 @@ class Installer:
             Path(full_path).mkdir(parents=True, exist_ok=True)
 
     def start_containers(self) -> None:
+        if self.tomcat_host:
+            os.environ["TOMCAT_HOST"] = self.tomcat_host
         self.docker.compose.up(detach=True)
 
         self.wait_for_port("127.0.0.1", self.nexus_host_port)
@@ -402,10 +404,9 @@ def main() -> None:
         help="Host port to use for the Postgres server",
     )
     parser.add_argument(
-        "--tomcat_host_port",
-        type=int,
-        default=9999,
-        help="Host port to use for the Tomcat server",
+        "--tomcat_host",
+        type=str,
+        help="Host where Tomcat is running under Docker",
     )
     parser.add_argument(
         "--recreate_databases",
