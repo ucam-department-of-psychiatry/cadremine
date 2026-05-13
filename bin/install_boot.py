@@ -25,7 +25,7 @@ class Booter:
     recreate_databases: bool
     recreate_venv: bool
     release_dir: str
-    tomcat_host_port: int
+    tomcat_host: str
     verbose: bool
 
     pypi_host_port: int = 8080
@@ -72,8 +72,8 @@ class Booter:
             str(self.nexus_host_port),
             "--postgres_host_port",
             str(self.postgres_host_port),
-            "--tomcat_host_port",
-            str(self.tomcat_host_port),
+            "--tomcat_host",
+            self.tomcat_host,
         ]
 
         if self.offline:
@@ -130,10 +130,10 @@ def main() -> None:
         help="Host port to use for the Postgres server",
     )
     parser.add_argument(
-        "--tomcat_host_port",
-        type=int,
-        default=9999,
-        help="Host port to use for the Tomcat server",
+        "--tomcat_host",
+        type=str,
+        default="localhost",
+        help="Host where Tomcat is running under Docker",
     )
     parser.add_argument(
         "--recreate_databases",
