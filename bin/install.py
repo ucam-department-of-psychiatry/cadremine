@@ -183,7 +183,7 @@ class Installer:
         ):
             print(major_version, minor_version)
             print(
-                f"Java version is {version_string} and must be"
+                f"Java version is {version_string} and must be "
                 f"{self.major_java_version}.{self.minor_java_version}"
             )
             sys.exit(EXIT_FAILURE)
