@@ -21,6 +21,7 @@ class Booter:
     intermine_dir: str
     nexus_host_port: int
     offline: bool
+    omop_schema_file: str
     postgres_host_port: int
     recreate_databases: bool
     recreate_venv: bool
@@ -68,6 +69,7 @@ class Booter:
             f"{self.bin_dir}/install.py",
             self.intermine_dir,
             self.release_dir,
+            self.omop_schema_file,
             "--nexus_host_port",
             str(self.nexus_host_port),
             "--postgres_host_port",
@@ -108,6 +110,11 @@ def main() -> None:
     parser.add_argument(
         "release_dir",
         help="Top level directory containing files outside of version control",
+    )
+    parser.add_argument(
+        "omop_schema_file",
+        type=str,
+        help="OMOP CDM Schema CSV file",
     )
     parser.add_argument(
         "--recreate_venv",
