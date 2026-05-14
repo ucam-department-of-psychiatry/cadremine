@@ -41,7 +41,7 @@ jobs:
                   set -euo pipefail
                   sudo apt-get install libxml-perl libtext-glob-perl
             - name: Set up JDK 8
-              uses: actions/setup-java@v6
+              uses: actions/setup-java@v5
               with:
                 java-version: '8'
             - uses: actions/checkout@v6
