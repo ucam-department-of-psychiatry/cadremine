@@ -11,6 +11,8 @@ from venv import EnvBuilder
 
 log = logging.getLogger(__name__)
 
+EXIT_FAILURE = -1
+
 
 class BootException(Exception):
     pass
@@ -38,11 +40,17 @@ class Booter:
         self.venv_python = os.path.join(self.venv_dir, "bin", "python")
 
     def boot(self) -> None:
+        self.check_release_dir_exists()
         if self.recreate_venv or not os.path.exists(self.venv_dir):
             self.create_virtual_environment()
             self.install_requirements()
 
         self.run_install_script()
+
+    def check_release_dir_exists(self) -> None:
+        if not os.path.exists(self.release_dir):
+            print(f"The directory {self.release_dir} does not exist")
+            sys.exit(EXIT_FAILURE)
 
     def create_virtual_environment(self) -> None:
         builder = EnvBuilder(
