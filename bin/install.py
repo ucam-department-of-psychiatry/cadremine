@@ -86,6 +86,7 @@ class Installer:
     nexus_host_port: int
     offline: bool
     offline_url: str
+    omop_data_dir: str
     omop_schema_file: str
     plugins_url: str
     postgres_host_port: int
@@ -561,8 +562,8 @@ class Installer:
         sources = ET.SubElement(project, "sources")
         tree = ET.ElementTree(project)
 
-        for basename in os.listdir(self.data_dir):
-            filename = os.path.join(self.data_dir, basename)
+        for basename in os.listdir(self.omop_data_dir):
+            filename = os.path.join(self.omop_data_dir, basename)
 
             if os.path.isfile(filename):
                 pieces = os.path.splitext(filename)
@@ -599,7 +600,12 @@ class Installer:
         ET.SubElement(
             source, "property", name="delimited.separator", value="comma"
         )
-        ET.SubElement(source, "property", name="src.data.dir", location="data")
+        ET.SubElement(
+            source,
+            "property",
+            name="src.data.dir",
+            location=self.omop_data_dir,
+        )
         ET.SubElement(
             source, "property", name="delimited.includes", value=basename
         )
@@ -725,6 +731,9 @@ def main() -> None:
         "omop_schema_file",
         type=str,
         help="OMOP CDM Schema CSV file",
+    )
+    parser.add_argument(
+        "omop_data_dir", type=str, help="Directory containing csv files"
     )
     parser.add_argument(
         "--nexus_host_port",

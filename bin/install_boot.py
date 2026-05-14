@@ -23,6 +23,7 @@ class Booter:
     intermine_dir: str
     nexus_host_port: int
     offline: bool
+    omop_data_dir: str
     omop_schema_file: str
     postgres_host_port: int
     recreate_databases: bool
@@ -78,6 +79,7 @@ class Booter:
             self.intermine_dir,
             self.release_dir,
             self.omop_schema_file,
+            self.omop_data_dir,
             "--nexus_host_port",
             str(self.nexus_host_port),
             "--postgres_host_port",
@@ -123,6 +125,9 @@ def main() -> None:
         "omop_schema_file",
         type=str,
         help="OMOP CDM Schema CSV file",
+    )
+    parser.add_argument(
+        "omop_data_dir", type=str, help="Directory containing csv files"
     )
     parser.add_argument(
         "--recreate_venv",

@@ -42,3 +42,4 @@ gradle-wrapper.properties
 release_*/
 archive_*/
 gradle-*-bin.zip
+project.xml
