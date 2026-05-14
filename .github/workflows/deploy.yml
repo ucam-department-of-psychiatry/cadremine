@@ -106,7 +106,7 @@ jobs:
                   # install_boot.py runs with system python, no third party dependencies
                   python3 ${GITHUB_WORKSPACE}/cadremine/bin/install_boot.py ${GITHUB_WORKSPACE}/intermine ${GITHUB_WORKSPACE}/cadremine/release /tmp/$OMOP_SCHEMA_FILE ${GITHUB_WORKSPACE}/test_data -v --recreate_databases --offline
               env:
-                  OMOP_SCHEMA_FILE=OMOP_CDMv5.4_Field_Level.csv
+                  OMOP_SCHEMA_FILE: OMOP_CDMv5.4_Field_Level.csv
 
             - name: Dump Docker logs
               if: failure()
