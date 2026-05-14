@@ -77,7 +77,7 @@ jobs:
                   mkdir ${GITHUB_WORKSPACE}/cadremine/data/tomcat
 
                   PYTHON=${HOME}/venv/bin/python
-                  ${PYTHON} ${GITHUB_WORKSPACE}/cadremine/bin/release.py ${GITHUB_WORKSPACE}/intermine ${GITHUB_WORKSPACE}/bluegenes
+                  ${PYTHON} ${GITHUB_WORKSPACE}/cadremine/bin/release.py ${GITHUB_WORKSPACE}/intermine ${GITHUB_WORKSPACE}/bluegenes main
 
             - name: Start Docker
               run: |
