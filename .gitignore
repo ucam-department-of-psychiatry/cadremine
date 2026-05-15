@@ -39,6 +39,8 @@ out/
 # Automatically generated
 gradle.properties
 gradle-wrapper.properties
+*-dev.properties
+*-docker.properties
 release_*/
 archive_*/
 gradle-*-bin.zip
