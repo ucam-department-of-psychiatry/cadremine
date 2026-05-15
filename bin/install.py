@@ -83,6 +83,7 @@ class Installer:
     ebi_url: str
     gradle_distribution_url: str
     intermine_dir: str
+    mine_name: str
     nexus_host_port: int
     offline: bool
     offline_url: str
@@ -97,11 +98,11 @@ class Installer:
 
     build_environment: str = "dev"
     war_environment: str = "docker"
-    mine_name: str = "cadremine"
     major_java_version: int = 1
     minor_java_version: int = 8
 
     def __post_init__(self) -> None:
+        self.mine_title = self.mine_name.title()
         self.bin_dir = os.path.dirname(os.path.realpath(__file__))
         self.project_root_dir = os.path.join(self.bin_dir, "..")
         self.data_dir = os.path.join(self.project_root_dir, "data")
@@ -143,6 +144,7 @@ class Installer:
         return self._docker
 
     def install(self) -> None:
+        self.set_environment_variables()
         self.check_java_version()
         self.load_docker_images()
         self.make_data_dirs()
@@ -151,6 +153,7 @@ class Installer:
             self.build_databases()
         self.create_gradle_properties()
         self.create_gradle_wrapper_properties()
+        self.create_mine_properties()
         self.copy_all_gradle_zip()
         self.copy_m2_settings()
         self.install_intermine()
@@ -165,6 +168,17 @@ class Installer:
             self.run_gradle(["buildUserDB"])
         self.run_gradle([":webapp:war"])
         self.deploy_war_file()
+
+    def set_environment_variables(self) -> None:
+        if self.tomcat_host:
+            os.environ["TOMCAT_HOST"] = self.tomcat_host
+
+        os.environ.update(
+            MINE_NAME=self.mine_name,
+            PSQL_HOST=self.psql_host,
+            PSQL_PWD=self.psql_pass,
+            PSQL_USER=self.psql_user,
+        )
 
     def check_java_version(self) -> None:
         java_home = self.get_java_home()
@@ -216,8 +230,6 @@ class Installer:
             Path(full_path).mkdir(parents=True, exist_ok=True)
 
     def start_containers(self) -> None:
-        if self.tomcat_host:
-            os.environ["TOMCAT_HOST"] = self.tomcat_host
         self.docker.compose.up(detach=True)
 
         self.wait_for_port("127.0.0.1", self.nexus_host_port)
@@ -306,23 +318,60 @@ class Installer:
             "im_war_environment": self.war_environment,
         }
 
-        self.create_properties("gradle.properties", replacement_dict)
+        self.create_properties(
+            "gradle.properties.in", "gradle.properties", replacement_dict
+        )
 
     def create_gradle_wrapper_properties(self) -> None:
         replacement_dict = {
             "im_gradle_distribution_url": self.gradle_distribution_url,
         }
 
-        self.create_properties("gradle-wrapper.properties", replacement_dict)
+        self.create_properties(
+            "gradle-wrapper.properties.in",
+            "gradle-wrapper.properties",
+            replacement_dict,
+        )
+
+    def create_mine_properties(self) -> None:
+        self.create_mine_build_environment_properties()
+        self.create_mine_war_environment_properties()
+
+    def create_mine_build_environment_properties(self) -> None:
+        replacement_dict = {
+            "im_server_name": "localhost",
+            "im_mine_name": self.mine_name,
+            "im_mine_title": self.mine_title,
+        }
+        self.create_properties(
+            "cadremine.properties.in",
+            f"{self.mine_name}-{self.build_environment}.properties",
+            replacement_dict,
+        )
+
+    def create_mine_war_environment_properties(self) -> None:
+        replacement_dict = {
+            "im_server_name": "postgres",
+            "im_mine_name": self.mine_name,
+            "im_mine_title": self.mine_title,
+        }
+        self.create_properties(
+            "cadremine.properties.in",
+            f"{self.mine_name}-{self.war_environment}.properties",
+            replacement_dict,
+        )
 
     def create_properties(
-        self, filename: str, replacement_dict: dict[str, Any]
+        self,
+        template_in: str,
+        filename_out: str,
+        replacement_dict: dict[str, Any],
     ) -> None:
         for properties_in in glob.glob(
-            f"**/{filename}.in", root_dir=self.project_root_dir, recursive=True
+            f"**/{template_in}", root_dir=self.project_root_dir, recursive=True
         ):
             path_in = os.path.join(self.project_root_dir, properties_in)
-            path_out = path_in[:-3]
+            path_out = path_in.replace(template_in, filename_out)
             with open(path_out, "w") as f_out:
                 f_out.write(
                     "# FILE AUTOMATICALLY GENERATED FROM "
@@ -371,10 +420,6 @@ class Installer:
         shutil.copy(zip_path, gradle_wrapper_dir)
 
     def install_intermine(self) -> None:
-        os.environ["PSQL_HOST"] = self.psql_host
-        os.environ["PSQL_USER"] = self.psql_user
-        os.environ["PSQL_PWD"] = self.psql_pass
-
         install_args = [
             os.path.join(
                 self.intermine_dir,
@@ -718,7 +763,7 @@ class Installer:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Install cadremine",
+        description="Install Intermine for CADRE",
     )
     parser.add_argument(
         "intermine_dir", help="Top level directory containing Intermine"
@@ -734,6 +779,9 @@ def main() -> None:
     )
     parser.add_argument(
         "omop_data_dir", type=str, help="Directory containing csv files"
+    )
+    parser.add_argument(
+        "mine_name", type=str, help="Name for this intermine instance"
     )
     parser.add_argument(
         "--nexus_host_port",

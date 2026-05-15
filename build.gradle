@@ -23,7 +23,7 @@ buildscript {
 }
 
 ext {
-  mineName = "cadremine"
+  mineName = System.getenv("MINE_NAME")
   buildEnvironment = project.getProperty("intermine.development.buildEnvironment")
   warEnvironment = project.getProperty("intermine.development.warEnvironment")
 

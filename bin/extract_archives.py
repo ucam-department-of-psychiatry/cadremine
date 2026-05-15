@@ -48,7 +48,7 @@ class Extractor:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Extract DAR archives for cadremine",
+        description="Extract DAR archives for CADRE",
     )
     parser.add_argument("archive_dir", help="Directory containing archives")
     parser.add_argument("release_dir", help="Directory containing release")

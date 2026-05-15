@@ -21,6 +21,7 @@ class BootException(Exception):
 @dataclass
 class Booter:
     intermine_dir: str
+    mine_name: str
     nexus_host_port: int
     offline: bool
     omop_data_dir: str
@@ -80,6 +81,7 @@ class Booter:
             self.release_dir,
             self.omop_schema_file,
             self.omop_data_dir,
+            self.mine_name,
             "--nexus_host_port",
             str(self.nexus_host_port),
             "--postgres_host_port",
@@ -112,7 +114,7 @@ class Booter:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Install cadremine",
+        description="Install Intermine for CADRE",
     )
     parser.add_argument(
         "intermine_dir", help="Top level directory containing Intermine"
@@ -128,6 +130,9 @@ def main() -> None:
     )
     parser.add_argument(
         "omop_data_dir", type=str, help="Directory containing csv files"
+    )
+    parser.add_argument(
+        "mine_name", type=str, help="Name for this intermine instance"
     )
     parser.add_argument(
         "--recreate_venv",

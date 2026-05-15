@@ -95,7 +95,7 @@ def props = new Properties()
 file(mineBuildPropertyFile).withInputStream { props.load(it) }
 
 webappConfig {
-    mineName = "cadremine"
+    mineName = System.getenv("MINE_NAME")
     objectStoreName = "os.production"
     userProfileObjectStoreName = "os.userprofile-production"
     userProfileObjectStoreWriterName = "osw.userprofile-production"

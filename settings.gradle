@@ -1,4 +1,4 @@
-rootProject.name = 'cadremine'
+rootProject.name = System.getenv("MINE_NAME")
 
 include ':dbmodel',':webapp'
 

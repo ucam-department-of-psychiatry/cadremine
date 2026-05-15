@@ -201,7 +201,7 @@ class Builder:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Build cadremine",
+        description="Build CADRE",
     )
     parser.add_argument(
         "intermine_dir", help="Top level directory containing Intermine"

@@ -216,7 +216,7 @@ class Releaser:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Release cadremine",
+        description="Release CADRE",
     )
     parser.add_argument(
         "intermine_dir", help="Top level directory containing Intermine"

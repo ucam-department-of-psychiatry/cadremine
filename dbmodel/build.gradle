@@ -56,7 +56,7 @@ dependencies {
 }
 
 dbModelConfig {
-    mineName = "cadremine"
+    mineName = System.getenv("MINE_NAME")
     objectStoreName = "os.production"
     modelName = "genomic"
     defaultInterminePropertiesFile = "default.intermine.production.properties"
