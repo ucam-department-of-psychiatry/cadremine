@@ -1,0 +1,13 @@
+services:
+  bluegenes_@@mine_name@@:
+    container_name: intermine_bluegenes_@@mine_name@@
+    image: intermine/bluegenes:1.4.6-rc3
+    volumes:
+      - bluegenes_volume:/tools
+    environment:
+      - BLUEGENES_DEFAULT_SERVICE_ROOT="http://${TOMCAT_HOST}:${TOMCAT_HOST_PORT}/@@mine_name@@"
+      - BLUEGENES_BACKEND_SERVICE_ROOT="http://tomcat:${TOMCAT_PORT}/@@mine_name@@"
+      - BLUEGENES_DEFAULT_MINE_NAME=@@mine_name@@
+      - BLUEGENES_DEFAULT_NAMESPACE=@@mine_name@@
+    ports:
+      - @@bluegenes_host_port@@:${BLUEGENES_PORT}

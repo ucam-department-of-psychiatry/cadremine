@@ -19,6 +19,9 @@ data/postgres
 data/solr
 data/tomcat
 
+# List of mines, per-CADRE instance
+mines.txt
+
 # IDEs
 nbproject/
 nb-build.xml
@@ -45,3 +48,5 @@ release_*/
 archive_*/
 gradle-*-bin.zip
 project.xml
+project.xml.*
+docker-compose-*.yml

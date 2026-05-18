@@ -20,14 +20,13 @@ class BootException(Exception):
 
 @dataclass
 class Booter:
+    drop_databases: bool
     intermine_dir: str
-    mine_name: str
     nexus_host_port: int
     offline: bool
     omop_data_dir: str
     omop_schema_file: str
     postgres_host_port: int
-    recreate_databases: bool
     recreate_venv: bool
     release_dir: str
     tomcat_host: str
@@ -81,7 +80,6 @@ class Booter:
             self.release_dir,
             self.omop_schema_file,
             self.omop_data_dir,
-            self.mine_name,
             "--nexus_host_port",
             str(self.nexus_host_port),
             "--postgres_host_port",
@@ -93,8 +91,8 @@ class Booter:
         if self.offline:
             install_args.append("--offline")
 
-        if self.recreate_databases:
-            install_args.append("--recreate_databases")
+        if self.drop_databases:
+            install_args.append("--drop_databases")
 
         if self.verbose:
             install_args.append("--verbose")
@@ -129,10 +127,9 @@ def main() -> None:
         help="OMOP CDM Schema CSV file",
     )
     parser.add_argument(
-        "omop_data_dir", type=str, help="Directory containing csv files"
-    )
-    parser.add_argument(
-        "mine_name", type=str, help="Name for this intermine instance"
+        "omop_data_dir",
+        type=str,
+        help="Top level directory containing csv files",
     )
     parser.add_argument(
         "--recreate_venv",
@@ -161,9 +158,9 @@ def main() -> None:
         help="Host where Tomcat is running under Docker",
     )
     parser.add_argument(
-        "--recreate_databases",
+        "--drop_databases",
         action="store_true",
-        help="Recreate databases",
+        help="Drop ALL databases",
     )
 
     parser.add_argument(

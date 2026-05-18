@@ -58,7 +58,7 @@ services:
       - solr_volume:/var/solr
     environment:
       - MEM_OPTS=${SOLR_MEM_OPTS}
-      - MINE_NAME=${MINE_NAME}
+      - MINE_NAMES=${MINE_NAMES}
     ports:
       - ${SOLR_HOST_PORT}:${SOLR_PORT}
 
@@ -73,19 +73,6 @@ services:
       - MEM_OPTS=${TOMCAT_MEM_OPTS}
     ports:
       - ${TOMCAT_HOST_PORT}:${TOMCAT_PORT}
-
-  bluegenes:
-    container_name: intermine_bluegenes
-    image: intermine/bluegenes:1.4.6-rc3
-    volumes:
-      - bluegenes_volume:/tools
-    environment:
-      - BLUEGENES_DEFAULT_SERVICE_ROOT="http://${TOMCAT_HOST}:${TOMCAT_HOST_PORT}/${MINE_NAME}"
-      - BLUEGENES_BACKEND_SERVICE_ROOT="http://tomcat:${TOMCAT_PORT}/${MINE_NAME}"
-      - BLUEGENES_DEFAULT_MINE_NAME=${MINE_NAME}
-      - BLUEGENES_DEFAULT_NAMESPACE=${MINE_NAME}
-    ports:
-      - ${BLUEGENES_HOST_PORT}:${BLUEGENES_PORT}
 
   nexus:
     container_name: intermine_nexus

@@ -80,10 +80,10 @@ class Key:
 class Installer:
     central_url: str
     clojars_url: str
+    drop_databases: bool
     ebi_url: str
     gradle_distribution_url: str
     intermine_dir: str
-    mine_name: str
     nexus_host_port: int
     offline: bool
     offline_url: str
@@ -91,7 +91,6 @@ class Installer:
     omop_schema_file: str
     plugins_url: str
     postgres_host_port: int
-    recreate_databases: bool
     release_dir: str
     tomcat_host: str
     verbose: bool
@@ -102,7 +101,6 @@ class Installer:
     minor_java_version: int = 8
 
     def __post_init__(self) -> None:
-        self.mine_title = self.mine_name.title()
         self.bin_dir = os.path.dirname(os.path.realpath(__file__))
         self.project_root_dir = os.path.join(self.bin_dir, "..")
         self.data_dir = os.path.join(self.project_root_dir, "data")
@@ -130,15 +128,32 @@ class Installer:
             "Person",
             "ProcedureOccurrence",
         ]
+        self.mine_names = self.read_mine_names()
 
         self._docker: DockerClient | None = None
+
+    def read_mine_names(self) -> list[str]:
+        mines_file = os.path.join(self.project_root_dir, "mines.txt")
+
+        with open(mines_file) as f:
+            mines = f.read().splitlines()
+
+        return mines
 
     @property
     def docker(self) -> DockerClient:
         if self._docker is None:
-            compose_files: list[str | Path] = [
-                os.path.join(self.project_root_dir, "docker-compose.yml")
-            ]
+            compose_files: list[str | Path] = []
+
+            for file_in in glob.glob(
+                "docker-compose*.yml",
+                root_dir=self.project_root_dir,
+                recursive=False,
+            ):
+                compose_files.append(
+                    os.path.join(self.project_root_dir, file_in)
+                )
+
             self._docker = DockerClient(compose_files=compose_files)
 
         return self._docker
@@ -146,35 +161,41 @@ class Installer:
     def install(self) -> None:
         self.set_environment_variables()
         self.check_java_version()
+        self.create_docker_compose_files()
         self.load_docker_images()
         self.make_data_dirs()
         self.start_containers()
-        if self.recreate_databases:
-            self.build_databases()
-        self.create_gradle_properties()
-        self.create_gradle_wrapper_properties()
-        self.create_mine_properties()
-        self.copy_all_gradle_zip()
-        self.copy_m2_settings()
-        self.install_intermine()
+
         self.read_schema()
         self.write_additions_xml()
         self.write_all_keys_properties()
-        self.write_project_xml()
-        if self.recreate_databases:
-            self.run_gradle(["clean"])
-            self.run_gradle(["buildDB"])
-            self.run_gradle(["integrate"])
-            self.run_gradle(["buildUserDB"])
-        self.run_gradle([":webapp:war"])
-        self.deploy_war_file()
+
+        self.create_gradle_properties()
+        self.create_gradle_wrapper_properties()
+        self.copy_all_gradle_zip()
+        self.copy_m2_settings()
+        self.install_intermine()
+
+        for mine_name in self.mine_names:
+            os.environ["MINE_NAME"] = mine_name
+            created = self.build_databases(mine_name)
+            self.create_mine_properties(mine_name)
+            self.write_project_xml(mine_name)
+            if created:
+                self.run_gradle(["clean"])
+                self.run_gradle(["buildDB"])
+                self.run_gradle(["integrate"])
+                self.run_gradle(["buildUserDB"])
+            self.run_gradle([":webapp:war"])
+            self.deploy_war_file(mine_name)
+            self.rename_project_xml(mine_name)
 
     def set_environment_variables(self) -> None:
         if self.tomcat_host:
             os.environ["TOMCAT_HOST"] = self.tomcat_host
 
         os.environ.update(
-            MINE_NAME=self.mine_name,
+            MINE_NAMES=" ".join(self.mine_names),
             PSQL_HOST=self.psql_host,
             PSQL_PWD=self.psql_pass,
             PSQL_USER=self.psql_user,
@@ -213,6 +234,31 @@ class Installer:
             sys.exit(EXIT_FAILURE)
 
         return value
+
+    def create_docker_compose_files(self) -> None:
+        docker_compose_template = os.path.join(
+            self.project_root_dir, "docker-compose-bluegenes.yml.in"
+        )
+
+        bluegenes_host_port = 55000
+
+        for mine_name in self.mine_names:
+            docker_compose_file = os.path.join(
+                self.project_root_dir, f"docker-compose-{mine_name}.yml"
+            )
+            if not os.path.exists(docker_compose_file):
+                replacement_dict = {
+                    "mine_name": mine_name,
+                    "bluegenes_host_port": bluegenes_host_port,
+                }
+
+                self.search_replace_file(
+                    docker_compose_template,
+                    docker_compose_file,
+                    replacement_dict,
+                )
+
+            bluegenes_host_port += 1
 
     def load_docker_images(self) -> None:
         for filename in Path(self.docker_images_dir).glob("*.tar"):
@@ -254,35 +300,50 @@ class Installer:
 
         raise TimeoutError("Gave up waiting for Postgres container.")
 
-    def build_databases(self) -> None:
+    def build_databases(self, mine_name: str) -> bool:
+        # Terminate idle sessions and free up connections
         self.run_psql(
             "SELECT pg_terminate_backend(pid) FROM pg_stat_activity "
             "WHERE pid <> pg_backend_pid();"
         )
 
-        if not self.recreate_databases:
-            return
-
-        self.drop_db(self.mine_name)
-        self.drop_db(f"items-{self.mine_name}")
-        self.drop_db(f"userprofile-{self.mine_name}")
-
-        self.create_db(self.mine_name)
-        self.create_db(f"items-{self.mine_name}")
-        self.create_db(f"userprofile-{self.mine_name}")
-
-        self.run_psql(
-            f'GRANT ALL PRIVILEGES ON DATABASE "{self.mine_name}" to '
-            f"{self.psql_user};"
+        created = any(
+            [
+                self.build_database(d)
+                for d in [
+                    mine_name,
+                    f"items-{mine_name}",
+                    f"userprofile-{mine_name}",
+                ]
+            ]
         )
-        self.run_psql(
-            f'GRANT ALL PRIVILEGES ON DATABASE "items-{self.mine_name}" to '
-            f"{self.psql_user};"
+
+        return created
+
+    def build_database(self, database_name: str) -> bool:
+        if self.drop_databases or not self.database_exists(database_name):
+            self.drop_db(database_name)
+            self.create_db(database_name)
+            self.run_psql(
+                "GRANT ALL PRIVILEGES ON DATABASE "
+                f'"{database_name}" to {self.psql_user};'
+            )
+
+            return True
+
+        return False
+
+    def database_exists(self, database_name: str) -> bool:
+        output = self.run_psql(
+            "SELECT 1 FROM pg_catalog.pg_database "
+            f"WHERE datname='{database_name}'; ",
+            postgres_args=["-XtA"],
+            stdout=PIPE,
         )
-        self.run_psql(
-            "GRANT ALL PRIVILEGES ON DATABASE "
-            f'"userprofile-{self.mine_name}" to {self.psql_user};'
-        )
+
+        lines = output.stdout.decode("utf-8").splitlines()
+
+        return bool(lines) and lines[0] == "1"
 
     def drop_db(self, name: str) -> None:
         self.run_postgres("dropdb", ["--if-exists", name])
@@ -290,13 +351,31 @@ class Installer:
     def create_db(self, name: str) -> None:
         self.run_postgres("createdb", [name])
 
-    def run_psql(self, sql: str, check: bool = True) -> CompletedProcess[Any]:
-        return self.run_postgres("psql", ["-c", sql], check=check)
+    def run_psql(
+        self,
+        sql: str,
+        postgres_args: list[Any] | None = None,
+        stdout: _FILE = None,
+        stderr: _FILE = None,
+        check: bool = True,
+    ) -> CompletedProcess[Any]:
+        if postgres_args is None:
+            postgres_args = []
+
+        return self.run_postgres(
+            "psql",
+            ["-c", sql] + postgres_args,
+            stdout=stdout,
+            stderr=stderr,
+            check=check,
+        )
 
     def run_postgres(
         self,
         command: str,
         postgres_args: list[Any] | None = None,
+        stdout: _FILE = None,
+        stderr: _FILE = None,
         check: bool = True,
     ) -> CompletedProcess[Any]:
         if postgres_args is None:
@@ -304,7 +383,9 @@ class Installer:
 
         args = [command, "-h", self.psql_host, "-U", self.psql_user]
 
-        return self.run_with_env(args + postgres_args, check=check)
+        return self.run_with_env(
+            args + postgres_args, stdout=stdout, stderr=stderr, check=check
+        )
 
     def create_gradle_properties(self) -> None:
         # See also config/lib/install_intermine.py in intermine project
@@ -318,7 +399,7 @@ class Installer:
             "im_war_environment": self.war_environment,
         }
 
-        self.create_properties(
+        self.replace_all_properties(
             "gradle.properties.in", "gradle.properties", replacement_dict
         )
 
@@ -327,61 +408,67 @@ class Installer:
             "im_gradle_distribution_url": self.gradle_distribution_url,
         }
 
-        self.create_properties(
+        self.replace_all_properties(
             "gradle-wrapper.properties.in",
             "gradle-wrapper.properties",
             replacement_dict,
         )
 
-    def create_mine_properties(self) -> None:
-        self.create_mine_build_environment_properties()
-        self.create_mine_war_environment_properties()
+    def create_mine_properties(self, mine_name: str) -> None:
+        self.create_mine_build_environment_properties(mine_name)
+        self.create_mine_war_environment_properties(mine_name)
 
-    def create_mine_build_environment_properties(self) -> None:
+    def create_mine_build_environment_properties(self, mine_name: str) -> None:
         replacement_dict = {
             "im_server_name": "localhost",
-            "im_mine_name": self.mine_name,
-            "im_mine_title": self.mine_title,
+            "im_mine_name": mine_name,
+            "im_mine_title": mine_name.title(),
         }
-        self.create_properties(
+        self.replace_all_properties(
             "cadremine.properties.in",
-            f"{self.mine_name}-{self.build_environment}.properties",
+            f"{mine_name}-{self.build_environment}.properties",
             replacement_dict,
         )
 
-    def create_mine_war_environment_properties(self) -> None:
+    def create_mine_war_environment_properties(self, mine_name: str) -> None:
         replacement_dict = {
             "im_server_name": "postgres",
-            "im_mine_name": self.mine_name,
-            "im_mine_title": self.mine_title,
+            "im_mine_name": mine_name,
+            "im_mine_title": mine_name.title(),
         }
-        self.create_properties(
+        self.replace_all_properties(
             "cadremine.properties.in",
-            f"{self.mine_name}-{self.war_environment}.properties",
+            f"{mine_name}-{self.war_environment}.properties",
             replacement_dict,
         )
 
-    def create_properties(
+    def replace_all_properties(
         self,
         template_in: str,
         filename_out: str,
         replacement_dict: dict[str, Any],
     ) -> None:
-        for properties_in in glob.glob(
+        for file_in in glob.glob(
             f"**/{template_in}", root_dir=self.project_root_dir, recursive=True
         ):
-            path_in = os.path.join(self.project_root_dir, properties_in)
+            path_in = os.path.join(self.project_root_dir, file_in)
             path_out = path_in.replace(template_in, filename_out)
-            with open(path_out, "w") as f_out:
-                f_out.write(
-                    "# FILE AUTOMATICALLY GENERATED FROM "
-                    f"{properties_in}. DO NOT EDIT!\n"
-                )
-                with open(path_in) as f_in:
-                    for line in f_in:
-                        for key, value in replacement_dict.items():
-                            line = line.replace(f"@@{key}@@", value)
-                        f_out.write(line)
+
+            self.search_replace_file(path_in, path_out, replacement_dict)
+
+    def search_replace_file(
+        self, path_in: str, path_out: str, replacement_dict: dict[str, Any]
+    ) -> None:
+        with open(path_out, "w") as f_out:
+            f_out.write(
+                "# FILE AUTOMATICALLY GENERATED FROM "
+                f"{path_in}. DO NOT EDIT!\n"
+            )
+            with open(path_in) as f_in:
+                for line in f_in:
+                    for key, value in replacement_dict.items():
+                        line = line.replace(f"@@{key}@@", str(value))
+                    f_out.write(line)
 
             print(f"Written {path_out}")
 
@@ -596,7 +683,7 @@ class Installer:
                     f"{class_name}.key_primaryidentifer = {attribute_name}\n"
                 )
 
-    def write_project_xml(self) -> None:
+    def write_project_xml(self, mine_name: str) -> None:
         project = ET.Element("project", type="bio")
         ET.SubElement(
             project, "property", name="target.model", value="genomic"
@@ -607,8 +694,10 @@ class Installer:
         sources = ET.SubElement(project, "sources")
         tree = ET.ElementTree(project)
 
-        for basename in os.listdir(self.omop_data_dir):
-            filename = os.path.join(self.omop_data_dir, basename)
+        mine_data_dir = os.path.join(self.omop_data_dir, mine_name)
+
+        for basename in os.listdir(mine_data_dir):
+            filename = os.path.join(mine_data_dir, basename)
 
             if os.path.isfile(filename):
                 pieces = os.path.splitext(filename)
@@ -623,7 +712,9 @@ class Installer:
     def convert_data_csv_file(
         self, sources: ET.Element, filename: str
     ) -> None:
+        mine_data_dir = os.path.dirname(filename)
         basename = os.path.basename(filename)
+
         class_name = self.camelize(os.path.splitext(basename)[0])
         source = ET.SubElement(
             sources, "source", name=class_name, type="delimited"
@@ -649,7 +740,7 @@ class Installer:
             source,
             "property",
             name="src.data.dir",
-            location=self.omop_data_dir,
+            location=mine_data_dir,
         )
         ET.SubElement(
             source, "property", name="delimited.includes", value=basename
@@ -712,17 +803,22 @@ class Installer:
 
         self.run_with_env(["./gradlew"] + gradle_args)
 
-    def deploy_war_file(self) -> None:
+    def deploy_war_file(self, mine_name: str) -> None:
         war_file = os.path.join(
             self.project_root_dir, "webapp", "build", "libs", "webapp.war"
         )
         webapps_dir = os.path.join("usr", "local", "tomcat", "webapps")
-        dest_path = os.path.join(webapps_dir, f"{self.mine_name}.war")
+        dest_path = os.path.join(webapps_dir, f"{mine_name}.war")
 
         if self.verbose:
             log.info(f"Copying WAR file to {dest_path} on Tomcat server")
 
         self.docker.copy(war_file, ("intermine_tomcat", dest_path))
+
+    def rename_project_xml(self, mine_name: str) -> None:
+        xml_filename = os.path.join(self.project_root_dir, "project.xml")
+
+        os.rename(xml_filename, f"{xml_filename}.{mine_name}")
 
     def wait_for_port(
         self, ip_address: str, port: int, timeout_s: float = DEFAULT_TIMEOUT_S
@@ -778,10 +874,9 @@ def main() -> None:
         help="OMOP CDM Schema CSV file",
     )
     parser.add_argument(
-        "omop_data_dir", type=str, help="Directory containing csv files"
-    )
-    parser.add_argument(
-        "mine_name", type=str, help="Name for this intermine instance"
+        "omop_data_dir",
+        type=str,
+        help="Top level directory containing csv files",
     )
     parser.add_argument(
         "--nexus_host_port",
@@ -801,9 +896,9 @@ def main() -> None:
         help="Host where Tomcat is running under Docker",
     )
     parser.add_argument(
-        "--recreate_databases",
+        "--drop_databases",
         action="store_true",
-        help="Recreate databases",
+        help="Drop ALL databases",
     )
 
     parser.add_argument(
