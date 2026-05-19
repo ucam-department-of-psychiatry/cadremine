@@ -48,6 +48,7 @@ class Builder:
         self.build_databases()
 
         if not self.init_only:
+            os.environ.update(MINE_NAME=self.mine_name)
             self.run_gradle(["clean"])
             self.run_gradle(["buildDB"])
             self.run_gradle(["integrate"])
