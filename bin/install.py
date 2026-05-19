@@ -197,9 +197,6 @@ class Installer:
             self.rename_project_xml(mine_name)
 
     def set_environment_variables(self) -> None:
-        if self.tomcat_host:
-            os.environ["TOMCAT_HOST"] = self.tomcat_host
-
         os.environ.update(
             MINE_NAMES=" ".join(self.mine_names),
             PSQL_HOST=self.psql_host,
@@ -254,8 +251,9 @@ class Installer:
             )
             if not os.path.exists(docker_compose_file):
                 replacement_dict = {
-                    "mine_name": mine_name,
                     "bluegenes_host_port": bluegenes_host_port,
+                    "mine_name": mine_name,
+                    "tomcat_host": self.tomcat_host,
                 }
 
                 self.search_replace_file(
@@ -899,6 +897,7 @@ def main() -> None:
     parser.add_argument(
         "--tomcat_host",
         type=str,
+        default="localhost",
         help="Host where Tomcat is running under Docker",
     )
     parser.add_argument(
