@@ -135,8 +135,14 @@ class Installer:
     def read_mine_names(self) -> list[str]:
         mines_file = os.path.join(self.project_root_dir, "mines.txt")
 
+        mines = []
+
         with open(mines_file) as f:
-            mines = f.read().splitlines()
+            for mine in f:
+                mine = mine.strip()
+
+                if mine and not mine.startswith("#"):
+                    mines.append(mine)
 
         return mines
 
