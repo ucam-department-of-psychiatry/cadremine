@@ -104,8 +104,12 @@ jobs:
                   wget -O $OMOP_SCHEMA_FILE https://raw.githubusercontent.com/OHDSI/CommonDataModel/refs/heads/main/inst/csv/$OMOP_SCHEMA_FILE
 
                   export PGPASSWORD=postgres
+
+                  export MINE_NAMES="main"
+                  echo ${MINE_NAMES} > ${GITHUB_WORKSPACE}/cadremine/mines.txt
+
                   # install_boot.py runs with system python, no third party dependencies
-                  python3 ${GITHUB_WORKSPACE}/cadremine/bin/install_boot.py ${GITHUB_WORKSPACE}/intermine ${GITHUB_WORKSPACE}/cadremine/release /tmp/$OMOP_SCHEMA_FILE ${GITHUB_WORKSPACE}/test_data main -v --recreate_databases --offline
+                  python3 ${GITHUB_WORKSPACE}/cadremine/bin/install_boot.py ${GITHUB_WORKSPACE}/intermine ${GITHUB_WORKSPACE}/cadremine/release /tmp/$OMOP_SCHEMA_FILE ${GITHUB_WORKSPACE}/test_data -v --recreate_databases --offline
               env:
                   OMOP_SCHEMA_FILE: OMOP_CDMv5.4_Field_Level.csv
 
@@ -115,9 +119,10 @@ jobs:
                   set -euo pipefail
                   cd ${GITHUB_WORKSPACE}
                   sleep 120
-                  compose_file=${GITHUB_WORKSPACE}/cadremine/docker-compose.yml
-                  docker compose -f ${compose_file} logs bluegenes
-                  docker compose -f ${compose_file} logs nexus
-                  docker compose -f ${compose_file} logs postgres
-                  docker compose -f ${compose_file} logs solr
-                  docker compose -f ${compose_file} logs tomcat
+                  compose_file1=${GITHUB_WORKSPACE}/cadremine/docker-compose.yml
+                  compose_file2=${GITHUB_WORKSPACE}/cadremine/docker-compose-main.yml
+                  docker compose -f ${compose_file1} -f ${compose_file2} logs bluegenes_main
+                  docker compose -f ${compose_file1} -f ${compose_file2} logs nexus
+                  docker compose -f ${compose_file1} -f ${compose_file2} logs postgres
+                  docker compose -f ${compose_file1} -f ${compose_file2} logs solr
+                  docker compose -f ${compose_file1} -f ${compose_file2} logs tomcat
