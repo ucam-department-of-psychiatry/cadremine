@@ -26,6 +26,11 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
+            - name: Install prerequisites
+              run: |
+                  set -euo pipefail
+                  sudo apt-get -y install leiningen
+
             - name: Set up JDK 8
               uses: actions/setup-java@v5
               with:
