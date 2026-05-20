@@ -20,7 +20,9 @@ class BootException(Exception):
 
 @dataclass
 class Booter:
+    docker_images_dir: str
     drop_databases: bool
+    gradle_dir: str
     intermine_dir: str
     nexus_host_port: int
     offline: bool
@@ -28,8 +30,8 @@ class Booter:
     omop_schema_file: str
     postgres_host_port: int
     recreate_venv: bool
-    release_dir: str
     tomcat_host: str
+    venv_dir: str
     verbose: bool
 
     pypi_host_port: int = 8080
@@ -37,21 +39,14 @@ class Booter:
     def __post_init__(self) -> None:
         self.bin_dir = os.path.dirname(os.path.realpath(__file__))
         self.project_root_dir = os.path.join(self.bin_dir, "..")
-        self.venv_dir = os.path.join(self.release_dir, "venv")
         self.venv_python = os.path.join(self.venv_dir, "bin", "python")
 
     def boot(self) -> None:
-        self.check_release_dir_exists()
         if self.recreate_venv or not os.path.exists(self.venv_dir):
             self.create_virtual_environment()
             self.install_requirements()
 
         self.run_install_script()
-
-    def check_release_dir_exists(self) -> None:
-        if not os.path.exists(self.release_dir):
-            print(f"The directory {self.release_dir} does not exist")
-            sys.exit(EXIT_FAILURE)
 
     def create_virtual_environment(self) -> None:
         builder = EnvBuilder(
@@ -77,7 +72,7 @@ class Booter:
             self.venv_python,
             f"{self.bin_dir}/install.py",
             self.intermine_dir,
-            self.release_dir,
+            self.docker_images_dir,
             self.omop_schema_file,
             self.omop_data_dir,
             "--nexus_host_port",
@@ -90,6 +85,9 @@ class Booter:
 
         if self.offline:
             install_args.append("--offline")
+
+        if self.gradle_dir:
+            install_args += ["--gradle_dir", self.gradle_dir]
 
         if self.drop_databases:
             install_args.append("--drop_databases")
@@ -115,11 +113,15 @@ def main() -> None:
         description="Install Intermine for CADRE",
     )
     parser.add_argument(
+        "venv_dir",
+        help="Directory where Python virtual environment should go",
+    )
+    parser.add_argument(
         "intermine_dir", help="Top level directory containing Intermine"
     )
     parser.add_argument(
-        "release_dir",
-        help="Top level directory containing files outside of version control",
+        "docker_images_dir",
+        help="Directory containing local Docker images e.g. dev Bluegenes",
     )
     parser.add_argument(
         "omop_schema_file",
@@ -130,6 +132,10 @@ def main() -> None:
         "omop_data_dir",
         type=str,
         help="Top level directory containing csv files",
+    )
+    parser.add_argument(
+        "--gradle_dir",
+        help="Directory containing Gradle zip (for offline use)",
     )
     parser.add_argument(
         "--recreate_venv",

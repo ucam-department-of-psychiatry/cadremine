@@ -21,7 +21,6 @@ on:
             - make-loader.sh
             - postgres/**
             - project_build
-            - project.xml
             - settings.gradle
             - solr/**
             - tomcat/**
@@ -115,10 +114,14 @@ jobs:
                   export MINE_NAMES="main"
                   echo ${MINE_NAMES} > ${GITHUB_WORKSPACE}/cadremine/mines.txt
 
+                  mkdir -p $VENV_DIR
+
                   # install_boot.py runs with system python, no third party dependencies
-                  python3 ${GITHUB_WORKSPACE}/cadremine/bin/install_boot.py ${GITHUB_WORKSPACE}/intermine ${GITHUB_WORKSPACE}/cadremine/release /tmp/$OMOP_SCHEMA_FILE ${GITHUB_WORKSPACE}/test_data -v --recreate_databases --offline
+                  python3 ${GITHUB_WORKSPACE}/cadremine/bin/install_boot.py $VENV_DIR ${GITHUB_WORKSPACE}/intermine $DOCKER_IMAGES_DIR /tmp/$OMOP_SCHEMA_FILE ${GITHUB_WORKSPACE}/test_data -v --offline
               env:
+                  DOCKER_IMAGES_DIR: ${GITHUB_WORKSPACE}/cadremine/release_main/docker_images
                   OMOP_SCHEMA_FILE: OMOP_CDMv5.4_Field_Level.csv
+                  VENV_DIR: ${HOME}/.virtualenvs/cadremine
 
             - name: Dump Docker logs
               if: failure()

@@ -80,8 +80,10 @@ class Key:
 class Installer:
     central_url: str
     clojars_url: str
+    docker_images_dir: str
     drop_databases: bool
     ebi_url: str
+    gradle_dir: str
     gradle_distribution_url: str
     intermine_dir: str
     nexus_host_port: int
@@ -91,7 +93,6 @@ class Installer:
     omop_schema_file: str
     plugins_url: str
     postgres_host_port: int
-    release_dir: str
     tomcat_host: str
     verbose: bool
 
@@ -106,10 +107,6 @@ class Installer:
         self.data_dir = os.path.join(self.project_root_dir, "data")
         self.m2_settings_xml = os.path.join(
             self.project_root_dir, "settings.xml"
-        )
-        self.gradle_dir = os.path.join(self.release_dir, "gradle")
-        self.docker_images_dir = os.path.join(
-            self.release_dir, "docker_images"
         )
         self.psql_host = os.getenv("PSQL_HOST", "localhost")
         self.psql_user = os.getenv("PSQL_USER", "postgres")
@@ -178,7 +175,9 @@ class Installer:
 
         self.create_gradle_properties()
         self.create_gradle_wrapper_properties()
-        self.copy_all_gradle_zip()
+
+        if self.offline:
+            self.copy_all_gradle_zip()
         self.copy_m2_settings()
         self.install_intermine()
 
@@ -869,8 +868,8 @@ def main() -> None:
         "intermine_dir", help="Top level directory containing Intermine"
     )
     parser.add_argument(
-        "release_dir",
-        help="Top level directory containing files outside of version control",
+        "docker_images_dir",
+        help="Directory containing local Docker images e.g. dev Bluegenes",
     )
     parser.add_argument(
         "omop_schema_file",
@@ -881,6 +880,10 @@ def main() -> None:
         "omop_data_dir",
         type=str,
         help="Top level directory containing csv files",
+    )
+    parser.add_argument(
+        "--gradle_dir",
+        help="Directory containing Gradle zip (for offline use)",
     )
     parser.add_argument(
         "--nexus_host_port",
@@ -909,7 +912,7 @@ def main() -> None:
     parser.add_argument(
         "--offline",
         action="store_true",
-        help="Use offline Maven repositories",
+        help="Use offline Maven repositories and local Gradle",
     )
 
     parser.add_argument(
