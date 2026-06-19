@@ -37,6 +37,7 @@ volumes:
 services:
   postgres:
     container_name: intermine_postgres
+    restart: "${CADRE_RESTART_POLICY}"
     build:
       context: ./postgres
       dockerfile: ./postgres.Dockerfile
@@ -51,6 +52,7 @@ services:
 
   solr:
     container_name: intermine_solr
+    restart: "${CADRE_RESTART_POLICY}"
     build:
       context: ./solr
       dockerfile: ./solr.Dockerfile
@@ -64,6 +66,7 @@ services:
 
   tomcat:
     container_name: intermine_tomcat
+    restart: "${CADRE_RESTART_POLICY}"
     build:
       context: ./tomcat
       dockerfile: ./tomcat.Dockerfile
@@ -76,6 +79,7 @@ services:
 
   nexus:
     container_name: intermine_nexus
+    restart: "${CADRE_RESTART_POLICY}"
     image: sonatype/nexus3:3.89.1
     volumes:
       - nexus_volume:/nexus-data
