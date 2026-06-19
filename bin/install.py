@@ -667,8 +667,13 @@ class Installer:
             prefix_chars += 1
 
     def write_all_keys_properties(self) -> None:
+        all_keys: list[Key] = []
+
         for class_name, keys in self.keys.items():
             self.write_keys_properties(class_name, keys)
+            all_keys += keys
+
+        self.write_keys_properties("intermine-items-xml-file", all_keys)
 
     def write_keys_properties(self, class_name: str, keys: list[Key]) -> None:
         filename = os.path.join(
@@ -706,6 +711,8 @@ class Installer:
                 pieces = os.path.splitext(filename)
                 if pieces[1] == ".csv":
                     self.convert_data_csv_file(sources, filename)
+                elif pieces[1] == ".xml":
+                    self.convert_data_items_xml_file(sources, filename)
 
         ET.indent(tree)
 
@@ -758,6 +765,22 @@ class Installer:
             ET.SubElement(
                 source, "property", name="delimited.columns", value=columns_str
             )
+
+    def convert_data_items_xml_file(
+        self, sources: ET.Element, filename: str
+    ) -> None:
+        source = ET.SubElement(
+            sources,
+            "source",
+            type="intermine-items-xml-file",
+            name="intermine-items-xml-file",
+        )
+        ET.SubElement(
+            source,
+            "property",
+            name="src.data.file",
+            location=filename,
+        )
 
     def get_java_type(self, datatype: str) -> str:
         type_map = {
