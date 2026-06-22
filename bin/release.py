@@ -13,6 +13,8 @@ import urllib.request
 
 from python_on_whales import DockerClient
 
+from constants import BLUEGENES_IMAGE
+
 _FILE: TypeAlias = None | int | IO[Any]
 
 log = logging.getLogger(__name__)
@@ -25,8 +27,6 @@ class Releaser:
     name: str
     verbose: bool
 
-    # TODO: Sync with docker-compose.yml
-    bluegenes_version: str = "intermine/bluegenes:1.4.6-rc3"
     cadremine_git_branch: str = "main"
     gradle_zip_url: str = (
         "https://services.gradle.org/distributions/gradle-4.9-bin.zip"
@@ -131,7 +131,7 @@ class Releaser:
         docker_images_dir = os.path.join(self.release_dir, "docker_images")
         Path(docker_images_dir).mkdir(exist_ok=True)
 
-        image = self.bluegenes_version
+        image = BLUEGENES_IMAGE
         filename = image.split("/")[-1].replace(":", "-")
         path = os.path.join(docker_images_dir, f"{filename}.tar")
 
@@ -140,7 +140,7 @@ class Releaser:
         if not os.path.exists(path):
             os.chdir(self.bluegenes_dir)
             self.run_with_env(["lein", "uberjar"])
-            self.docker.build(self.bluegenes_dir, tags=self.bluegenes_version)
+            self.docker.build(self.bluegenes_dir, tags=BLUEGENES_IMAGE)
             self.docker.save(image, path)
 
     def create_archive(self) -> None:

@@ -18,6 +18,8 @@ import xml.etree.ElementTree as ET
 
 from python_on_whales import DockerClient
 
+from constants import BLUEGENES_IMAGE
+
 _FILE: TypeAlias = None | int | IO[Any]
 
 log = logging.getLogger(__name__)
@@ -251,6 +253,7 @@ class Installer:
             if not os.path.exists(docker_compose_file):
                 replacement_dict = {
                     "bluegenes_host_port": bluegenes_host_port,
+                    "bluegenes_image": BLUEGENES_IMAGE,
                     "mine_name": mine_name,
                     "tomcat_host": self.tomcat_host,
                 }

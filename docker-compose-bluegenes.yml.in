@@ -2,7 +2,7 @@ services:
   bluegenes_@@mine_name@@:
     container_name: intermine_bluegenes_@@mine_name@@
     restart: "${CADRE_RESTART_POLICY}"
-    image: intermine/bluegenes:1.4.6-rc3
+    image: @@bluegenes_image@@
     volumes:
       - bluegenes_volume:/tools
     environment:
