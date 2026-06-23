@@ -31,7 +31,7 @@ class Releaser:
     gradle_zip_url: str = (
         "https://services.gradle.org/distributions/gradle-4.9-bin.zip"
     )
-    intermine_git_branch: str = "eclipse-setup"
+    intermine_git_branch: str = "items-xml-export-dev"
 
     def __post_init__(self) -> None:
         self.bin_dir = os.path.dirname(os.path.realpath(__file__))
