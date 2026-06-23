@@ -61,6 +61,21 @@ jobs:
                   ref: "sde-fixes"
                   path: "bluegenes"
 
+            - name: Checkout im-tables-3
+              uses: actions/checkout@v6
+              with:
+                  repository: "ucam-department-of-psychiatry/im-tables-3"
+                  ref: "items-xml-option"
+                  path: "im-tables-3"
+
+            - name: Build im-tables-3
+              run: |
+                  set -euxo pipefail
+                  cd ${GITHUB_WORKSPACE}/im-tables-3
+                  npm install
+                  lein uberjar
+                  mvn install:install-file -Dfile=${GITHUB_WORKSPACE}/im-tables-3/target/im-tables-0.16.0.jar -DartifactId=im-tables -Dversion=0.16.0 -DgroupId=org.intermine -Dpackaging=jar
+
             - name: Install
               run: |
                   set -euxo pipefail
