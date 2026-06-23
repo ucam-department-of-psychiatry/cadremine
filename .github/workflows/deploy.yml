@@ -126,6 +126,10 @@ jobs:
               run: |
                   set -euxo pipefail
 
+                  export VENV_DIR=${HOME}/.virtualenvs/cadremine
+                  export DOCKER_IMAGES_DIR=${GITHUB_WORKSPACE}/cadremine/release_main/docker_images
+                  export OMOP_SCHEMA_FILE=OMOP_CDMv5.4_Field_Level.csv
+
                   cd /tmp
                   wget -O $OMOP_SCHEMA_FILE https://raw.githubusercontent.com/OHDSI/CommonDataModel/refs/heads/main/inst/csv/$OMOP_SCHEMA_FILE
 
@@ -134,14 +138,10 @@ jobs:
                   export MINE_NAMES="main"
                   echo ${MINE_NAMES} > ${GITHUB_WORKSPACE}/cadremine/mines.txt
 
-                  mkdir -p $VENV_DIR
+                  mkdir -p ${VENV_DIR}
 
                   # install_boot.py runs with system python, no third party dependencies
                   python3 ${GITHUB_WORKSPACE}/cadremine/bin/install_boot.py $VENV_DIR ${GITHUB_WORKSPACE}/intermine $DOCKER_IMAGES_DIR /tmp/$OMOP_SCHEMA_FILE ${GITHUB_WORKSPACE}/test_data -v --offline
-              env:
-                  DOCKER_IMAGES_DIR: ${GITHUB_WORKSPACE}/cadremine/release_main/docker_images
-                  OMOP_SCHEMA_FILE: OMOP_CDMv5.4_Field_Level.csv
-                  VENV_DIR: ${HOME}/.virtualenvs/cadremine
 
             - name: Dump logs
               if: failure()
