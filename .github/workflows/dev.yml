@@ -88,7 +88,7 @@ jobs:
                   cd /tmp
                   wget -O $OMOP_SCHEMA_FILE https://raw.githubusercontent.com/OHDSI/CommonDataModel/refs/heads/main/inst/csv/$OMOP_SCHEMA_FILE
 
-                  mkdir $DOCKER_IMAGES_DIR
+                  mkdir -p $DOCKER_IMAGES_DIR
                   cd ${GITHUB_WORKSPACE}/bluegenes
                   npm install
                   lein uberjar
