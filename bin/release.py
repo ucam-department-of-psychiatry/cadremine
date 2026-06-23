@@ -139,6 +139,7 @@ class Releaser:
         # if already saved
         if not os.path.exists(path):
             os.chdir(self.bluegenes_dir)
+            self.run_with_env(["npm", "install"])
             self.run_with_env(["lein", "uberjar"])
             self.docker.build(self.bluegenes_dir, tags=BLUEGENES_IMAGE)
             self.docker.save(image, path)
