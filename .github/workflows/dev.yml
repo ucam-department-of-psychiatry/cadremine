@@ -65,6 +65,7 @@ jobs:
 
                   mkdir $DOCKER_IMAGES_DIR
                   cd ${GITHUB_WORKSPACE}/bluegenes
+                  npm install
                   lein uberjar
                   docker build -t $BLUEGENES_VERSION ${GITHUB_WORKSPACE}/bluegenes
                   docker save $BLUEGENES_VERSION $DOCKER_IMAGES_DIR/bluegenes.tar
