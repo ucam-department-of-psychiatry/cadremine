@@ -147,17 +147,17 @@ jobs:
                   npm_logs_dir=${HOME}/.npm/_logs
                   if [ -d "${npm_logs_dir}" ]; then
                       echo "Dumping NPM logs"
-                      find ${npm_logs_dir} -maxdepth 1 -type f -exec cat {} \;
+                      find "${npm_logs_dir}" -maxdepth 1 -type f -exec cat {} \;
                   fi
 
                   compose_file1=${GITHUB_WORKSPACE}/cadremine/docker-compose.yml
                   compose_file2=${GITHUB_WORKSPACE}/cadremine/docker-compose-main.yml
 
-                  if [ -f "${compose_file1}" && -f "${compose_file2}" ]; then
+                  if [ -f "${compose_file1}" ] && [ -f "${compose_file2}" ]; then
                       echo "Dumping Docker logs"
-                      docker compose -f ${compose_file1} -f ${compose_file2} logs bluegenes_main
-                      docker compose -f ${compose_file1} -f ${compose_file2} logs nexus
-                      docker compose -f ${compose_file1} -f ${compose_file2} logs postgres
-                      docker compose -f ${compose_file1} -f ${compose_file2} logs solr
-                      docker compose -f ${compose_file1} -f ${compose_file2} logs tomcat
+                      docker compose -f "${compose_file1}" -f "${compose_file2}" logs bluegenes_main
+                      docker compose -f "${compose_file1}" -f "${compose_file2}" logs nexus
+                      docker compose -f "${compose_file1}" -f "${compose_file2}" logs postgres
+                      docker compose -f "${compose_file1}" -f "${compose_file2}" logs solr
+                      docker compose -f "${compose_file1}" -f "${compose_file2}" logs tomcat
                   fi
