@@ -77,6 +77,7 @@ jobs:
               run: |
                   set -euxo pipefail
                   cd ${GITHUB_WORKSPACE}/im-tables-3
+                  npm install
                   lein uberjar
                   mvn install:install-file -Dfile=${GITHUB_WORKSPACE}/im-tables-3/target/im-tables-0.16.0.jar -DartifactId=im-tables -Dversion=0.16.0 -DgroupId=org.intermine -Dpackaging=jar
 
