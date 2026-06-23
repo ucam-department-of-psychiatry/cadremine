@@ -34,8 +34,13 @@ jobs:
             - name: Set up JDK 8
               uses: actions/setup-java@v5
               with:
-                distribution: 'zulu'
-                java-version: '8'
+                  distribution: 'zulu'
+                  java-version: '8'
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 10
 
             - name: Checkout cadremine
               uses: actions/checkout@v6
