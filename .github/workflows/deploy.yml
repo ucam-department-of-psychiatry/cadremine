@@ -123,16 +123,24 @@ jobs:
                   OMOP_SCHEMA_FILE: OMOP_CDMv5.4_Field_Level.csv
                   VENV_DIR: ${HOME}/.virtualenvs/cadremine
 
-            - name: Dump Docker logs
+            - name: Dump logs
               if: failure()
               run: |
                   set -euo pipefail
                   cd ${GITHUB_WORKSPACE}
                   sleep 120
+
+                  echo "Dumping NPM logs"
+                  find ${HOME}/.npm/_logs -maxdepth 1 -type f -exec echo "cat {}" \;
+
                   compose_file1=${GITHUB_WORKSPACE}/cadremine/docker-compose.yml
                   compose_file2=${GITHUB_WORKSPACE}/cadremine/docker-compose-main.yml
-                  docker compose -f ${compose_file1} -f ${compose_file2} logs bluegenes_main
-                  docker compose -f ${compose_file1} -f ${compose_file2} logs nexus
-                  docker compose -f ${compose_file1} -f ${compose_file2} logs postgres
-                  docker compose -f ${compose_file1} -f ${compose_file2} logs solr
-                  docker compose -f ${compose_file1} -f ${compose_file2} logs tomcat
+
+                  if [ -f "${compose_file1}" && -f "${compose_file2}" ]; then
+                      echo "Dumping Docker logs"
+                      docker compose -f ${compose_file1} -f ${compose_file2} logs bluegenes_main
+                      docker compose -f ${compose_file1} -f ${compose_file2} logs nexus
+                      docker compose -f ${compose_file1} -f ${compose_file2} logs postgres
+                      docker compose -f ${compose_file1} -f ${compose_file2} logs solr
+                      docker compose -f ${compose_file1} -f ${compose_file2} logs tomcat
+                  fi
