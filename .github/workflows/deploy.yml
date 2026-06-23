@@ -147,7 +147,7 @@ jobs:
                   npm_logs_dir=${HOME}/.npm/_logs
                   if [ -d "${npm_logs_dir}" ]; then
                       echo "Dumping NPM logs"
-                      find ${npm_logs_dir} -maxdepth 1 -type f -exec echo "cat {}" \;
+                      find ${npm_logs_dir} -maxdepth 1 -type f -exec cat {} \;
                   fi
 
                   compose_file1=${GITHUB_WORKSPACE}/cadremine/docker-compose.yml
