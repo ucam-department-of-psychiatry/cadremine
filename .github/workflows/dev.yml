@@ -104,11 +104,19 @@ jobs:
 
                   # install_boot.py runs with system python, no third party dependencies
                   python3 ${GITHUB_WORKSPACE}/cadremine/bin/install_boot.py $VENV_DIR/cadremine ${GITHUB_WORKSPACE}/intermine $DOCKER_IMAGES_DIR /tmp/$OMOP_SCHEMA_FILE ${GITHUB_WORKSPACE}/cadremine/test_data -v
-            - name: Dump Docker logs
+            - name: Dump stuff
               if: failure()
               run: |
                   set -euo pipefail
+
                   cd ${GITHUB_WORKSPACE}
+
+                  if [ -f project.xml ]; then
+                      echo "Dumping project.xml"
+
+                      cat project.xml
+                  fi
+
                   sleep 120
                   compose_file1=${GITHUB_WORKSPACE}/cadremine/docker-compose.yml
                   compose_file2=${GITHUB_WORKSPACE}/cadremine/docker-compose-main.yml
