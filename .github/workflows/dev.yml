@@ -112,9 +112,6 @@ jobs:
                   cd ${GITHUB_WORKSPACE}/cadremine
 
                   ls -l dbmodel
-
-                  cat dbmodel/.classpath
-
                   ls -l dbmodel/build
                   ls -l dbmodel/build/classes
                   ls -l dbmodel/build/gen
