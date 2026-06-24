@@ -121,7 +121,7 @@ class Installer:
         self.omop_classes: dict[str, OmopClass] = {}
         self.column_dict: dict[str, dict[str, str]] = {}
         self.supported_classes = [
-            "Condition",
+            "ConditionOccurrence",
             "Measurement",
             "Observation",
             "Person",
