@@ -500,6 +500,10 @@ class Installer:
         shutil.copy(self.m2_settings_xml, m2_dir)
 
     def copy_gradle_zip(self, project_dir: str) -> None:
+        if not os.path.exists(self.gradle_dir):
+            print(f"Directory {self.gradle_dir} does not exist")
+            sys.exit(EXIT_FAILURE)
+
         zip_path = None
         for zip_file in glob.glob(os.path.join(self.gradle_dir, "*.zip")):
             zip_path = os.path.join(self.gradle_dir, zip_file)
