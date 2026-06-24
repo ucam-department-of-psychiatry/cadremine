@@ -93,7 +93,7 @@ jobs:
                   npm install
                   lein uberjar
                   docker build -t $BLUEGENES_VERSION ${GITHUB_WORKSPACE}/bluegenes
-                  docker save $BLUEGENES_VERSION $DOCKER_IMAGES_DIR/bluegenes.tar
+                  docker save $BLUEGENES_VERSION -o $DOCKER_IMAGES_DIR/bluegenes.tar
 
                   export PGPASSWORD=postgres
 
