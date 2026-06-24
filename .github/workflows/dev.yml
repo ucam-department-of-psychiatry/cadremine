@@ -111,7 +111,17 @@ jobs:
 
                   cd ${GITHUB_WORKSPACE}/cadremine
 
-                  ls -l test_data
+                  ls -l dbmodel
+
+                  cat dbmodel/.classpath
+
+                  ls -l dbmodel/build
+                  ls -l dbmodel/build/classes
+                  ls -l dbmodel/build/gen
+                  ls -l dbmodel/build/libs
+                  ls -l dbmodel/build/resources
+                  ls -l dbmodel/build/resources/main
+                  ls -l dbmodel/build/tmp
 
                   if [ -f project.xml ]; then
                       echo "Dumping project.xml"
