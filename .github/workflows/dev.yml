@@ -109,7 +109,9 @@ jobs:
               run: |
                   set -euo pipefail
 
-                  cd ${GITHUB_WORKSPACE}
+                  cd ${GITHUB_WORKSPACE}/cadremine
+
+                  ls -l test_data
 
                   if [ -f project.xml ]; then
                       echo "Dumping project.xml"
