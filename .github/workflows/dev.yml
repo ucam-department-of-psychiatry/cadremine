@@ -86,7 +86,7 @@ jobs:
                   export BLUEGENES_VERSION=intermine/bluegenes:1.4.6-rc4
 
                   cd /tmp
-                  wget -O $OMOP_SCHEMA_FILE https://raw.githubusercontent.com/OHDSI/CommonDataModel/refs/heads/main/inst/csv/$OMOP_SCHEMA_FILE
+                  wget -O $OMOP_SCHEMA_FILE https://raw.githubusercontent.com/OHDSI/CommonDataModel/refs/heads/v5.4/inst/csv/$OMOP_SCHEMA_FILE
 
                   mkdir -p $DOCKER_IMAGES_DIR
                   cd ${GITHUB_WORKSPACE}/bluegenes
