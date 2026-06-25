@@ -68,6 +68,13 @@ jobs:
                   ref: "items-xml-option"
                   path: "im-tables-3"
 
+            - name: Checkout CommonDataModel
+              uses: actions/checkout@v6
+              with:
+                  repository: "OHDSI/CommonDataModel"
+                  ref: "v5.4.1"
+                  path: CommonDataModel
+
             - name: Build im-tables-3
               run: |
                   set -euxo pipefail
@@ -82,11 +89,8 @@ jobs:
 
                   export VENV_DIR=${HOME}/.virtualenvs
                   export DOCKER_IMAGES_DIR=${GITHUB_WORKSPACE}/cadremine/release_main/docker_images
-                  export OMOP_SCHEMA_FILE=OMOP_CDMv5.4_Field_Level.csv
+                  export OMOP_SCHEMA_FILE=${GITHUB_WORKSPACE}/CommonDataModel/OMOP_CDMv5.4_Field_Level.csv
                   export BLUEGENES_VERSION=intermine/bluegenes:1.4.6-rc4
-
-                  cd /tmp
-                  wget -O $OMOP_SCHEMA_FILE https://raw.githubusercontent.com/OHDSI/CommonDataModel/refs/heads/v5.4.1/inst/csv/$OMOP_SCHEMA_FILE
 
                   mkdir -p $DOCKER_IMAGES_DIR
                   cd ${GITHUB_WORKSPACE}/bluegenes
@@ -103,7 +107,7 @@ jobs:
                   mkdir -p $VENV_DIR
 
                   # install_boot.py runs with system python, no third party dependencies
-                  python3 ${GITHUB_WORKSPACE}/cadremine/bin/install_boot.py $VENV_DIR/cadremine ${GITHUB_WORKSPACE}/intermine $DOCKER_IMAGES_DIR /tmp/$OMOP_SCHEMA_FILE ${GITHUB_WORKSPACE}/cadremine/test_data -v
+                  python3 ${GITHUB_WORKSPACE}/cadremine/bin/install_boot.py $VENV_DIR/cadremine ${GITHUB_WORKSPACE}/intermine $DOCKER_IMAGES_DIR $OMOP_SCHEMA_FILE ${GITHUB_WORKSPACE}/cadremine/test_data -v
             - name: Dump stuff
               if: failure()
               run: |
