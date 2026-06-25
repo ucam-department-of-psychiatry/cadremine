@@ -72,7 +72,7 @@ jobs:
               uses: actions/checkout@v6
               with:
                   repository: "OHDSI/CommonDataModel"
-                  ref: "v5.4.1"
+                  ref: "v5.4.2"
                   path: CommonDataModel
 
             - name: Build im-tables-3

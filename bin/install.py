@@ -532,7 +532,7 @@ class Installer:
         self.run_with_env(install_args)
 
     def read_schema(self) -> None:
-        with open(self.omop_schema_file) as f:
+        with open(self.omop_schema_file, encoding="iso-8859-1") as f:
             reader = csv.DictReader(f)
 
             for row in reader:
