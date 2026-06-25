@@ -89,7 +89,7 @@ jobs:
 
                   export VENV_DIR=${HOME}/.virtualenvs
                   export DOCKER_IMAGES_DIR=${GITHUB_WORKSPACE}/cadremine/release_main/docker_images
-                  export OMOP_SCHEMA_FILE=${GITHUB_WORKSPACE}/CommonDataModel/OMOP_CDMv5.4_Field_Level.csv
+                  export OMOP_SCHEMA_FILE=${GITHUB_WORKSPACE}/CommonDataModel/inst/csv/OMOP_CDMv5.4_Field_Level.csv
                   export BLUEGENES_VERSION=intermine/bluegenes:1.4.6-rc4
 
                   mkdir -p $DOCKER_IMAGES_DIR
