@@ -121,6 +121,9 @@ jobs:
                   ls -l dbmodel/build/resources/main
                   ls -l dbmodel/build/tmp
 
+                  echo "Dumping omop_additions.xml"
+                  cat dbmodel/resources/omop_additions.xml
+
                   if [ -f project.xml ]; then
                       echo "Dumping project.xml"
 
