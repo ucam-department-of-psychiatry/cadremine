@@ -19,24 +19,23 @@
     <attribute name="raceSourceConceptId" type="java.lang.Integer" />
     <attribute name="ethnicitySourceValue" type="java.lang.String" />
     <attribute name="ethnicitySourceConceptId" type="java.lang.Integer" />
-    <collection name="peObservationPeriods" referenced-type="ObservationPeriod" />
-    <collection name="peVisitOccurrences" referenced-type="VisitOccurrence" />
-    <collection name="peVisitDetails" referenced-type="VisitDetail" />
-    <collection name="peConditionOccurrences" referenced-type="ConditionOccurrence" />
-    <collection name="peDrugExposures" referenced-type="DrugExposure" />
-    <collection name="peProcedureOccurrences" referenced-type="ProcedureOccurrence" />
-    <collection name="peDeviceExposures" referenced-type="DeviceExposure" />
-    <collection name="peMeasurements" referenced-type="Measurement" />
-    <collection name="peObservations" referenced-type="Observation" />
-    <collection name="peDeaths" referenced-type="Death" />
-    <collection name="peNotes" referenced-type="Note" />
-    <collection name="peSpecimens" referenced-type="Specimen" />
-    <collection name="paPayerPlanPeriods" referenced-type="PayerPlanPeriod" />
-    <collection name="pePayerPlanPeriods" referenced-type="PayerPlanPeriod" />
-    <collection name="peDrugEras" referenced-type="DrugEra" />
-    <collection name="peDoseEras" referenced-type="DoseEra" />
-    <collection name="peConditionEras" referenced-type="ConditionEra" />
-    <collection name="peEpisodes" referenced-type="Episode" />
+    <collection name="observationPeriods" referenced-type="ObservationPeriod" />
+    <collection name="visitOccurrences" referenced-type="VisitOccurrence" />
+    <collection name="visitDetails" referenced-type="VisitDetail" />
+    <collection name="conditionOccurrences" referenced-type="ConditionOccurrence" />
+    <collection name="drugExposures" referenced-type="DrugExposure" />
+    <collection name="procedureOccurrences" referenced-type="ProcedureOccurrence" />
+    <collection name="deviceExposures" referenced-type="DeviceExposure" />
+    <collection name="measurements" referenced-type="Measurement" />
+    <collection name="observations" referenced-type="Observation" />
+    <collection name="deaths" referenced-type="Death" />
+    <collection name="notes" referenced-type="Note" />
+    <collection name="specimens" referenced-type="Specimen" />
+    <collection name="payerPlanPeriods" referenced-type="PayerPlanPeriod" />
+    <collection name="drugEras" referenced-type="DrugEra" />
+    <collection name="doseEras" referenced-type="DoseEra" />
+    <collection name="conditionEras" referenced-type="ConditionEra" />
+    <collection name="episodes" referenced-type="Episode" />
   </class>
   <class name="ObservationPeriod" is-interface="true">
     <attribute name="observationPeriodId" type="java.lang.Integer" />
@@ -188,7 +187,7 @@
     <attribute name="unitSourceValue" type="java.lang.String" />
     <attribute name="unitSourceConceptId" type="java.lang.Integer" />
     <attribute name="valueSourceValue" type="java.lang.String" />
-    <attribute name="measurementEventId" type="java.lang.Long" />
+    <attribute name="measurementEventId" type="java.lang.Integer" />
     <attribute name="measEventFieldConceptId" type="java.lang.Integer" />
     <reference name="personId" referenced-type="Person" />
   </class>
@@ -211,7 +210,7 @@
     <attribute name="unitSourceValue" type="java.lang.String" />
     <attribute name="qualifierSourceValue" type="java.lang.String" />
     <attribute name="valueSourceValue" type="java.lang.String" />
-    <attribute name="observationEventId" type="java.lang.Long" />
+    <attribute name="observationEventId" type="java.lang.Integer" />
     <attribute name="obsEventFieldConceptId" type="java.lang.Integer" />
     <reference name="personId" referenced-type="Person" />
   </class>
@@ -238,7 +237,7 @@
     <attribute name="visitOccurrenceId" type="java.lang.Integer" />
     <attribute name="visitDetailId" type="java.lang.Integer" />
     <attribute name="noteSourceValue" type="java.lang.String" />
-    <attribute name="noteEventId" type="java.lang.Long" />
+    <attribute name="noteEventId" type="java.lang.Integer" />
     <attribute name="noteEventFieldConceptId" type="java.lang.Integer" />
     <reference name="personId" referenced-type="Person" />
   </class>
@@ -320,6 +319,7 @@
     <attribute name="genderSourceConceptId" type="java.lang.Integer" />
   </class>
   <class name="PayerPlanPeriod" is-interface="true">
+    <attribute name="payerPlanPeriodId" type="java.lang.Integer" />
     <attribute name="payerPlanPeriodStartDate" type="java.util.Date" />
     <attribute name="payerPlanPeriodEndDate" type="java.util.Date" />
     <attribute name="payerConceptId" type="java.lang.Integer" />
@@ -335,7 +335,6 @@
     <attribute name="stopReasonConceptId" type="java.lang.Integer" />
     <attribute name="stopReasonSourceValue" type="java.lang.String" />
     <attribute name="stopReasonSourceConceptId" type="java.lang.Integer" />
-    <reference name="payerPlanPeriodId" referenced-type="Person" />
     <reference name="personId" referenced-type="Person" />
   </class>
   <class name="Cost" is-interface="true">
@@ -389,13 +388,13 @@
     <reference name="personId" referenced-type="Person" />
   </class>
   <class name="Episode" is-interface="true">
-    <attribute name="episodeId" type="java.lang.Long" />
+    <attribute name="episodeId" type="java.lang.Integer" />
     <attribute name="episodeConceptId" type="java.lang.Integer" />
     <attribute name="episodeStartDate" type="java.util.Date" />
     <attribute name="episodeStartDatetime" type="java.util.Date" />
     <attribute name="episodeEndDate" type="java.util.Date" />
     <attribute name="episodeEndDatetime" type="java.util.Date" />
-    <attribute name="episodeParentId" type="java.lang.Long" />
+    <attribute name="episodeParentId" type="java.lang.Integer" />
     <attribute name="episodeNumber" type="java.lang.Integer" />
     <attribute name="episodeObjectConceptId" type="java.lang.Integer" />
     <attribute name="episodeTypeConceptId" type="java.lang.Integer" />
@@ -404,8 +403,8 @@
     <reference name="personId" referenced-type="Person" />
   </class>
   <class name="EpisodeEvent" is-interface="true">
-    <attribute name="episodeId" type="java.lang.Long" />
-    <attribute name="eventId" type="java.lang.Long" />
+    <attribute name="episodeId" type="java.lang.Integer" />
+    <attribute name="eventId" type="java.lang.Integer" />
     <attribute name="episodeEventFieldConceptId" type="java.lang.Integer" />
   </class>
   <class name="Metadata" is-interface="true">

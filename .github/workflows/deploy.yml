@@ -132,7 +132,7 @@ jobs:
                   export GRADLE_DIR=${GITHUB_WORKSPACE}/cadremine/release_main/gradle
 
                   cd /tmp
-                  wget -O $OMOP_SCHEMA_FILE https://raw.githubusercontent.com/OHDSI/CommonDataModel/refs/heads/v5.4.0/inst/csv/$OMOP_SCHEMA_FILE
+                  wget -O $OMOP_SCHEMA_FILE https://raw.githubusercontent.com/OHDSI/CommonDataModel/refs/heads/v5.4.1/inst/csv/$OMOP_SCHEMA_FILE
 
                   export PGPASSWORD=postgres
 

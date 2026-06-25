@@ -666,8 +666,11 @@ class Installer:
             unique_names = []
             for collection in omop_class.collections:
                 prefix = collection.attribute_name[:prefix_chars]
-                collection.unique_name = f"{prefix}{collection.class_name}"
 
+                unique_name = f"{prefix}{collection.class_name}"
+                collection.unique_name = (
+                    unique_name[0].lower() + unique_name[1:]
+                )
                 unique_names.append(collection.unique_name)
 
             unique = sorted(list(set(unique_names))) == sorted(unique_names)
