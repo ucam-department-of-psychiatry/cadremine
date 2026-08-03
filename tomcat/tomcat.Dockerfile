@@ -10,3 +10,6 @@ RUN cp -avT $CATALINA_HOME/webapps.dist/manager $CATALINA_HOME/webapps/manager
 COPY ./configs/conf/*.xml /usr/local/tomcat/conf/
 COPY ./configs/webapps/manager/META-INF/context.xml /usr/local/tomcat/webapps/manager/META-INF
 COPY ./configs/webapps/manager/WEB-INF/web.xml /usr/local/tomcat/webapps/manager/WEB-INF
+
+RUN sed -i "s/@@tomcat_password@@/$(pwgen -1)/g" /usr/local/tomcat/conf/tomcat-users.xml
+RUN sed -i "s/@@admin_password@@/$(pwgen -1)/g" /usr/local/tomcat/conf/tomcat-users.xml

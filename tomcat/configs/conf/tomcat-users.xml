@@ -15,15 +15,21 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<tomcat-users xmlns="http://tomcat.apache.org/xml" 
-              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-              xsi:schemaLocation="http://tomcat.apache.org/xml tomcat-users.xsd" 
+<tomcat-users xmlns="http://tomcat.apache.org/xml"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://tomcat.apache.org/xml tomcat-users.xsd"
               version="1.0">
-              
-  <role rolename="manager-script"/>
-  <role rolename="manager-jmx"/>
+
+  <!-- https://tomcat.apache.org/tomcat-9.0-doc/manager-howto.html -->
+  <!-- Access to the HTML interface. -->
   <role rolename="manager-gui"/>
+  <!-- Access to the "Server Status" page only. -->
   <role rolename="manager-status"/>
-  <user username="tomcat" password="tomcat" roles="manager-script,manager-jmx"/>
-  <user username="bob" password="whatever" roles="manager-gui,manager-status"/>
+  <!-- Access to the tools-friendly plain text interface and to the "Server Status" page. -->
+  <role rolename="manager-script"/>
+  <!-- Access to JMX proxy interface and to the "Server Status" page. -->
+  <role rolename="manager-jmx"/>
+
+  <user username="tomcat" password="@@tomcat_password@@" roles="manager-script,manager-jmx"/>
+  <user username="admin" password="@@admin_password@@" roles="manager-gui,manager-status"/>
 </tomcat-users>
