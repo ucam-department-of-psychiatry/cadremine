@@ -20,6 +20,7 @@ class BootException(Exception):
 
 @dataclass
 class Booter:
+    bluegenes_default_service_domain: str
     docker_images_dir: str
     drop_databases: bool
     gradle_dir: str
@@ -75,6 +76,7 @@ class Booter:
             self.docker_images_dir,
             self.omop_schema_file,
             self.omop_data_dir,
+            self.bluegenes_default_service_domain,
             "--nexus_host_port",
             str(self.nexus_host_port),
             "--postgres_host_port",
@@ -132,6 +134,14 @@ def main() -> None:
         "omop_data_dir",
         type=str,
         help="Top level directory containing csv files",
+    )
+    parser.add_argument(
+        "bluegenes_default_service_domain",
+        type=str,
+        help=(
+            "Location of the Intermine Tomcat server "
+            "as seen from the Bluegenes frontend"
+        ),
     )
     parser.add_argument(
         "--gradle_dir",

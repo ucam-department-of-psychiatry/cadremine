@@ -80,6 +80,7 @@ class Key:
 
 @dataclass
 class Installer:
+    bluegenes_default_service_domain: str
     central_url: str
     clojars_url: str
     docker_images_dir: str
@@ -252,6 +253,7 @@ class Installer:
             )
             if not os.path.exists(docker_compose_file):
                 replacement_dict = {
+                    "bluegenes_default_service_domain": self.bluegenes_default_service_domain,  # noqa: E501
                     "bluegenes_host_port": bluegenes_host_port,
                     "bluegenes_image": BLUEGENES_IMAGE,
                     "mine_name": mine_name,
@@ -909,6 +911,14 @@ def main() -> None:
         "omop_data_dir",
         type=str,
         help="Top level directory containing csv files",
+    )
+    parser.add_argument(
+        "bluegenes_default_service_domain",
+        type=str,
+        help=(
+            "Location of the Intermine Tomcat server "
+            "as seen from the Bluegenes frontend"
+        ),
     )
     parser.add_argument(
         "--gradle_dir",
