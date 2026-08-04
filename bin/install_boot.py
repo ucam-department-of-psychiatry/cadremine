@@ -31,7 +31,6 @@ class Booter:
     omop_schema_file: str
     postgres_host_port: int
     recreate_venv: bool
-    tomcat_host: str
     venv_dir: str
     verbose: bool
 
@@ -81,8 +80,6 @@ class Booter:
             str(self.nexus_host_port),
             "--postgres_host_port",
             str(self.postgres_host_port),
-            "--tomcat_host",
-            self.tomcat_host,
         ]
 
         if self.offline:
@@ -166,12 +163,6 @@ def main() -> None:
         type=int,
         default=5432,
         help="Host port to use for the Postgres server",
-    )
-    parser.add_argument(
-        "--tomcat_host",
-        type=str,
-        default="localhost",
-        help="Host where Tomcat is running under Docker",
     )
     parser.add_argument(
         "--drop_databases",

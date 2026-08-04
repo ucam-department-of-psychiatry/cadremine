@@ -96,7 +96,6 @@ class Installer:
     omop_schema_file: str
     plugins_url: str
     postgres_host_port: int
-    tomcat_host: str
     verbose: bool
 
     build_environment: str = "dev"
@@ -257,7 +256,6 @@ class Installer:
                     "bluegenes_host_port": bluegenes_host_port,
                     "bluegenes_image": BLUEGENES_IMAGE,
                     "mine_name": mine_name,
-                    "tomcat_host": self.tomcat_host,
                 }
 
                 self.search_replace_file(
@@ -935,12 +933,6 @@ def main() -> None:
         type=int,
         default=5432,
         help="Host port to use for the Postgres server",
-    )
-    parser.add_argument(
-        "--tomcat_host",
-        type=str,
-        default="localhost",
-        help="Host where Tomcat is running under Docker",
     )
     parser.add_argument(
         "--drop_databases",
