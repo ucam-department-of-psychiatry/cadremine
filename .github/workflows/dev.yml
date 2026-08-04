@@ -115,18 +115,20 @@ jobs:
 
                   cd ${GITHUB_WORKSPACE}/cadremine
 
-                  ls -l dbmodel
-                  ls -l dbmodel/build
-                  ls -l dbmodel/build/classes/java/main/org/intermine/model/bio
-                  strings dbmodel/build/classes/java/main/org/intermine/model/bio/Person.class
-                  ls -l dbmodel/build/gen
-                  ls -l dbmodel/build/libs
-                  ls -l dbmodel/build/resources
-                  ls -l dbmodel/build/resources/main
-                  ls -l dbmodel/build/tmp
+                  if [ -d dbmodel ]; then
+                      ls -l dbmodel
+                      ls -l dbmodel/build
+                      ls -l dbmodel/build/classes/java/main/org/intermine/model/bio
+                      strings dbmodel/build/classes/java/main/org/intermine/model/bio/Person.class
+                      ls -l dbmodel/build/gen
+                      ls -l dbmodel/build/libs
+                      ls -l dbmodel/build/resources
+                      ls -l dbmodel/build/resources/main
+                      ls -l dbmodel/build/tmp
 
-                  echo "Dumping omop_additions.xml"
-                  cat dbmodel/resources/omop_additions.xml
+                      echo "Dumping omop_additions.xml"
+                      cat dbmodel/resources/omop_additions.xml
+                  fi
 
                   if [ -f project.xml ]; then
                       echo "Dumping project.xml"
