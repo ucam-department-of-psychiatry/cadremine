@@ -31,6 +31,8 @@ class Booter:
     omop_schema_file: str
     postgres_host_port: int
     recreate_venv: bool
+    superuser_account: str
+    superuser_initial_password: str
     venv_dir: str
     verbose: bool
 
@@ -76,6 +78,8 @@ class Booter:
             self.omop_schema_file,
             self.omop_data_dir,
             self.bluegenes_default_service_domain,
+            self.superuser_account,
+            self.superuser_initial_password,
             "--nexus_host_port",
             str(self.nexus_host_port),
             "--postgres_host_port",
@@ -139,6 +143,16 @@ def main() -> None:
             "Location of the Intermine Tomcat server "
             "as seen from the Bluegenes frontend"
         ),
+    )
+    parser.add_argument(
+        "superuser_account",
+        type=str,
+        help="Account name for the superuser for all Intermines",
+    )
+    parser.add_argument(
+        "superuser_initial_password",
+        type=str,
+        help="Initial password for the superuser for all Intermines",
     )
     parser.add_argument(
         "--gradle_dir",

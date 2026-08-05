@@ -56,8 +56,8 @@ webapp.password=tomcat
 webapp.baseurl=http://localhost:8080
 
 # account name for superuser (who can edit appearance and publish templates)
-superuser.account=test_user@mail_account
-superuser.initialPassword=secret
+superuser.account=@@im_superuser_account@@
+superuser.initialPassword=@@im_superuser_initial_password@@
 
 # run with no associated web site
 project.standalone=true

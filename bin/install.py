@@ -96,6 +96,8 @@ class Installer:
     omop_schema_file: str
     plugins_url: str
     postgres_host_port: int
+    superuser_account: str
+    superuser_initial_password: str
     verbose: bool
 
     build_environment: str = "dev"
@@ -441,6 +443,8 @@ class Installer:
             "im_server_name": "postgres",
             "im_mine_name": mine_name,
             "im_mine_title": mine_name.title(),
+            "im_superuser_account": self.superuser_account,
+            "im_superuser_initial_password": self.superuser_initial_password,
         }
         self.replace_all_properties(
             "cadremine.properties.in",
@@ -917,6 +921,16 @@ def main() -> None:
             "Location of the Intermine Tomcat server "
             "as seen from the Bluegenes frontend"
         ),
+    )
+    parser.add_argument(
+        "superuser_account",
+        type=str,
+        help="Account name for the superuser for all Intermines",
+    )
+    parser.add_argument(
+        "superuser_initial_password",
+        type=str,
+        help="Initial password for the superuser for all Intermines",
     )
     parser.add_argument(
         "--gradle_dir",
