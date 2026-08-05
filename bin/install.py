@@ -431,6 +431,8 @@ class Installer:
             "im_server_name": "localhost",
             "im_mine_name": mine_name,
             "im_mine_title": mine_name.title(),
+            "im_superuser_account": self.superuser_account,
+            "im_superuser_initial_password": self.superuser_initial_password,
         }
         self.replace_all_properties(
             "cadremine.properties.in",
