@@ -146,7 +146,7 @@ jobs:
                   mkdir -p ${VENV_DIR}
 
                   # install_boot.py runs with system python, no third party dependencies
-                  python3 ${GITHUB_WORKSPACE}/cadremine/bin/install_boot.py ${VENV_DIR}/cadremine ${GITHUB_WORKSPACE}/intermine ${DOCKER_IMAGES_DIR} ${OMOP_SCHEMA_FILE} ${GITHUB_WORKSPACE}/cadremine/test_data http://localhost:9999/main -v --offline --gradle_dir=${GRADLE_DIR}
+                  python3 ${GITHUB_WORKSPACE}/cadremine/bin/install_boot.py ${VENV_DIR}/cadremine ${GITHUB_WORKSPACE}/intermine ${DOCKER_IMAGES_DIR} ${OMOP_SCHEMA_FILE} ${GITHUB_WORKSPACE}/cadremine/test_data http://localhost:9999/main test_user@mail_account secret -v --offline --gradle_dir=${GRADLE_DIR}
 
             - name: Dump logs
               if: failure()
