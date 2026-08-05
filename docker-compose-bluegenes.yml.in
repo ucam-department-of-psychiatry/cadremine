@@ -11,5 +11,6 @@ services:
       - BLUEGENES_DEFAULT_MINE_NAME=@@mine_name@@
       - BLUEGENES_DEFAULT_NAMESPACE=@@mine_name@@
       - BLUEGENES_DEPLOY_PATH=/@@mine_name@@
+      - HIDE_REGISTRY_MINES=true
     ports:
       - @@bluegenes_host_port@@:${BLUEGENES_PORT}
