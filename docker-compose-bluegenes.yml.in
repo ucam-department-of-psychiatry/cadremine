@@ -10,6 +10,5 @@ services:
       - BLUEGENES_BACKEND_SERVICE_ROOT="http://tomcat:${TOMCAT_PORT}/@@mine_name@@"
       - BLUEGENES_DEFAULT_MINE_NAME=@@mine_name@@
       - BLUEGENES_DEFAULT_NAMESPACE=@@mine_name@@
-      - BLUEGENES_DEPLOY_PATH=/@@mine_name@@
     ports:
       - @@bluegenes_host_port@@:${BLUEGENES_PORT}
