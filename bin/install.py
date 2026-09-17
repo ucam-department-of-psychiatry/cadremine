@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# Main install script, run from install_boot.py
+
 import argparse
 import codecs
 import csv
