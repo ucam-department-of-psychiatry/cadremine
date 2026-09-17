@@ -23,7 +23,7 @@ on:
 
 jobs:
     dev:
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-26.04
 
         steps:
             - name: Install prerequisites
