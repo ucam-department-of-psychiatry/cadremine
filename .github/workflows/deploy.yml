@@ -11,6 +11,7 @@ on:
             - bin/install.py
             - bin/release.py
             - build.gradle
+            - ci_scripts/change_apt_mirror.sh
             - data/**
             - dbmodel/**
             - docker-compose.yml
@@ -30,11 +31,6 @@ jobs:
     deploy:
         runs-on: ubuntu-latest
         steps:
-            - name: Install prerequisites
-              run: |
-                  set -euo pipefail
-                  sudo apt-get -y install dar wait-for-it leiningen
-
             - name: Dump versions
               run: |
                   set -euxo pipefail
@@ -84,6 +80,16 @@ jobs:
                   repository: "OHDSI/CommonDataModel"
                   ref: "v5.4.2"
                   path: CommonDataModel
+
+            - name: Change apt mirror
+              run: |
+                  set -eux -o pipefail
+                  ${GITHUB_WORKSPACE}/cadremine/ci_scripts/change_apt_mirror.sh
+
+            - name: Install prerequisites
+              run: |
+                  set -euo pipefail
+                  sudo apt-get -y install dar wait-for-it leiningen
 
             - name: Build im-tables-3
               run: |
