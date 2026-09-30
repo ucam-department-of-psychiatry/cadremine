@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import configparser
 from dataclasses import dataclass
 import logging
 import os
@@ -20,20 +21,9 @@ class BootException(Exception):
 
 @dataclass
 class Booter:
-    bluegenes_default_service_domain: str
-    docker_images_dir: str
+    config_file: str
     drop_databases: bool
-    gradle_dir: str
-    intermine_dir: str
-    nexus_host_port: int
-    offline: bool
-    omop_data_dir: str
-    omop_schema_file: str
-    postgres_host_port: int
     recreate_venv: bool
-    superuser_account: str
-    superuser_initial_password: str
-    venv_dir: str
     verbose: bool
 
     pypi_host_port: int = 8080
@@ -41,14 +31,24 @@ class Booter:
     def __post_init__(self) -> None:
         self.bin_dir = os.path.dirname(os.path.realpath(__file__))
         self.project_root_dir = os.path.join(self.bin_dir, "..")
-        self.venv_python = os.path.join(self.venv_dir, "bin", "python")
+        self.venv_dir: str
 
     def boot(self) -> None:
+        self.read_config()
+        self.venv_python = os.path.join(self.venv_dir, "bin", "python")
         if self.recreate_venv or not os.path.exists(self.venv_dir):
             self.create_virtual_environment()
             self.install_requirements()
 
         self.run_install_script()
+
+    def read_config(self) -> None:
+        config = configparser.ConfigParser()
+        config.read_file(open(self.config_file))
+
+        common = config["common"]
+
+        self.venv_dir = common["venv_dir"]
 
     def create_virtual_environment(self) -> None:
         builder = EnvBuilder(
@@ -73,24 +73,8 @@ class Booter:
         install_args = [
             self.venv_python,
             f"{self.bin_dir}/install.py",
-            self.intermine_dir,
-            self.docker_images_dir,
-            self.omop_schema_file,
-            self.omop_data_dir,
-            self.bluegenes_default_service_domain,
-            self.superuser_account,
-            self.superuser_initial_password,
-            "--nexus_host_port",
-            str(self.nexus_host_port),
-            "--postgres_host_port",
-            str(self.postgres_host_port),
+            self.config_file,
         ]
-
-        if self.offline:
-            install_args.append("--offline")
-
-        if self.gradle_dir:
-            install_args += ["--gradle_dir", self.gradle_dir]
 
         if self.drop_databases:
             install_args.append("--drop_databases")
@@ -116,47 +100,8 @@ def main() -> None:
         description="Install Intermine for CADRE",
     )
     parser.add_argument(
-        "venv_dir",
-        help="Directory where Python virtual environment should go",
-    )
-    parser.add_argument(
-        "intermine_dir", help="Top level directory containing Intermine"
-    )
-    parser.add_argument(
-        "docker_images_dir",
-        help="Directory containing local Docker images e.g. dev Bluegenes",
-    )
-    parser.add_argument(
-        "omop_schema_file",
-        type=str,
-        help="OMOP CDM Schema CSV file",
-    )
-    parser.add_argument(
-        "omop_data_dir",
-        type=str,
-        help="Top level directory containing csv files",
-    )
-    parser.add_argument(
-        "bluegenes_default_service_domain",
-        type=str,
-        help=(
-            "Location of the Intermine Tomcat server "
-            "as seen from the Bluegenes frontend"
-        ),
-    )
-    parser.add_argument(
-        "superuser_account",
-        type=str,
-        help="Account name for the superuser for all Intermines",
-    )
-    parser.add_argument(
-        "superuser_initial_password",
-        type=str,
-        help="Initial password for the superuser for all Intermines",
-    )
-    parser.add_argument(
-        "--gradle_dir",
-        help="Directory containing Gradle zip (for offline use)",
+        "config_file",
+        help="Configuration file (INI format)",
     )
     parser.add_argument(
         "--recreate_venv",
@@ -167,27 +112,9 @@ def main() -> None:
         "--verbose", "-v", action="store_true", help="Be verbose"
     )
     parser.add_argument(
-        "--nexus_host_port",
-        type=int,
-        default=8081,
-        help="Host port to use for the Sonatype Nexus server",
-    )
-    parser.add_argument(
-        "--postgres_host_port",
-        type=int,
-        default=5432,
-        help="Host port to use for the Postgres server",
-    )
-    parser.add_argument(
         "--drop_databases",
         action="store_true",
         help="Drop ALL databases",
-    )
-
-    parser.add_argument(
-        "--offline",
-        action="store_true",
-        help="Use offline Maven repositories",
     )
 
     args = parser.parse_args()

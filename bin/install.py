@@ -4,6 +4,7 @@
 
 import argparse
 import codecs
+import configparser
 import csv
 from dataclasses import dataclass, field
 import glob
@@ -82,24 +83,14 @@ class Key:
 
 @dataclass
 class Installer:
-    bluegenes_default_service_domain: str
     central_url: str
     clojars_url: str
-    docker_images_dir: str
+    config_file: str
     drop_databases: bool
     ebi_url: str
-    gradle_dir: str
     gradle_distribution_url: str
-    intermine_dir: str
-    nexus_host_port: int
-    offline: bool
     offline_url: str
-    omop_data_dir: str
-    omop_schema_file: str
     plugins_url: str
-    postgres_host_port: int
-    superuser_account: str
-    superuser_initial_password: str
     verbose: bool
 
     build_environment: str = "dev"
@@ -108,6 +99,18 @@ class Installer:
     minor_java_version: int = 8
 
     def __post_init__(self) -> None:
+        self.bluegenes_default_service_domain: str
+        self.docker_images_dir: str
+        self.gradle_dir: str
+        self.intermine_dir: str
+        self.offline: bool
+        self.nexus_host_port: int
+        self.omop_data_dir: str
+        self.omop_schema_file: str
+        self.postgres_host_port: int = 5432
+        self.superuser_account: str
+        self.superuser_initial_password: str
+
         self.bin_dir = os.path.dirname(os.path.realpath(__file__))
         self.project_root_dir = os.path.join(self.bin_dir, "..")
         self.data_dir = os.path.join(self.project_root_dir, "data")
@@ -131,23 +134,7 @@ class Installer:
             "Person",
             "ProcedureOccurrence",
         ]
-        self.mine_names = self.read_mine_names()
-
         self._docker: DockerClient | None = None
-
-    def read_mine_names(self) -> list[str]:
-        mines_file = os.path.join(self.project_root_dir, "mines.txt")
-
-        mines = []
-
-        with open(mines_file) as f:
-            for mine in f:
-                mine = mine.strip()
-
-                if mine and not mine.startswith("#"):
-                    mines.append(mine)
-
-        return mines
 
     @property
     def docker(self) -> DockerClient:
@@ -168,6 +155,9 @@ class Installer:
         return self._docker
 
     def install(self) -> None:
+        self.read_config()
+        if self.offline:
+            self.set_offline_urls()
         self.set_environment_variables()
         self.check_java_version()
         self.create_docker_compose_files()
@@ -200,6 +190,39 @@ class Installer:
             self.run_gradle([":webapp:war"])
             self.deploy_war_file(mine_name)
             self.rename_project_xml(mine_name)
+
+    def read_config(self) -> None:
+        config = configparser.ConfigParser()
+        config.read_file(open(self.config_file))
+
+        common = config["common"]
+
+        string_fields = [
+            "intermine_dir",
+            "docker_images_dir",
+            "omop_schema_file",
+            "omop_data_dir",
+            "bluegenes_default_service_domain",
+            "gradle_dir",
+            "superuser_account",
+            "superuser_initial_password",
+        ]
+
+        for field_name in string_fields:
+            setattr(self, field_name, common.get(field_name))
+
+        self.offline = common.getboolean("offline", False)
+        self.nexus_host_port = common.getint("nexus_host_port", 8081)
+        self.mine_names = common.get("projects", "").split()
+
+    def set_offline_urls(self) -> None:
+        self.central_url = self.offline_url
+        self.clojars_url = self.offline_url
+        self.ebi_url = self.offline_url
+        self.plugins_url = self.offline_url
+
+        gradle_zip = self.gradle_distribution_url.rsplit("/", 1)[-1]
+        self.gradle_distribution_url = gradle_zip
 
     def set_environment_variables(self) -> None:
         os.environ.update(
@@ -901,67 +924,13 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Install Intermine for CADRE",
     )
-    parser.add_argument(
-        "intermine_dir", help="Top level directory containing Intermine"
-    )
-    parser.add_argument(
-        "docker_images_dir",
-        help="Directory containing local Docker images e.g. dev Bluegenes",
-    )
-    parser.add_argument(
-        "omop_schema_file",
-        type=str,
-        help="OMOP CDM Schema CSV file",
-    )
-    parser.add_argument(
-        "omop_data_dir",
-        type=str,
-        help="Top level directory containing csv files",
-    )
-    parser.add_argument(
-        "bluegenes_default_service_domain",
-        type=str,
-        help=(
-            "Location of the Intermine Tomcat server "
-            "as seen from the Bluegenes frontend"
-        ),
-    )
-    parser.add_argument(
-        "superuser_account",
-        type=str,
-        help="Account name for the superuser for all Intermines",
-    )
-    parser.add_argument(
-        "superuser_initial_password",
-        type=str,
-        help="Initial password for the superuser for all Intermines",
-    )
-    parser.add_argument(
-        "--gradle_dir",
-        help="Directory containing Gradle zip (for offline use)",
-    )
-    parser.add_argument(
-        "--nexus_host_port",
-        type=int,
-        default=8081,
-        help="Host port to use for the Sonatype Nexus server",
-    )
-    parser.add_argument(
-        "--postgres_host_port",
-        type=int,
-        default=5432,
-        help="Host port to use for the Postgres server",
-    )
+
+    parser.add_argument("config_file", help="Configuration file (INI format)")
+
     parser.add_argument(
         "--drop_databases",
         action="store_true",
         help="Drop ALL databases",
-    )
-
-    parser.add_argument(
-        "--offline",
-        action="store_true",
-        help="Use offline Maven repositories and local Gradle",
     )
 
     parser.add_argument(
@@ -1007,15 +976,6 @@ def main() -> None:
     )
 
     args = parser.parse_args()
-
-    if args.offline:
-        args.central_url = args.offline_url
-        args.clojars_url = args.offline_url
-        args.ebi_url = args.offline_url
-        args.plugins_url = args.offline_url
-
-        gradle_zip = args.gradle_distribution_url.rsplit("/", 1)[-1]
-        args.gradle_distribution_url = gradle_zip
 
     log_level = logging.DEBUG if args.verbose else logging.INFO
 

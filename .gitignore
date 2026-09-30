@@ -19,9 +19,6 @@ data/postgres
 data/solr
 data/tomcat
 
-# List of mines, per-CADRE instance
-mines.txt
-
 # IDEs
 nbproject/
 nb-build.xml
