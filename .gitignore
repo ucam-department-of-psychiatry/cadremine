@@ -11,6 +11,7 @@ executeLog*
 *.class
 productionLog
 *~
+.dir-locals.el
 
 # Docker containers
 data/bluegenes_tools
