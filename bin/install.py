@@ -100,6 +100,7 @@ class Installer:
     minor_java_version: int = 8
 
     def __post_init__(self) -> None:
+        self.apache_dir: str
         self.bitfount_host: str
         self.bluegenes_default_service_domain: str
         self.docker_images_dir: str
@@ -207,6 +208,7 @@ class Installer:
         common = config["common"]
 
         string_fields = [
+            "apache_dir",
             "bitfount_host",
             "bluegenes_default_service_domain",
             "docker_images_dir",
@@ -272,7 +274,7 @@ class Installer:
             "mine_configs": mine_configs.getvalue(),
         }
         apache_conf_filename = os.path.join(
-            self.project_root_dir, "apache.conf"
+            self.apache_dir, "apache.conf"
         )
         self.search_replace_file(
             apache_conf_template, apache_conf_filename, replacement_dict
