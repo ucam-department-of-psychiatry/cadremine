@@ -21,7 +21,7 @@
             <RequireAny>
                 Require ldap-group @@ldap_group@@
                 Require env intermine_token_request
-                Require host @@bitfount_host@@
+                Require ip @@bitfount_ip@@
             </RequireAny>
         </Location>
         <Location /@@mine_name@@/service/session>

@@ -101,7 +101,7 @@ class Installer:
 
     def __post_init__(self) -> None:
         self.apache_dir: str
-        self.bitfount_host: str
+        self.bitfount_ip: str
         self.bluegenes_default_service_domain: str
         self.docker_images_dir: str
         self.gradle_dir: str
@@ -209,7 +209,7 @@ class Installer:
 
         string_fields = [
             "apache_dir",
-            "bitfount_host",
+            "bitfount_ip",
             "bluegenes_default_service_domain",
             "docker_images_dir",
             "gradle_dir",
@@ -259,7 +259,7 @@ class Installer:
                     "ldap_url": self.ldap_url,
                     "ldap_bind_dn": self.ldap_bind_dn,
                     "ldap_group": ldap_group,
-                    "bitfount_host": self.bitfount_host,
+                    "bitfount_ip": self.bitfount_ip,
                 }
                 self.search_replace_stream(
                     mine_conf_in, mine_configs, replacement_dict
@@ -273,9 +273,7 @@ class Installer:
             "ssl_cert_name": self.ssl_cert_name,
             "mine_configs": mine_configs.getvalue(),
         }
-        apache_conf_filename = os.path.join(
-            self.apache_dir, "apache.conf"
-        )
+        apache_conf_filename = os.path.join(self.apache_dir, "apache.conf")
         self.search_replace_file(
             apache_conf_template, apache_conf_filename, replacement_dict
         )
