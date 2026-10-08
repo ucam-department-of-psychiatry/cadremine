@@ -961,7 +961,7 @@ class Installer:
             except OSError:
                 time.sleep(1)
 
-        raise TimeoutError("Gave up waiting for port {port} on {ip_address}.")
+        raise TimeoutError(f"Gave up waiting for port {port} on {ip_address}.")
 
     def run_with_env(
         self,
