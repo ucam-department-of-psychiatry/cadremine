@@ -8,6 +8,7 @@ import configparser
 import csv
 from dataclasses import dataclass, field
 import glob
+from io import StringIO
 import logging
 import os
 from pathlib import Path
@@ -16,7 +17,7 @@ import socket
 from subprocess import CompletedProcess, PIPE, run
 import sys
 import time
-from typing import Any, IO, TypeAlias
+from typing import Any, IO, TypeAlias, TextIO
 import xml.etree.ElementTree as ET
 
 from python_on_whales import DockerClient
@@ -99,18 +100,25 @@ class Installer:
     minor_java_version: int = 8
 
     def __post_init__(self) -> None:
+        self.bitfount_host: str
         self.bluegenes_default_service_domain: str
         self.docker_images_dir: str
         self.gradle_dir: str
         self.intermine_dir: str
+        self.ldap_bind_dn: str
+        self.ldap_group: str
+        self.ldap_url: str
         self.offline: bool
         self.nexus_host_port: int
         self.omop_data_dir: str
         self.omop_schema_file: str
         self.postgres_host_port: int = 5432
+        self.server_name: str
+        self.ssl_cert_name: str
         self.superuser_account: str
         self.superuser_initial_password: str
 
+        self.first_bluegenes_host_port = 55000
         self.bin_dir = os.path.dirname(os.path.realpath(__file__))
         self.project_root_dir = os.path.join(self.bin_dir, "..")
         self.data_dir = os.path.join(self.project_root_dir, "data")
@@ -156,6 +164,7 @@ class Installer:
 
     def install(self) -> None:
         self.read_config()
+        self.write_apache_config()
         if self.offline:
             self.set_offline_urls()
         self.set_environment_variables()
@@ -198,12 +207,18 @@ class Installer:
         common = config["common"]
 
         string_fields = [
-            "intermine_dir",
-            "docker_images_dir",
-            "omop_schema_file",
-            "omop_data_dir",
+            "bitfount_host",
             "bluegenes_default_service_domain",
+            "docker_images_dir",
             "gradle_dir",
+            "intermine_dir",
+            "ldap_bind_dn",
+            "ldap_url",
+            "ldap_group",
+            "omop_data_dir",
+            "omop_schema_file",
+            "server_name",
+            "ssl_cert_name",
             "superuser_account",
             "superuser_initial_password",
         ]
@@ -223,6 +238,45 @@ class Installer:
 
         gradle_zip = self.gradle_distribution_url.rsplit("/", 1)[-1]
         self.gradle_distribution_url = gradle_zip
+
+    def write_apache_config(self) -> None:
+        apache_mine_conf_template = os.path.join(
+            self.project_root_dir, "apache_mine.conf.in"
+        )
+        mine_configs = StringIO()
+        with open(apache_mine_conf_template) as mine_conf_in:
+            bluegenes_host_port = self.first_bluegenes_host_port
+            for mine_name in self.mine_names:
+                mine_conf_in.seek(0)
+                ldap_group = self.ldap_group.replace(
+                    "@@group_name@@", mine_name
+                )
+                replacement_dict = {
+                    "mine_name": mine_name,
+                    "bluegenes_host_port": bluegenes_host_port,
+                    "ldap_url": self.ldap_url,
+                    "ldap_bind_dn": self.ldap_bind_dn,
+                    "ldap_group": ldap_group,
+                    "bitfount_host": self.bitfount_host,
+                }
+                self.search_replace_stream(
+                    mine_conf_in, mine_configs, replacement_dict
+                )
+                bluegenes_host_port += 1
+        apache_conf_template = os.path.join(
+            self.project_root_dir, "apache.conf.in"
+        )
+        replacement_dict = {
+            "server_name": self.server_name,
+            "ssl_cert_name": self.ssl_cert_name,
+            "mine_configs": mine_configs.getvalue(),
+        }
+        apache_conf_filename = os.path.join(
+            self.project_root_dir, "apache.conf"
+        )
+        self.search_replace_file(
+            apache_conf_template, apache_conf_filename, replacement_dict
+        )
 
     def set_environment_variables(self) -> None:
         os.environ.update(
@@ -271,7 +325,7 @@ class Installer:
             self.project_root_dir, "docker-compose-bluegenes.yml.in"
         )
 
-        bluegenes_host_port = 55000
+        bluegenes_host_port = self.first_bluegenes_host_port
 
         for mine_name in self.mine_names:
             docker_compose_file = os.path.join(
@@ -502,12 +556,19 @@ class Installer:
                 f"{path_in}. DO NOT EDIT!\n"
             )
             with open(path_in) as f_in:
-                for line in f_in:
-                    for key, value in replacement_dict.items():
-                        line = line.replace(f"@@{key}@@", str(value))
-                    f_out.write(line)
-
+                self.search_replace_stream(f_in, f_out, replacement_dict)
             print(f"Written {path_out}")
+
+    def search_replace_stream(
+        self,
+        stream_in: TextIO,
+        stream_out: TextIO,
+        replacement_dict: dict[str, Any],
+    ) -> None:
+        for line in stream_in:
+            for key, value in replacement_dict.items():
+                line = line.replace(f"@@{key}@@", str(value))
+            stream_out.write(line)
 
     def copy_all_gradle_zip(self) -> None:
         self.copy_gradle_zip(os.path.join(self.project_root_dir))

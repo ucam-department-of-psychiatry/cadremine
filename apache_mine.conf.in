@@ -1,0 +1,29 @@
+        ProxyPass /@@mine_name@@/model http://localhost:8000/@@mine_name@@/model retry=0
+        ProxyPassReverse /@@mine_name@@/model http://localhost:8000/@@mine_name@@/model
+
+        ProxyPass /@@mine_name@@/service http://localhost:8000/@@mine_name@@/service retry=0
+        ProxyPassReverse /@@mine_name@@/service http://localhost:8000/@@mine_name@@/service
+
+        ProxyPass /@@mine_name@@ http://localhost:@@bluegenes_host_port@@/@@mine_name@@ retry=0
+        ProxyPassReverse /@@mine_name@@ http://localhost:@@bluegenes_host_port@@/@@mine_name@@
+
+        <Location /@@mine_name@@>
+            AuthType basic
+            AuthName "AD authentication"
+            AuthBasicProvider ldap
+            AuthLDAPURL @@ldap_url@@
+            AuthLDAPBindDN @@ldap_bind_dn@@
+            AuthLDAPBindPassword "exec:/usr/bin/cat /root/ldap_bind_password"
+            AuthLDAPMaxSubGroupDepth 0
+            AuthLDAPSubGroupAttribute member
+            AuthLDAPSubGroupClass group
+
+            <RequireAny>
+                Require ldap-group @@ldap_group@@
+                Require env intermine_token_request
+                Require host @@bitfount_host@@
+            </RequireAny>
+        </Location>
+        <Location /@@mine_name@@/service/session>
+            RequestHeader unset Authorization
+        </Location>
