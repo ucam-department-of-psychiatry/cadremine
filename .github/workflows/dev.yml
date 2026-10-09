@@ -120,6 +120,8 @@ jobs:
                   offline = False
                   nexus_host_port = 8081
 
+                  ldap_group = CN=@@group_name@@,OU=Groups,OU=CADRE,DC=example,DC=org
+
                   projects =
                      main
 

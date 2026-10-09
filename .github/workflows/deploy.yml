@@ -160,11 +160,12 @@ jobs:
                   nexus_host_port = 8081
                   gradle_dir = ${GRADLE_DIR}
 
+                  ldap_group = CN=@@group_name@@,OU=Groups,OU=CADRE,DC=example,DC=org
+
                   projects =
                      main
 
                   EOF
-
                   mkdir -p ${VENV_DIR}
 
                   # install_boot.py runs with system python, no third party dependencies
