@@ -143,6 +143,7 @@ jobs:
                   export DOCKER_IMAGES_DIR=${GITHUB_WORKSPACE}/cadremine/release_main/docker_images
                   export OMOP_SCHEMA_FILE=${GITHUB_WORKSPACE}/CommonDataModel/inst/csv/OMOP_CDMv5.4_Field_Level.csv
                   export GRADLE_DIR=${GITHUB_WORKSPACE}/cadremine/release_main/gradle
+                  export APACHE_DIR=${HOME}/apache
 
                   export PGPASSWORD=postgres
 
@@ -161,12 +162,14 @@ jobs:
                   gradle_dir = ${GRADLE_DIR}
 
                   ldap_group = CN=@@group_name@@,OU=Groups,OU=CADRE,DC=example,DC=org
+                  apache_dir = ${APACHE_DIR}
 
                   projects =
                      main
 
                   EOF
                   mkdir -p ${VENV_DIR}
+                  mkdir -p $APACHE_DIR
 
                   # install_boot.py runs with system python, no third party dependencies
                   python3 ${GITHUB_WORKSPACE}/cadremine/bin/install_boot.py ${GITHUB_WORKSPACE}/cadremine/cadremine.conf

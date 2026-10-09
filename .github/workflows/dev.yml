@@ -97,6 +97,7 @@ jobs:
                   export DOCKER_IMAGES_DIR=${GITHUB_WORKSPACE}/cadremine/release_main/docker_images
                   export OMOP_SCHEMA_FILE=${GITHUB_WORKSPACE}/CommonDataModel/inst/csv/OMOP_CDMv5.4_Field_Level.csv
                   export BLUEGENES_VERSION=intermine/bluegenes:1.4.6-rc4
+                  export APACHE_DIR=${HOME}/apache
 
                   mkdir -p $DOCKER_IMAGES_DIR
                   cd ${GITHUB_WORKSPACE}/bluegenes
@@ -121,12 +122,14 @@ jobs:
                   nexus_host_port = 8081
 
                   ldap_group = CN=@@group_name@@,OU=Groups,OU=CADRE,DC=example,DC=org
+                  apache_dir = ${APACHE_DIR}
 
                   projects =
                      main
 
                   EOF
                   mkdir -p $VENV_DIR
+                  mkdir -p $APACHE_DIR
 
                   # install_boot.py runs with system python, no third party dependencies
                   python3 ${GITHUB_WORKSPACE}/cadremine/bin/install_boot.py ${GITHUB_WORKSPACE}/cadremine/cadremine.conf -v
