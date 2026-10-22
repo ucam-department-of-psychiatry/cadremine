@@ -48,7 +48,7 @@ services:
       - POSTGRES_PASSWORD=postgres
       - PGDATA=/var/lib/postgresql/data
     ports:
-      - ${POSTGRES_HOST_PORT}:${POSTGRES_PORT}
+      - "${POSTGRES_HOST_PORT}:${POSTGRES_PORT}"
 
   solr:
     container_name: intermine_solr
@@ -62,7 +62,7 @@ services:
       - MEM_OPTS=${SOLR_MEM_OPTS}
       - MINE_NAMES=${MINE_NAMES}
     ports:
-      - ${SOLR_HOST_PORT}:${SOLR_PORT}
+      - "${SOLR_HOST_PORT}:${SOLR_PORT}"
 
   tomcat:
     container_name: intermine_tomcat
@@ -75,7 +75,7 @@ services:
     environment:
       - MEM_OPTS=${TOMCAT_MEM_OPTS}
     ports:
-      - ${TOMCAT_HOST_PORT}:${TOMCAT_PORT}
+      - "${TOMCAT_HOST_PORT}:${TOMCAT_PORT}"
 
   nexus:
     container_name: intermine_nexus
@@ -84,4 +84,4 @@ services:
     volumes:
       - nexus_volume:/nexus-data
     ports:
-      - ${NEXUS_HOST_PORT}:${NEXUS_PORT}
+      - "${NEXUS_HOST_PORT}:${NEXUS_PORT}"
