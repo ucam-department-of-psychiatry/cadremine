@@ -115,6 +115,7 @@ class Installer:
         self.omop_schema_file: str
         self.postgres_host_port: int = 5432
         self.server_name: str
+        self.server_scheme: str
         self.ssl_cert_name: str
         self.superuser_account: str
         self.superuser_initial_password: str
@@ -220,6 +221,7 @@ class Installer:
             "omop_data_dir",
             "omop_schema_file",
             "server_name",
+            "server_scheme",
             "ssl_cert_name",
             "superuser_account",
             "superuser_initial_password",
@@ -512,6 +514,7 @@ class Installer:
             "im_mine_title": mine_name.title(),
             "im_superuser_account": self.superuser_account,
             "im_superuser_initial_password": self.superuser_initial_password,
+            "im_webapp_baseurl": f"{self.server_scheme}://{self.server_name}",
         }
         self.replace_all_properties(
             "cadremine.properties.in",
@@ -526,6 +529,7 @@ class Installer:
             "im_mine_title": mine_name.title(),
             "im_superuser_account": self.superuser_account,
             "im_superuser_initial_password": self.superuser_initial_password,
+            "im_webapp_baseurl": f"{self.server_scheme}://{self.server_name}",
         }
         self.replace_all_properties(
             "cadremine.properties.in",

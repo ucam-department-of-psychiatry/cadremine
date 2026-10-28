@@ -53,7 +53,7 @@ webapp.manager=tomcat
 webapp.password=tomcat
 
 # 'Home' link
-webapp.baseurl=http://localhost:8080
+webapp.baseurl=@@im_webapp_baseurl@@
 
 # account name for superuser (who can edit appearance and publish templates)
 superuser.account=@@im_superuser_account@@
