@@ -103,6 +103,7 @@ class Installer:
         self.apache_dir: str
         self.bitfount_ip: str
         self.bluegenes_default_service_domain: str
+        self.debug: bool
         self.docker_images_dir: str
         self.gradle_dir: str
         self.intermine_dir: str
@@ -230,6 +231,7 @@ class Installer:
         for field_name in string_fields:
             setattr(self, field_name, common.get(field_name))
 
+        self.debug = common.getboolean("debug", False)
         self.offline = common.getboolean("offline", False)
         self.nexus_host_port = common.getint("nexus_host_port", 8081)
         self.mine_names = common.get("projects", "").split()
@@ -508,14 +510,12 @@ class Installer:
         self.create_mine_war_environment_properties(mine_name)
 
     def create_mine_build_environment_properties(self, mine_name: str) -> None:
-        replacement_dict = {
-            "im_server_name": "localhost",
-            "im_mine_name": mine_name,
-            "im_mine_title": mine_name.title(),
-            "im_superuser_account": self.superuser_account,
-            "im_superuser_initial_password": self.superuser_initial_password,
-            "im_webapp_baseurl": f"{self.server_scheme}://{self.server_name}",
-        }
+        replacement_dict = (
+            self.get_common_enviroment_properties_replacement_dict(mine_name)
+        )
+
+        replacement_dict.update(im_server_name="localhost")
+
         self.replace_all_properties(
             "cadremine.properties.in",
             f"{mine_name}-{self.build_environment}.properties",
@@ -523,19 +523,39 @@ class Installer:
         )
 
     def create_mine_war_environment_properties(self, mine_name: str) -> None:
+        replacement_dict = (
+            self.get_common_enviroment_properties_replacement_dict(mine_name)
+        )
+        replacement_dict.update(im_server_name="postgres")
+
+        self.replace_all_properties(
+            "cadremine.properties.in",
+            f"{mine_name}-{self.war_environment}.properties",
+            replacement_dict,
+        )
+
+    def get_common_enviroment_properties_replacement_dict(
+        self, mine_name: str
+    ) -> dict[str, Any]:
         replacement_dict = {
-            "im_server_name": "postgres",
+            "im_debug": self.debug,
             "im_mine_name": mine_name,
             "im_mine_title": mine_name.title(),
             "im_superuser_account": self.superuser_account,
             "im_superuser_initial_password": self.superuser_initial_password,
             "im_webapp_baseurl": f"{self.server_scheme}://{self.server_name}",
         }
-        self.replace_all_properties(
-            "cadremine.properties.in",
-            f"{mine_name}-{self.war_environment}.properties",
-            replacement_dict,
+
+        replacement_dict["im_debug"] = (
+            """
+# true here is arbitrary. InterMine only tests that the key exists
+i.am.a.dev=true
+"""
+            if self.debug
+            else ""
         )
+
+        return replacement_dict
 
     def replace_all_properties(
         self,
